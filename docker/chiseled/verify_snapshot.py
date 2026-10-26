@@ -13,7 +13,7 @@ from capture_snapshot import sha, sections, release_body, authenticate, freshnes
 def blob(root, obj):
     if set(obj) != {'sha256', 'size'} or not re.fullmatch('[0-9a-f]{64}', obj['sha256']):
         raise ValueError('invalid snapshot object identity')
-    if type(obj['size']) is not int or obj['size'] < 0:
+    if not isinstance(obj['size'], int) or isinstance(obj['size'], bool) or obj['size'] < 0:
         raise ValueError('invalid snapshot object size')
     path = root / 'blobs' / 'sha256' / obj['sha256']
     if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root.resolve()):
@@ -24,7 +24,7 @@ def blob(root, obj):
     return data
 
 
-def validate_identities(lock):
+def validate_identities(lock):  # noqa: C901
     required = {'format', 'architecture', 'ubuntu', 'created_at', 'bootstrap', 'bootstrap_validation',
                 'verifier', 'trust_anchor', 'signer', 'identities', 'repositories', 'packages', 'inputs'}
     if not required.issubset(lock) or set(lock) - required - {'finalized_at'}:
@@ -61,7 +61,7 @@ def validate_identities(lock):
             raise ValueError('invalid source identity')
 
 
-def verify_snapshot(root, lock_path, approved_sha256, mode='historical', now=None, requested=None):
+def verify_snapshot(root, lock_path, approved_sha256, mode='historical', now=None, requested=None):  # noqa: C901
     root = Path(root)
     if mode not in ('live', 'historical'):
         raise ValueError('invalid verification mode')
