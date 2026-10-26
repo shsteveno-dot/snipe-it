@@ -10,7 +10,10 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
 use PHPUnit\Framework\TestCase;
 
-/** No database writes: bootstrap real application, use isolated process fixtures. */
+/**
+ * No database writes: bootstrap real application, use isolated process fixtures.
+ * @SuppressWarnings(PHPMD.Superglobals)
+ */
 class ShelllessSchedulerTest extends TestCase
 {
     private $app;
@@ -147,12 +150,10 @@ class ShelllessSchedulerTest extends TestCase
         $schedulerStatus = $this->kernel->call('schedule:run');
         $output = $this->kernel->output();
         $this->assertSame(0, $schedulerStatus);
-        if ($event->exitCode === null) {
-            $this->assertSame(['Starting', 'Failed'], $observed);
-        } else {
+        if ($event->exitCode !== null) {
             $this->assertSame(127, $event->exitCode);
-            $this->assertSame(['Starting', 'Finished', 'Failed'], $observed);
         }
+        $this->assertSame($event->exitCode === null ? ['Starting', 'Failed'] : ['Starting', 'Finished', 'Failed'], $observed);
         $this->assertStringContainsString('FAIL', $output);
         $this->assertStringContainsString('Scheduled task failed', $output);
         $this->assertStringNotContainsString('DONE', $output);
