@@ -2,7 +2,7 @@
 """Disposable application build tools only; no files become runtime packages."""
 import json
 from pathlib import Path
-import subprocess
+import subprocess  # nosec B404
 
 from runtime_inputs import load_lock
 
@@ -29,9 +29,9 @@ packages = {p['name']: p for p in lock['packages']}
 names = ['php8.3-cli', 'php8.3-bcmath', 'php8.3-curl', 'php8.3-gd',
          'php8.3-igbinary', 'php8.3-ldap', 'php8.3-mbstring', 'php8.3-memcached',
          'php8.3-msgpack', 'php8.3-mysql', 'php8.3-redis', 'php8.3-xml', 'php8.3-zip']
-subprocess.run(['apt-get', 'update'], check=True)
-subprocess.run(['apt-get', 'install', '-y', '--no-install-recommends',
+subprocess.run(['apt-get', 'update'], check=True)  # nosec B603
+subprocess.run(['apt-get', 'install', '-y', '--no-install-recommends',  # nosec B603
                 *[name + '=' + packages[name]['version'] for name in names]], check=True)
-Path('/build-tool-packages.txt').write_bytes(subprocess.check_output(['dpkg-query', '-W']))
+Path('/build-tool-packages.txt').write_bytes(subprocess.check_output(['dpkg-query', '-W']))  # nosec B603
 shutil.rmtree('/var/lib/apt/lists', ignore_errors=True)
 shutil.rmtree('/var/cache/apt', ignore_errors=True)

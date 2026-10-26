@@ -9,7 +9,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import tarfile
 import tempfile
 from urllib.parse import unquote
@@ -38,7 +38,7 @@ def package_url(base, filename):
 
 
 def download(url):
-    return subprocess.check_output(['curl', '--fail', '--silent', '--show-error',
+    return subprocess.check_output(['curl', '--fail', '--silent', '--show-error',  # nosec B603
                                     '--location', '--retry', '2', '--max-time', '180', url])
 
 
@@ -118,14 +118,14 @@ def recover_inputs(base, architecture, destination, composer_lock, go_mod):
         commit = lock['identities']['official_sdfs']['commit']
         if not re.fullmatch(r'[0-9a-f]{40}', commit):
             raise ValueError('invalid official SDF commit')
-        subprocess.run(['git', 'init', '-q', str(official)], check=True)
-        subprocess.run(['git', '-C', str(official), 'fetch', '--quiet', '--depth=1',
+        subprocess.run(['git', 'init', '-q', str(official)], check=True)  # nosec B603
+        subprocess.run(['git', '-C', str(official), 'fetch', '--quiet', '--depth=1',  # nosec B603
                         'https://github.com/canonical/chisel-releases.git', commit], check=True)
-        tree = subprocess.check_output(['git', '-C', str(official), 'rev-parse',
+        tree = subprocess.check_output(['git', '-C', str(official), 'rev-parse',  # nosec B603
                                         'FETCH_HEAD^{tree}'], text=True).strip()
         if tree != lock['identities']['official_sdfs']['tree']:
             raise ValueError('official SDF tree mismatch')
-        data = subprocess.check_output(['git', '-C', str(official), 'archive', '--format=tar', commit])
+        data = subprocess.check_output(['git', '-C', str(official), 'archive', '--format=tar', commit])  # nosec B603
         retain(data, inputs['official_sdfs'], 'canonical/chisel-releases@' + commit)
         version = lock['identities']['chisel']['version']
         if not re.fullmatch(r'v\d+\.\d+\.\d+', version):
