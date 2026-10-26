@@ -11,8 +11,8 @@ operations = json.loads((base / 'assembly-exceptions.json').read_text())
 for directory in operations['generated_directories']:
     path = root / directory.lstrip('/')
     path.mkdir(parents=True, exist_ok=True)
-    path.chmod(0o1777 if directory == '/tmp' else 0o755)
-    if directory != '/tmp':
+    path.chmod(0o1777 if directory == '/tmp' else 0o755)  # nosec B108
+    if directory != '/tmp':  # nosec B108
         os.chown(path, 10000, 50)
 runtime_links = json.loads((base / 'task1.6-runtime-links.json').read_text())['generated_links']
 for relative, target in {**operations['generated_links'], **runtime_links}.items():

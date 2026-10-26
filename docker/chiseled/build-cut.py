@@ -2,14 +2,14 @@
 """Offline candidate cut from inputs recovered and verified during the build."""
 import os
 from pathlib import Path
-import subprocess
+import subprocess  # nosec B404
 
 from runtime_inputs import load_lock
 
 base = Path(__file__).resolve().parent
 lock_path, _, lock_sha256 = load_lock(base, os.environ['CHISEL_TARGET_ARCH'])
-subprocess.run(['python3', str(base / 'check-build-inputs.py')], check=True)
-subprocess.run(['python3', str(base / 'locked_chisel.py'), '--snapshot', '/snapshot',
+subprocess.run(['python3', str(base / 'check-build-inputs.py')], check=True)  # nosec B603
+subprocess.run(['python3', str(base / 'locked_chisel.py'), '--snapshot', '/snapshot',  # nosec B603
                 '--lock', str(lock_path), '--approved-sha256',
                 lock_sha256, '--custom', '--root', '/rootfs',
                 '--evidence', '/cut-evidence', *(base / 'slices.txt').read_text().splitlines()],

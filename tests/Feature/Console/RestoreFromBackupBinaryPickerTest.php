@@ -127,6 +127,9 @@ class RestoreFromBackupBinaryPickerTest extends TestCase
         $this->assertRestoreClientInvocation(launchFailure: true);
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     private function assertRestoreClientInvocation(?string $socket = null, bool $launchFailure = false): void
     {
         if (\DIRECTORY_SEPARATOR === '\\') {
@@ -195,7 +198,8 @@ PHP;
                     $buffer,
                 );
                 $output = $buffer->fetch();
-            } else {
+            }
+            if (! $launchFailure) {
                 $exitCode = Artisan::call('snipeit:restore', $arguments);
                 $output = Artisan::output();
             }

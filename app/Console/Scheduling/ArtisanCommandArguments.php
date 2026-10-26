@@ -15,19 +15,22 @@ class ArtisanCommandArguments
         $arguments = array_merge([php_binary(), artisan_binary()], (new StringInput($command))->getRawTokens());
 
         foreach ($parameters as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $item) {
-                    if (is_string($key) && str_starts_with($key, '--')) {
-                        $arguments[] = $key.'='.(string) $item;
-                    } elseif (is_string($key) && str_starts_with($key, '-')) {
-                        $arguments[] = $key;
-                        $arguments[] = (string) $item;
-                    } else {
-                        $arguments[] = (string) $item;
-                    }
-                }
-            } else {
+            if (! is_array($value)) {
                 $arguments[] = is_numeric($key) ? (string) $value : $key.'='.(string) $value;
+
+                continue;
+            }
+
+            foreach ($value as $item) {
+                if (is_string($key) && str_starts_with($key, '--')) {
+                    $arguments[] = $key.'='.(string) $item;
+
+                    continue;
+                }
+                if (is_string($key) && str_starts_with($key, '-')) {
+                    $arguments[] = $key;
+                }
+                $arguments[] = (string) $item;
             }
         }
 
