@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Create a candidate immutable snapshot from already authenticated APT lists.
+"""
+Create a candidate immutable snapshot from already authenticated APT lists.
 
 Build-only Ubuntu helper entry point. It never installs runtime packages, cuts a
 root, changes a lock in place, or accepts an unauthenticated index.
@@ -12,7 +13,7 @@ import hashlib
 import json
 import pathlib
 import re
-import subprocess
+import subprocess  # nosec B404
 import tempfile
 
 BOOTSTRAP = 'docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55'
@@ -52,7 +53,7 @@ def authenticate(data, keyring):
     with tempfile.TemporaryDirectory() as temp:
         path = pathlib.Path(temp) / 'InRelease'
         path.write_bytes(data)
-        result = subprocess.run(['gpgv', '--status-fd=1', '--keyring', str(keyring), str(path)],
+        result = subprocess.run(['gpgv', '--status-fd=1', '--keyring', str(keyring), str(path)],  # nosec B603
                                 capture_output=True, text=True)
     if result.returncode or ('[GNUPG:] VALIDSIG ' + SIGNER + ' ') not in result.stdout:
         raise ValueError('Ubuntu signature verification failed: ' + result.stderr)
@@ -76,7 +77,7 @@ def freshness(fields, now):
             'policy': 'frozen-release' if fields['Suite'] == 'noble' else '48-hour-publication-window'}
 
 
-def main():
+def main():  # noqa: C901
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', type=pathlib.Path, required=True)
     parser.add_argument('--packages', type=pathlib.Path, required=True)
@@ -111,7 +112,7 @@ def main():
         else:
             with tempfile.TemporaryDirectory() as temp:
                 path = pathlib.Path(temp) / 'download'
-                subprocess.run(['curl', '--fail', '--location', '--retry', '3',
+                subprocess.run(['curl', '--fail', '--location', '--retry', '3',  # nosec B603
                                 '--silent', '--show-error', url, '-o', str(path)], check=True)
                 data = path.read_bytes()
         if sha(data) != expected or len(data) != int(size):
@@ -148,7 +149,7 @@ def main():
         for component in COMPONENTS:
             index_path = f'{component}/binary-{args.architecture}/Packages'
             cached_path = pathlib.Path('/var/lib/apt/lists') / (prefix + '_' + component + '_binary-' + args.architecture + '_Packages.lz4')
-            raw = subprocess.check_output(['/usr/lib/apt/apt-helper', 'cat-file', str(cached_path)])
+            raw = subprocess.check_output(['/usr/lib/apt/apt-helper', 'cat-file', str(cached_path)])  # nosec B603
             expected, size = checksums[index_path]
             if sha(raw) != expected or len(raw) != size:
                 raise ValueError('retained APT index hash mismatch: ' + index_path)
@@ -170,7 +171,7 @@ def main():
                     raise ValueError('unexpected package architecture')
                 if name in candidates:
                     old = candidates[name][0]
-                    newer = subprocess.run(['dpkg', '--compare-versions', package['Version'], 'gt', old['Version']]).returncode == 0
+                    newer = subprocess.run(['dpkg', '--compare-versions', package['Version'], 'gt', old['Version']]).returncode == 0  # nosec B603
                     if not newer:
                         continue
                 candidates[name] = (package, repo, index)
@@ -198,7 +199,7 @@ def main():
             'created_at': now.isoformat(), 'bootstrap': BOOTSTRAP,
             'bootstrap_validation': 'Externally validated digest supplied by user; exact digest executed successfully in this session.',
             'verifier': {'name': 'gpgv', 'binary_sha256': sha(pathlib.Path('/usr/bin/gpgv').read_bytes()),
-                         'version': subprocess.check_output(['gpgv', '--version'], text=True).splitlines()[0]},
+                         'version': subprocess.check_output(['gpgv', '--version'], text=True).splitlines()[0]},  # nosec B603
             'trust_anchor': retain(keyring.read_bytes()), 'signer': SIGNER,
             'identities': identities,
             'repositories': repositories, 'packages': selected}

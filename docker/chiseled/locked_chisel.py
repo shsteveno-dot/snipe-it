@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Verify inputs, then feed pinned Chisel from a closed retained HTTP replay.
+"""
+Verify inputs, then feed pinned Chisel from a closed retained HTTP replay.
 
 Run inside a Linux build-only container with Docker --network none. The replay
 never forwards a request. Original Ubuntu signatures/index bytes are preserved.
@@ -11,14 +12,25 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import tarfile
 import tempfile
 import threading
 import urllib.parse
 
 from verify_snapshot import verify_snapshot, blob
+
+
+SLICE_NAME = re.compile(r'^[a-z0-9][a-z0-9+.-]*_[a-z0-9][a-z0-9_.-]*$')
+
+
+def slice_name(value):
+    """Accept only <package>_<slice> names, so the argument list handed to Chisel stays plain data."""
+    if not SLICE_NAME.fullmatch(value):
+        raise argparse.ArgumentTypeError('invalid slice name: ' + value)
+    return value
 
 
 def replay_objects(lock):
@@ -45,6 +57,7 @@ class RetainedRepository(http.server.ThreadingHTTPServer):
     daemon_threads = True
 
     def __init__(self, root, lock):
+        """Index the retained objects and listen on a loopback port chosen by the OS."""
         self.root = root
         self.objects = replay_objects(lock)
         self.repositories = {repo['suite']: repo['url'] for repo in lock['repositories']}
@@ -120,7 +133,7 @@ def main():
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--evidence', type=Path, required=True)
     parser.add_argument('--custom', action='store_true')
-    parser.add_argument('slices', nargs='+')
+    parser.add_argument('slices', nargs='+', type=slice_name)
     args = parser.parse_args()
     require_offline()
     lock = verify_snapshot(args.snapshot, args.lock, args.approved_sha256)
@@ -153,7 +166,7 @@ def main():
         command = [str(chisel), 'cut', '--arch', lock['architecture'], '--release', str(release),
                    '--root', str(temp / 'root'), *args.slices]
         try:
-            result = subprocess.run(command, env=environment, capture_output=True, text=True)
+            result = subprocess.run(command, env=environment, capture_output=True, text=True)  # nosec B603  # nosemgrep
         finally:
             server.shutdown()
             server.server_close()

@@ -1,7 +1,7 @@
 {
   "lock_sha256": {
-    "amd64": "19237448f305871021cd394e41ebca138a550a022d58c80c2af6da4b0fbd0e53",
-    "arm64": "afc79bf0256d58d15ede82ea70a82d25164a93a5a42f96d5268d470679c5148e"
+    "amd64": "d8201b0cc335d7fb2afe2af4679c7cd8b5f4ebfcf5d3408c3da62b8f2974cfdb",
+    "arm64": "53f717876a4753b35c0f2192b20a068600aec0b59a0399b73c2538981dc8944b"
   },
   "historical_snapshot_id": "20261022T020000Z",
   "build_tools_architecture": "amd64",

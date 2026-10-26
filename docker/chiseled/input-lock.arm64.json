@@ -13,7 +13,7 @@
     },
     "composer": {
       "builder": "docker.io/library/composer@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac",
-      "lock_sha256": "ee0261f00d06213a0e98d0a81ef111e7bfb48b1a17e5aa8e3a2aa2228704934f",
+      "lock_sha256": "62a42cdb01b5a6b8ab840fd9690b9183ea2da41e40e7e6ec419f4501b8e0e307",
       "version": "2.10.3"
     },
     "custom_sdfs": {
@@ -22,8 +22,8 @@
     },
     "frontend": "docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e",
     "go": {
-      "builder": "docker.io/library/golang@sha256:0f063af2d465d8dcae54cce04278ada488b96f77b42449c8d071e47d016cc65a",
-      "go_mod_sha256": "bc1e252fc1b66ef4b9edb5080167e4928f94fe8970b74846b1a43c44ce405f13",
+      "builder": "docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82",
+      "go_mod_sha256": "88b1febddb56ec1566983e9f4015edc11da60c113af485e234530113fb9c8130",
       "version": "1.26"
     },
     "official_sdfs": {
@@ -47,7 +47,7 @@
       "size": 8859832
     },
     "composer_lock": {
-      "sha256": "ee0261f00d06213a0e98d0a81ef111e7bfb48b1a17e5aa8e3a2aa2228704934f",
+      "sha256": "62a42cdb01b5a6b8ab840fd9690b9183ea2da41e40e7e6ec419f4501b8e0e307",
       "size": 664778
     },
     "custom_sdfs": {
@@ -55,8 +55,8 @@
       "size": 71680
     },
     "go_mod": {
-      "sha256": "bc1e252fc1b66ef4b9edb5080167e4928f94fe8970b74846b1a43c44ce405f13",
-      "size": 46
+      "sha256": "88b1febddb56ec1566983e9f4015edc11da60c113af485e234530113fb9c8130",
+      "size": 290
     },
     "official_sdfs": {
       "sha256": "c1defc9d999a63a6b4221968fc0737938c7a0fd7075525a3274005158747626e",
