@@ -24,6 +24,9 @@ class ShelllessArtisanEvent extends Event
         return $this->arguments;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     protected function execute($container)
     {
         if ($this->runInBackground || $this->user || $this->command !== $this->registeredCommand) {

@@ -31,6 +31,6 @@ for pattern in ('Dockerfile*', 'docker-compose*', '.dockerignore'):
 (app / 'artisan').chmod(0o755)
 for path in [app, *app.rglob('*')]:
     os.chown(path, 10000, 50, follow_symlinks=False)
-for path in ('/tmp/composer-cache', '/tmp/composer-home'):
+for path in ('/tmp/composer-cache', '/tmp/composer-home'):  # nosec B108
     Path(path).mkdir(exist_ok=True)
     os.chown(path, 10000, 50)
