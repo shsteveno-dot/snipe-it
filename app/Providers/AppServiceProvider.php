@@ -124,10 +124,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->extend(
-            \Illuminate\Console\Scheduling\ScheduleRunCommand::class,
-            fn ($command, $app) => $app->make(\App\Console\Scheduling\ShelllessScheduleRunCommand::class),
-        );
+        if (config('app.shellless')) {
+            $this->app->extend(
+                \Illuminate\Console\Scheduling\ScheduleRunCommand::class,
+                fn ($command, $app) => $app->make(\App\Console\Scheduling\ShelllessScheduleRunCommand::class),
+            );
+        }
 
         if ($this->app->environment('local')) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
