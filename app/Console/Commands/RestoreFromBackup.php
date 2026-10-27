@@ -508,6 +508,9 @@ class RestoreFromBackup extends Command
         $problems = [];
         $manifest = $this->readManifest($za, $manifest_indices, $problems);
         $expected_sha = $this->verifyArchive($za, $manifest, $logical_names, $unsafe_paths, $problems);
+        if (($sql_stat['size'] ?? 0) === 0) {
+            $problems[] = 'The database dump in the backup file is empty: '.$sql_stat['name'];
+        }
         if (count($problems) > 0) {
             foreach ($problems as $problem) {
                 $this->error($problem);
@@ -701,7 +704,8 @@ class RestoreFromBackup extends Command
      * A backup taken while a role was on S3 still carries the local upload directory of that role (the
      * backup includes both). Those files are leftovers, for example copies kept after moving the uploads to
      * S3. When this install also keeps the role on S3 they must not be written over the objects there, so
-     * they are dropped; the S3 copies that are part of the backup (staged) are the ones to restore.
+     * they are dropped; the S3 copies that are part of the backup (staged) are the ones to restore. A local
+     * copy whose object does not exist on S3 is the only copy of that file and is still restored.
      *
      * @param  array<string, array>  $interesting_files
      */
@@ -713,7 +717,7 @@ class RestoreFromBackup extends Command
             $role = $details['role'];
             $role_is_remote_here = ($role === 'public' && $this->diskIsRemote('public'))
                 || ($role === 'private' && $this->diskIsRemote(config('filesystems.default')));
-            if (! $details['staged'] && $role_is_remote_here && in_array($role, $stale_roles, true)) {
+            if (! $details['staged'] && $role_is_remote_here && in_array($role, $stale_roles, true) && $this->remoteObjectExists($details)) {
                 unset($interesting_files[$name]);
                 $skipped++;
             }
@@ -721,6 +725,45 @@ class RestoreFromBackup extends Command
         if ($skipped > 0) {
             $this->warn($skipped.' local file(s) in the backup were skipped: their storage is on S3, and the S3 objects are not overwritten by old local copies.');
         }
+    }
+
+    /**
+     * Whether the file would be written over an object that already exists on its remote disk. If that cannot
+     * be found out the object is treated as existing, so nothing is overwritten.
+     */
+    private function remoteObjectExists(array $details): bool
+    {
+        $target = $this->remoteTarget($details);
+        if ($target === null) {
+            return false;
+        }
+
+        try {
+            return Storage::disk($target[0])->exists($target[1]);
+        } catch (Throwable) {
+            return true;
+        }
+    }
+
+    /**
+     * The remote disk and key a file is restored to, or null when its role is stored locally on this install.
+     *
+     * @return array{0: string, 1: string}|null
+     */
+    private function remoteTarget(array $details): ?array
+    {
+        $disk = match (true) {
+            $details['role'] === 'public' && $this->diskIsRemote('public') => 'public',
+            $details['role'] === 'private' && $this->diskIsRemote(config('filesystems.default')) => config('filesystems.default'),
+            default => null,
+        };
+        if ($disk === null) {
+            return null;
+        }
+
+        $base = $details['role'] === 'public' ? 'public/uploads' : 'storage';
+
+        return [$disk, ltrim(substr($details['dest'], strlen($base)).'/'.$details['rel'], '/')];
     }
 
     private static function isUnsafeArchivePath(string $path): bool
@@ -857,16 +900,10 @@ class RestoreFromBackup extends Command
     {
         $name = (string) $za->getNameIndex($details['index']);
         $isSvg = strcasecmp(substr($name, -4), '.svg') === 0;
-        $remoteDisk = match (true) {
-            $details['role'] === 'public' && $this->diskIsRemote('public') => 'public',
-            $details['role'] === 'private' && $this->diskIsRemote(config('filesystems.default')) => config('filesystems.default'),
-            default => null,
-        };
+        $remoteTarget = $this->remoteTarget($details);
 
-        if ($remoteDisk !== null) {
-            $base = $details['role'] === 'public' ? 'public/uploads' : 'storage';
-            $key = ltrim(substr($details['dest'], strlen($base)).'/'.$details['rel'], '/');
-            $this->writeRemote($za, $details['index'], $remoteDisk, $key, $isSvg ? $sanitizer : null, $expectedSha);
+        if ($remoteTarget !== null) {
+            $this->writeRemote($za, $details['index'], $remoteTarget[0], $remoteTarget[1], $isSvg ? $sanitizer : null, $expectedSha);
 
             return;
         }

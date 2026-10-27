@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Console\Commands\RestoreFromBackup;
 use App\Enums\FileStorage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -245,6 +246,21 @@ class RemoteUploadsStager
     }
 
     /**
+     * Only the root files that a restore puts back (the branding images, see RestoreFromBackup::PUBLIC_FILES)
+     * are staged. The default images that ship with the application are not.
+     */
+    private function restoredAtRoot(string $key): bool
+    {
+        foreach (RestoreFromBackup::PUBLIC_FILES as $pattern) {
+            if (fnmatch($pattern, 'public/uploads/'.$key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Lists what has to be copied, with sizes, without reading any object body.
      *
      * @return list<array{role: string, disk: string, key: string, archive_path: string, bytes: int}>
@@ -263,7 +279,7 @@ class RemoteUploadsStager
                     }
                 }
                 foreach ($disk->files('') as $key) {
-                    if (in_array(strtolower(pathinfo($key, PATHINFO_EXTENSION)), self::ROOT_IMAGE_EXTENSIONS, true)) {
+                    if (in_array(strtolower(pathinfo($key, PATHINFO_EXTENSION)), self::ROOT_IMAGE_EXTENSIONS, true) && $this->restoredAtRoot($key)) {
                         $keys[] = $key;
                     }
                 }
