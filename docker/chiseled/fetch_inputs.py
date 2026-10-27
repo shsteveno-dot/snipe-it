@@ -25,6 +25,9 @@ def snapshot_base(accepted, architecture, suite):
     stamp = accepted['snapshot_ids'][architecture][suite]
     if not re.fullmatch(r'\d{8}T\d{6}Z', stamp):
         raise ValueError('invalid historical snapshot ID')
+    # The snapshot service serves the ports (arm64) archive under /ubuntu/ as well. The lock names
+    # ports.ubuntu.com as the repository the indexes were taken from, but the bytes fetched here are
+    # still checked against the locked SHA-256 and size, so a wrong source can only fail the build.
     return 'https://snapshot.ubuntu.com/ubuntu/' + stamp + '/'
 
 
