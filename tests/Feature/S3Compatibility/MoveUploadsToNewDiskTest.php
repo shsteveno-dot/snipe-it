@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\S3Compatibility\FakeRemoteAdapter;
+use Tests\Support\S3Compatibility\ProtectsRealUploadDirectories;
 use Tests\Support\S3Compatibility\UsesFakeRemoteDisks;
 use Tests\TestCase;
 
@@ -16,6 +17,7 @@ use Tests\TestCase;
  */
 class MoveUploadsToNewDiskTest extends TestCase
 {
+    use ProtectsRealUploadDirectories;
     use UsesFakeRemoteDisks;
 
     private const OVERWRITE_LABEL = 'Overwrite destination files that already exist? Choose "No" to skip them and keep whatever is already on the destination.';
@@ -35,6 +37,7 @@ class MoveUploadsToNewDiskTest extends TestCase
     {
         parent::setUp();
 
+        $this->protectRealUploadDirectories();
         $this->tag = 's3c'.bin2hex(random_bytes(3));
         $this->publicRoot = $this->fakeRemoteDisk('public');
         $this->privateRoot = $this->fakeRemoteDisk('custom_private');
@@ -56,6 +59,7 @@ class MoveUploadsToNewDiskTest extends TestCase
             }
         }
         $this->cleanUpFakeRemoteDisks();
+        $this->releaseRealUploadDirectories();
 
         parent::tearDown();
     }
