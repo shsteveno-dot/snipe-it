@@ -15,6 +15,7 @@ use Tests\TestCase;
 /**
  * FR-7 (ImportLocations), FR-8 (backup disk options), FR-9 (backup monitor), FR-10 (exit code and
  * import temp file).
+ * @SuppressWarnings(PHPMD.Superglobals)
  */
 class MiscRemediationTest extends TestCase
 {
