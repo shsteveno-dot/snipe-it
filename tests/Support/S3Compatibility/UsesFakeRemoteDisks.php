@@ -17,6 +17,9 @@ trait UsesFakeRemoteDisks
     /** @var array<int, string> */
     private array $fakeRemoteRoots = [];
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     protected function fakeRemoteDisk(string $name, ?string $root = null): string
     {
         $root ??= sys_get_temp_dir().'/s3compat-'.$name.'-'.bin2hex(random_bytes(4));

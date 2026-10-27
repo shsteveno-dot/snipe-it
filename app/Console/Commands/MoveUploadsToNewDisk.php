@@ -185,6 +185,7 @@ class MoveUploadsToNewDisk extends Command
      * with different content counts as a conflict unless --overwrite was given.
      *
      * @return array{status: string, error: ?string} status is "copied" or "skipped"
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function transfer(string $localPath, string $diskName, string $key): array
     {
