@@ -14,7 +14,7 @@ for directory in operations['generated_directories']:
     path.chmod(0o1777 if directory == '/tmp' else 0o755)  # nosec B108
     if directory != '/tmp':  # nosec B108
         os.chown(path, 10000, 50)
-runtime_links = json.loads((base / 'task1.6-runtime-links.json').read_text())['generated_links']
+runtime_links = json.loads((base / 'runtime-links.json').read_text())['generated_links']
 for relative, target in {**operations['generated_links'], **runtime_links}.items():
     path = root / relative.lstrip('/')
     if os.path.lexists(path):

@@ -483,28 +483,7 @@ class RestoreFromBackup extends Command
             return $this->error("DB client binary '$preferred' not found in DB_DUMP_PATH ('$binaryPath'). Please edit DB_DUMP_PATH in your .env to point to a directory that contains the mysql/mariadb client binary.");
         }
 
-        $client_command = [
-            $client_binary,
-            '-h',
-            (string) $connectionConfig['host'],
-            '--batch',
-            '--binary-mode',
-            '-u',
-            (string) $connectionConfig['username'],
-        ];
-
-        if (empty($connectionConfig['unix_socket'])) {
-            $client_command[] = '-P';
-            $client_command[] = (string) $connectionConfig['port'];
-        } else {
-            $client_command[] = '-S';
-            $client_command[] = (string) $connectionConfig['unix_socket'];
-        }
-
-        // Passing argv directly avoids requiring /bin/sh and keeps each
-        // connection value a single argument. The password stays in the
-        // environment rather than appearing in the process list.
-        $client_command[] = (string) $connectionConfig['database'];
+        $client_command = $this->dbClientCommand($client_binary, $connectionConfig);
 
         $proc_results = proc_open($client_command, // yanked -p since we pass via ENV
             [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
@@ -689,5 +668,38 @@ class RestoreFromBackup extends Command
                 }
             }
         }
+    }
+
+    /**
+     * The command that starts the DB client. With app.shellless the client is started
+     * from an argument array so that no /bin/sh is needed; otherwise the original
+     * shell command line is used.
+     *
+     * @return array|string
+     */
+    private function dbClientCommand(string $client_binary, array $connectionConfig)
+    {
+        if (config('app.shellless')) {
+            $command = [$client_binary, '-h', (string) $connectionConfig['host'], '--batch', '--binary-mode',
+                '-u', (string) $connectionConfig['username']];
+            if (empty($connectionConfig['unix_socket'])) {
+                array_push($command, '-P', (string) $connectionConfig['port']);
+            } else {
+                array_push($command, '-S', (string) $connectionConfig['unix_socket']);
+            }
+            $command[] = (string) $connectionConfig['database'];
+
+            return $command;
+        }
+
+        return escapeshellarg($client_binary).' -h '.
+            escapeshellarg($connectionConfig['host']).
+            ' --batch '.
+            ' --binary-mode '.
+            ' -u '.escapeshellarg($connectionConfig['username']).' '.
+            (empty($connectionConfig['unix_socket'])
+                ? ' -P '.escapeshellarg($connectionConfig['port'])
+                : ' -S '.escapeshellarg($connectionConfig['unix_socket'])).' '.
+            escapeshellarg($connectionConfig['database']);
     }
 }
