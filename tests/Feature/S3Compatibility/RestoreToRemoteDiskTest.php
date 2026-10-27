@@ -28,6 +28,8 @@ class RestoreToRemoteDiskTest extends TestCase
 
     private string $scratch = '';
 
+    private ?bool $startedDown = null;
+
     private string $work = '';
 
     private string $publicRoot;
@@ -43,10 +45,11 @@ class RestoreToRemoteDiskTest extends TestCase
     {
         parent::setUp();
 
-        if (! in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
-            $this->markTestSkipped('The restore tests need a MySQL or MariaDB server.');
+        if (! in_array(DB::connection()->getDriverName(), ['mysql'], true)) {
+            $this->markTestSkipped('The restore tests need a MySQL server.');
         }
         $this->protectRealUploadDirectories();
+        $this->startedDown = app()->isDownForMaintenance();
 
         $this->tag = 'rst'.bin2hex(random_bytes(3));
         $this->work = sys_get_temp_dir().'/s3compat-restore-'.bin2hex(random_bytes(4));
@@ -62,7 +65,7 @@ class RestoreToRemoteDiskTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (app()->isDownForMaintenance()) {
+        if ($this->startedDown === false && app()->isDownForMaintenance()) {
             Artisan::call('up');
         }
         if ($this->scratch !== '') {
@@ -451,6 +454,43 @@ class RestoreToRemoteDiskTest extends TestCase
         $this->assertSame('REAL-S3-OBJECT', file_get_contents($this->publicRoot.'/avatars/'.$this->tag.'.png'), 'the stale local copy was not written over the object');
         $this->assertSame('STAGED', file_get_contents($this->publicRoot.'/avatars/staged-'.$this->tag.'.png'), 'the copy that is part of the S3 backup is restored');
         $this->assertStringContainsString('were skipped', $output);
+    }
+
+    #[Test]
+    public function validate_only_rejects_an_empty_database_dump(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $zip = $this->backupZip(['storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf' => 'PDFBYTES'], null, '');
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+        $output = Artisan::output();
+
+        $this->assertNotSame(0, $exit, $output);
+        $this->assertStringContainsString('is empty', $output);
+        $this->assertSame([99], $this->probeValues());
+    }
+
+    #[Test]
+    public function a_local_copy_without_an_object_on_the_remote_disk_is_still_restored(): void
+    {
+        $this->useRemoteDisks();
+        $zip = $this->backupZip([], [
+            'version' => 1,
+            'created_at' => date('c'),
+            'remote_files' => 'included',
+            'remote_roles' => ['public', 'private'],
+            'files' => [],
+        ]);
+        $za = new ZipArchive;
+        $za->open($zip);
+        $za->addFromString('public/uploads/avatars/'.$this->tag.'.png', 'ONLY-LOCAL-COPY');
+        $za->close();
+
+        [$exit, $output] = $this->restore($zip);
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertSame('ONLY-LOCAL-COPY', file_get_contents($this->publicRoot.'/avatars/'.$this->tag.'.png'), 'the archive holds the only copy');
     }
 
     #[Test]
