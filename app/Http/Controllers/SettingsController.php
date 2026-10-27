@@ -1270,6 +1270,16 @@ class SettingsController extends Controller
             }
             $zip->close();
 
+            // The wipe below cannot be undone, so the whole archive (manifest, sizes, checksums, unsafe paths)
+            // is checked first, by the restore command itself, which changes nothing in this mode.
+            $validationExit = Artisan::call('snipeit:restore', ['--validate-only' => true, 'filename' => $absolutePath]);
+            if ($validationExit !== 0) {
+                $details = trim(Artisan::output());
+                Log::warning('Restore aborted: archive at '.$absolutePath.' did not pass validation: '.$details);
+
+                return redirect()->route('settings.backups.index')->with('error', trans('admin/settings/message.restore.archive_failed_validation', ['details' => $details]));
+            }
+
             // grab the user's info so we can make sure they exist in the system
             $user = User::find(auth()->id());
 

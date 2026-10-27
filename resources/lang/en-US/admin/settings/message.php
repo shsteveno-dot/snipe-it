@@ -18,6 +18,7 @@ return [
     ],
     'restore' => [
         'success' => 'Your system backup has been restored. Please log in again.',
+        'archive_failed_validation' => 'The backup file did not pass validation. Restore aborted before touching the database. :details',
         'archive_invalid' => 'The selected backup file (:filename) is not a valid zip archive. Restore aborted before touching the database.',
         'zip_extension_missing' => 'PHP zip extension is not loaded on this server. Cannot validate the backup archive, and restore has been aborted to prevent data loss. Ask your server administrator to install ext-zip.',
         'pre_backup_failed' => 'Could not create a pre-restore safety backup. Restore aborted so that the existing database is not destroyed without a recovery path.',

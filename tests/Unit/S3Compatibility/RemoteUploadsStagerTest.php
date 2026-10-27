@@ -118,6 +118,17 @@ class RemoteUploadsStagerTest extends TestCase
             $this->assertNotSame('', $entry['key']);
         }
         $this->assertSame($result['manifest'], $manifest);
+        $this->assertSame(['public', 'private'], $manifest['remote_roles'], 'a restore can tell which roles were on a remote disk');
+    }
+
+    #[Test]
+    public function the_excluded_marker_also_records_which_roles_were_remote(): void
+    {
+        $root = $this->stager()->markExcluded();
+
+        $manifest = json_decode(file_get_contents($root.'/'.RemoteUploadsStager::MANIFEST), true);
+        $this->assertSame('excluded', $manifest['remote_files']);
+        $this->assertSame(['public', 'private'], $manifest['remote_roles']);
     }
 
     #[Test]
