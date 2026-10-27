@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Patch the locked Spatie MySQL dumper to preserve structured argv without a shell."""
+"""Patch the locked Spatie MySQL dumper so that, with app.shellless, it runs the dump from an argument
+array instead of a shell command line. Without app.shellless the original behaviour is kept."""
 from pathlib import Path
 import sys
 
@@ -10,7 +11,17 @@ old_dump = '''        $process = $this->getProcess($dumpFile);
         $process->run();
 
         $this->checkIfDumpWasSuccessFul($process, $dumpFile);'''
-new_dump = '''        $outputFile = $dumpFile;
+new_dump = '''        if (! config('app.shellless')) {
+            $process = $this->getProcess($dumpFile);
+
+            $process->run();
+
+            $this->checkIfDumpWasSuccessFul($process, $dumpFile);
+
+            return;
+        }
+
+        $outputFile = $dumpFile;
         try {
             if ($this->appendMode) {
                 $outputFile = tempnam(dirname($dumpFile), 'snipeit-dump-');
@@ -48,7 +59,13 @@ new_dump = '''        $outputFile = $dumpFile;
 old_process = '''        $command = $this->getDumpCommand($dumpFile, $temporaryCredentialsFile);
 
         return Process::fromShellCommandline($command, null, null, null, $this->timeout);'''
-new_process = '''        return new Process($this->getDumpArguments($dumpFile, $temporaryCredentialsFile), null, null, null, $this->timeout);'''
+new_process = '''        if (! config('app.shellless')) {
+            $command = $this->getDumpCommand($dumpFile, $temporaryCredentialsFile);
+
+            return Process::fromShellCommandline($command, null, null, null, $this->timeout);
+        }
+
+        return new Process($this->getDumpArguments($dumpFile, $temporaryCredentialsFile), null, null, null, $this->timeout);'''
 helpers = r'''    /** Structured properties remain data; only legacy extra-option fragments are tokenized. */
     private function getDumpArguments(string $dumpFile, string $credentialsFile): array
     {

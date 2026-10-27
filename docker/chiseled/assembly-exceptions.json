@@ -5,9 +5,9 @@
     "/etc/nsswitch.conf": "docker/chiseled/nsswitch.conf",
     "/etc/apache2/sites-enabled/000-default.conf": "docker/000-default.conf with approved 8080 port adaptation",
     "/etc/apache2/sites-available/001-default-ssl.conf": "docker/001-default-ssl.conf with approved 8443 port adaptation",
-    "/snipeit-init": "unchanged project Go source at verified checkpoint",
-    "/snipeit-supervisor": "unchanged project Go source at verified checkpoint",
-    "/var/www/html/**": "verified source checkpoint application and Composer inputs"
+    "/snipeit-init": "project Go source built from docker/snipeit-runtime",
+    "/snipeit-supervisor": "project Go source built from docker/snipeit-runtime",
+    "/var/www/html/**": "application tree and Composer inputs pinned by composer.lock"
   },
   "generated_directories": [
     "/run/apache2", "/run/lock/apache2", "/run/snipeit",

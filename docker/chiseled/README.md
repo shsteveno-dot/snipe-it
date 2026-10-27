@@ -14,7 +14,7 @@ docker buildx build -f Dockerfile.chiseled --platform linux/amd64 -t snipeit-chi
 | Program | Source | Job |
 |---|---|---|
 | `snipeit-init` | `docker/snipeit-runtime/cmd/init` | first-run setup, permissions, migrations; hands the environment to the supervisor |
-| `snipeit-supervisor` | `docker/snipeit-runtime/cmd/supervisor` | runs the web server, the queue worker and the scheduler |
+| `snipeit-supervisor` | `docker/snipeit-runtime/cmd/supervisor` | runs the web server and the scheduler (there is no queue worker; the image defaults to `QUEUE_CONNECTION=sync`) |
 
 Both are plain Go programs (no cgo) built in the first stage.
 

@@ -552,9 +552,16 @@ class RestoreFromBackup extends Command
 
         $close_results = proc_close($proc_results);
         if ($close_results != 0) {
-            $this->error('There may have been a problem with the database import: Error number '.$close_results);
+            $message = 'There may have been a problem with the database import: Error number '.$close_results;
 
-            return $close_results;
+            // The exit status of the client is only passed on in shell-less mode; otherwise the command ends as it always has.
+            if (config('app.shellless')) {
+                $this->error($message);
+
+                return $close_results;
+            }
+
+            return $this->error($message);
         }
 
         // Prune the upload directories before extracting the backup's
