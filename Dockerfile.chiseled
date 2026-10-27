@@ -6,7 +6,7 @@ FROM --platform=$BUILDPLATFORM docker.io/library/golang@sha256:672c944cfd07599b5
 ARG TARGETOS
 ARG TARGETARCH
 WORKDIR /src
-COPY docker/distroless-entrypoint/ ./
+COPY docker/snipeit-runtime/ ./
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags='-s -w' -o /snipeit-init ./cmd/init \
     && CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags='-s -w' -o /snipeit-supervisor ./cmd/supervisor
 
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     && rm -rf /var/lib/apt/lists /var/cache/apt
 COPY docker/chiseled/ /chisel-inputs/
 COPY composer.lock /application-composer.lock
-COPY docker/distroless-entrypoint/go.mod /application-go.mod
+COPY docker/snipeit-runtime/go.mod /application-go.mod
 RUN python3 /chisel-inputs/install-build-php.py
 
 FROM tools AS inputs
@@ -36,7 +36,7 @@ FROM chisel AS application
 COPY . /var/www/html
 COPY docker/docker.env /var/www/html/.env
 COPY --from=composer-tool /usr/bin/composer /usr/bin/composer
-COPY docker/distroless-entrypoint/patch-dumper.py /patch-dumper.py
+COPY docker/snipeit-runtime/patch-dumper.py /patch-dumper.py
 RUN python3 /chisel-inputs/prepare-app.py
 WORKDIR /var/www/html
 USER 10000:50
@@ -55,7 +55,7 @@ RUN python3 /chisel-inputs/assemble.py
 
 FROM scratch AS candidate
 COPY --from=assemble /rootfs/ /
-ENV APACHE_RUN_USER=docker APACHE_RUN_GROUP=staff APACHE_RUN_DIR=/run/apache2 APACHE_LOCK_DIR=/run/lock/apache2 APACHE_PID_FILE=/run/apache2/apache2.pid APACHE_LOG_DIR=/var/log/apache2 PHP_INI_SCAN_DIR=:/run/snipeit/php OPENSSL_CONF=/etc/ssl/openssl.cnf SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+ENV SNIPEIT_SHELLLESS=true APACHE_RUN_USER=docker APACHE_RUN_GROUP=staff APACHE_RUN_DIR=/run/apache2 APACHE_LOCK_DIR=/run/lock/apache2 APACHE_PID_FILE=/run/apache2/apache2.pid APACHE_LOG_DIR=/var/log/apache2 PHP_INI_SCAN_DIR=:/run/snipeit/php OPENSSL_CONF=/etc/ssl/openssl.cnf SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 WORKDIR /var/www/html
 USER 10000:50
 VOLUME ["/var/lib/snipeit"]

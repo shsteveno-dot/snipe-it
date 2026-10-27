@@ -7,8 +7,8 @@ import (
 	"strings"
 	"syscall"
 
-	"snipeit-distroless-entrypoint/internal/handoff"
-	"snipeit-distroless-entrypoint/internal/startup"
+	"snipeit-runtime/internal/handoff"
+	"snipeit-runtime/internal/startup"
 )
 
 const resultFD = 3

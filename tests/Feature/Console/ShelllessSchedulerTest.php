@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * No database writes: bootstrap real application, use isolated process fixtures.
+ *
  * @SuppressWarnings(PHPMD.Superglobals)
  */
 class ShelllessSchedulerTest extends TestCase
@@ -22,15 +23,32 @@ class ShelllessSchedulerTest extends TestCase
 
     private string $directory;
 
+    private string $childScript;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->app = require '/var/www/html/bootstrap/app.php';
+        // Must be set before the application is created: the provider reads it while registering.
+        putenv('SNIPEIT_SHELLLESS=true');
+        $_SERVER['SNIPEIT_SHELLLESS'] = $_ENV['SNIPEIT_SHELLLESS'] = 'true';
+        $this->app = require dirname(__DIR__, 3).'/bootstrap/app.php';
         $this->kernel = $this->app->make(Kernel::class);
         $this->kernel->bootstrap();
         $this->app['config']->set('cache.default', 'array');
         $this->directory = sys_get_temp_dir().'/scheduler-regression-'.uniqid();
         mkdir($this->directory);
+        $this->childScript = $this->directory.'/child.php';
+        file_put_contents($this->childScript, <<<'PHP'
+<?php
+
+echo "child-stdout
+";
+fwrite(STDERR, "child-stderr
+");
+echo json_encode(['argv' => array_slice($argv, 1), 'marker' => getenv('SCHEDULER_TEST_MARKER'), 'context' => getenv('__LARAVEL_CONTEXT')]), "
+";
+exit((int) (getenv('SCHEDULER_TEST_EXIT') ?: 0));
+PHP);
         putenv('SCHEDULER_TEST_MARKER=inherited-marker');
         putenv('SCHEDULER_TEST_EXIT=0');
         $_SERVER['SCHEDULER_TEST_MARKER'] = $_ENV['SCHEDULER_TEST_MARKER'] = 'inherited-marker';
@@ -45,6 +63,8 @@ class ShelllessSchedulerTest extends TestCase
         rmdir($this->directory);
         putenv('SCHEDULER_TEST_MARKER');
         putenv('SCHEDULER_TEST_EXIT');
+        putenv('SNIPEIT_SHELLLESS');
+        unset($_SERVER['SNIPEIT_SHELLLESS'], $_ENV['SNIPEIT_SHELLLESS']);
         unset($_SERVER['SCHEDULER_TEST_MARKER'], $_ENV['SCHEDULER_TEST_MARKER'], $_SERVER['SCHEDULER_TEST_EXIT'], $_ENV['SCHEDULER_TEST_EXIT']);
         restore_error_handler();
         restore_exception_handler();
@@ -55,7 +75,7 @@ class ShelllessSchedulerTest extends TestCase
     {
         $event = (new ShelllessSchedule)->command('list', ['--raw']);
         $reflection = new \ReflectionProperty(ShelllessArtisanEvent::class, 'arguments');
-        $reflection->setValue($event, array_merge([$missing ? '/no-such-scheduler-child' : PHP_BINARY, '/verification/child.php'], $arguments));
+        $reflection->setValue($event, array_merge([$missing ? '/no-such-scheduler-child' : PHP_BINARY, $this->childScript], $arguments));
 
         return $event;
     }
