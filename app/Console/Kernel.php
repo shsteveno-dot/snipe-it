@@ -10,6 +10,10 @@ class Kernel extends ConsoleKernel
 {
     public function resolveConsoleSchedule()
     {
+        if (! config('app.shellless')) {
+            return parent::resolveConsoleSchedule();
+        }
+
         return tap(new \App\Console\Scheduling\ShelllessSchedule($this->scheduleTimezone()), function ($schedule) {
             $this->schedule($schedule->useCache($this->scheduleCache()));
         });

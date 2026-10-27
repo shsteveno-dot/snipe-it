@@ -1,4 +1,4 @@
-module snipeit-distroless-entrypoint
+module snipeit-runtime
 
 go 1.26.10
 

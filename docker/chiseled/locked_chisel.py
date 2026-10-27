@@ -138,7 +138,7 @@ def main():
     require_offline()
     lock = verify_snapshot(args.snapshot, args.lock, args.approved_sha256)
     if args.custom and 'pending' in lock['identities']['custom_sdfs']['status']:
-        raise ValueError('production custom SDF review pending (Task 1.3)')
+        raise ValueError('custom SDF review is not recorded as complete')
     if args.root.exists():
         raise ValueError('output root already exists; refusing to overwrite')
     args.root.parent.mkdir(parents=True, exist_ok=True)

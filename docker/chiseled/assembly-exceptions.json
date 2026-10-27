@@ -21,7 +21,7 @@
   },
   "package_mutations": {
     "base-passwd_data": "append project docker UID10000:GID50 to package-created passwd; pinned master group includes staff GID50",
-    "apache2_runtime-config": "8080 and runtime TLS/limit includes; builtin encrypted-key dialog, with noninteractive failure checked in Task 1.7",
+    "apache2_runtime-config": "8080 and runtime TLS/limit includes; builtin encrypted-key dialog, with noninteractive failure covered by the image regression run",
     "php8.3-cli_modules": "package production php.ini with environment variables_order EGPCS and opcache.enable_cli=1 (fails the cut if the packaged ;opcache.enable_cli=0 line is absent)",
     "libapache2-mod-php8.3_apache-base-config": "package production php.ini with environment variables_order EGPCS"
   },

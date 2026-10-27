@@ -166,6 +166,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Shell-less child processes
+    |--------------------------------------------------------------------------
+    |
+    | The Chiseled container image has no /bin/sh. When this is true the
+    | scheduler and snipeit:restore start child processes from an argument
+    | array instead of a shell command line. Leave it off everywhere else:
+    | the default behaviour is unchanged.
+    |
+    */
+
+    'shellless' => (bool) env('SNIPEIT_SHELLLESS', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

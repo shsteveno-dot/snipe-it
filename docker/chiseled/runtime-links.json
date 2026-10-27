@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "generated_links": {
+    "/etc/localtime": "/usr/share/zoneinfo/Etc/UTC"
+  },
+  "rationale": "The runtime root is cut from locked Ubuntu packages and has no /etc/localtime of its own. This UTC link keeps the default time zone at UTC (the same as a stock PHP image) and replaces the package-provided link without copying or changing package files."
+}
