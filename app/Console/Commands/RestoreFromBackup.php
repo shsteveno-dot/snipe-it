@@ -734,6 +734,7 @@ class RestoreFromBackup extends Command
      * @param  array<int, string>  $unsafe_paths
      * @param  array<int, string>  $problems
      * @return array<int, string> zip index => expected sha256
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function verifyArchive(ZipArchive $za, ?array $manifest, array $logical_names, array $unsafe_paths, array &$problems): array
     {
@@ -815,6 +816,7 @@ class RestoreFromBackup extends Command
      * @param  array{dest: string, index: int, rel: string, role: string}  $details
      *
      * @throws RuntimeException naming the file that failed
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function restoreFile(ZipArchive $za, array $details, ?string $expectedSha, Sanitizer $sanitizer): void
     {
@@ -862,6 +864,9 @@ class RestoreFromBackup extends Command
         }
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
     private function writeRemote(ZipArchive $za, int $index, string $diskName, string $key, ?Sanitizer $sanitizer, ?string $expectedSha): void
     {
         $label = $diskName.':'.$key;
