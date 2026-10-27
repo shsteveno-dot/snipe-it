@@ -187,7 +187,8 @@ class RestoreFromBackup extends Command
                                             {--no-progress : Don\'t show a progress bar}
                                             {--sanitize-guess-prefix : Guess and output the table-prefix needed to "sanitize" the SQL}
                                             {--sanitize-with-prefix= : "Sanitize" the SQL, using the passed-in table prefix (can be learned from --sanitize-guess-prefix). Pass as just \'--sanitize-with-prefix=\' to use no prefix}
-                                            {--sql-stdout-only : ONLY "Sanitize" the SQL and print it to stdout - useful for debugging - probably requires --sanitize-with-prefix= }';
+                                            {--sql-stdout-only : ONLY "Sanitize" the SQL and print it to stdout - useful for debugging - probably requires --sanitize-with-prefix= }
+                                            {--validate-only : Check the whole backup file and stop, without changing anything}';
 
     /**
      * The console command description.
@@ -268,7 +269,7 @@ class RestoreFromBackup extends Command
             return self::FAILURE;
         }
 
-        if (! $this->option('force') && ! $this->option('sanitize-guess-prefix') && ! $this->confirm('Are you sure you wish to restore from the given backup file? This can lead to MASSIVE DATA LOSS!')) {
+        if (! $this->option('force') && ! $this->option('sanitize-guess-prefix') && ! $this->option('validate-only') && ! $this->confirm('Are you sure you wish to restore from the given backup file? This can lead to MASSIVE DATA LOSS!')) {
             $this->error('Data loss not confirmed');
 
             return self::FAILURE;
@@ -419,7 +420,7 @@ class RestoreFromBackup extends Command
                                 Log::debug("Getting ready to save file $raw_path to new directory $destdir");
                             }
                             // The path below the directory is kept, so a/x.pdf and b/x.pdf stay two files.
-                            $interesting_files[$raw_path] = ['dest' => $destdir, 'index' => $i, 'rel' => $relative, 'role' => $purpose];
+                            $interesting_files[$raw_path] = ['dest' => $destdir, 'index' => $i, 'rel' => $relative, 'role' => $purpose, 'staged' => $staged];
                         }
 
                         continue 3;
@@ -449,7 +450,7 @@ class RestoreFromBackup extends Command
                         }
                         if ($last_pos + strlen($file) == strlen($class_path) || $has_wildcard) { // again, no trailing slash. or this is a wildcard and we just take it.
                             // The OAuth keys always stay on the local disk; only the public branding files follow the public disk.
-                            $interesting_files[$raw_path] = ['dest' => dirname($file), 'index' => $i, 'rel' => basename($raw_path), 'role' => $purpose === 'public' ? 'public' : 'local'];
+                            $interesting_files[$raw_path] = ['dest' => dirname($file), 'index' => $i, 'rel' => basename($raw_path), 'role' => $purpose === 'public' ? 'public' : 'local', 'staged' => $staged];
 
                             continue 3;
                         }
@@ -516,6 +517,14 @@ class RestoreFromBackup extends Command
             return self::FAILURE;
         }
         $this->announceManifest($manifest);
+
+        if ($this->option('validate-only')) {
+            $this->info('The backup file passed validation. Nothing was changed.');
+
+            return self::SUCCESS;
+        }
+
+        $this->skipStaleLocalCopies($interesting_files, $manifest);
 
         // how to invoke the restore?
         $pipes = [];
@@ -683,6 +692,32 @@ class RestoreFromBackup extends Command
     private function diskIsRemote(string $disk): bool
     {
         return config("filesystems.disks.$disk.driver") !== 'local';
+    }
+
+    /**
+     * A backup taken while a role was on S3 still carries the local upload directory of that role (the
+     * backup includes both). Those files are leftovers, for example copies kept after moving the uploads to
+     * S3. When this install also keeps the role on S3 they must not be written over the objects there, so
+     * they are dropped; the S3 copies that are part of the backup (staged) are the ones to restore.
+     *
+     * @param  array<string, array>  $interesting_files
+     */
+    private function skipStaleLocalCopies(array &$interesting_files, ?array $manifest): void
+    {
+        $stale_roles = is_array($manifest['remote_roles'] ?? null) ? $manifest['remote_roles'] : [];
+        $skipped = 0;
+        foreach ($interesting_files as $name => $details) {
+            $role = $details['role'];
+            $role_is_remote_here = ($role === 'public' && $this->diskIsRemote('public'))
+                || ($role === 'private' && $this->diskIsRemote(config('filesystems.default')));
+            if (! $details['staged'] && $role_is_remote_here && in_array($role, $stale_roles, true)) {
+                unset($interesting_files[$name]);
+                $skipped++;
+            }
+        }
+        if ($skipped > 0) {
+            $this->warn($skipped.' local file(s) in the backup were skipped: their storage is on S3, and the S3 objects are not overwritten by old local copies.');
+        }
     }
 
     private static function isUnsafeArchivePath(string $path): bool

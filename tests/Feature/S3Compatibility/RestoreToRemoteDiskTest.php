@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\S3Compatibility\FakeRemoteAdapter;
+use Tests\Support\S3Compatibility\ProtectsRealUploadDirectories;
 use Tests\Support\S3Compatibility\UsesFakeRemoteDisks;
 use Tests\TestCase;
 use ZipArchive;
@@ -22,11 +23,12 @@ use ZipArchive;
  */
 class RestoreToRemoteDiskTest extends TestCase
 {
+    use ProtectsRealUploadDirectories;
     use UsesFakeRemoteDisks;
 
-    private const SCRATCH = 's3compat_restore';
+    private string $scratch = '';
 
-    private string $work;
+    private string $work = '';
 
     private string $publicRoot;
 
@@ -41,14 +43,19 @@ class RestoreToRemoteDiskTest extends TestCase
     {
         parent::setUp();
 
+        if (! in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
+            $this->markTestSkipped('The restore tests need a MySQL or MariaDB server.');
+        }
+        $this->protectRealUploadDirectories();
+
         $this->tag = 'rst'.bin2hex(random_bytes(3));
         $this->work = sys_get_temp_dir().'/s3compat-restore-'.bin2hex(random_bytes(4));
         File::ensureDirectoryExists($this->work);
 
-        DB::statement('DROP DATABASE IF EXISTS `'.self::SCRATCH.'`');
-        DB::statement('CREATE DATABASE `'.self::SCRATCH.'`');
+        $this->scratch = 's3compat_restore_'.bin2hex(random_bytes(4));
+        DB::statement('CREATE DATABASE `'.$this->scratch.'`');
         config([
-            'database.connections.mysql.database' => self::SCRATCH,
+            'database.connections.mysql.database' => $this->scratch,
             'database.connections.mysql.dump.dump_binary_path' => '/usr/bin',
         ]);
     }
@@ -58,12 +65,19 @@ class RestoreToRemoteDiskTest extends TestCase
         if (app()->isDownForMaintenance()) {
             Artisan::call('up');
         }
-        DB::statement('DROP DATABASE IF EXISTS `'.self::SCRATCH.'`');
-        File::deleteDirectory($this->work);
+        if ($this->scratch !== '') {
+            config(['database.connections.mysql.database' => env('DB_DATABASE')]);
+            DB::purge('mysql');
+            DB::statement('DROP DATABASE IF EXISTS `'.$this->scratch.'`');
+        }
+        if ($this->work !== '') {
+            File::deleteDirectory($this->work);
+        }
         foreach ($this->created as $path) {
             File::isDirectory($path) ? File::deleteDirectory($path) : @unlink($path);
         }
         $this->cleanUpFakeRemoteDisks();
+        $this->releaseRealUploadDirectories();
 
         parent::tearDown();
     }
@@ -131,13 +145,13 @@ class RestoreToRemoteDiskTest extends TestCase
 
     private function seedProbeTable(): void
     {
-        DB::statement('CREATE TABLE `'.self::SCRATCH.'`.`s3compat_probe` (`id` int)');
-        DB::statement('INSERT INTO `'.self::SCRATCH.'`.`s3compat_probe` VALUES (99)');
+        DB::statement('CREATE TABLE `'.$this->scratch.'`.`s3compat_probe` (`id` int)');
+        DB::statement('INSERT INTO `'.$this->scratch.'`.`s3compat_probe` VALUES (99)');
     }
 
     private function probeValues(): array
     {
-        return array_map(fn ($r) => (int) $r->id, DB::select('SELECT id FROM `'.self::SCRATCH.'`.`s3compat_probe`'));
+        return array_map(fn ($r) => (int) $r->id, DB::select('SELECT id FROM `'.$this->scratch.'`.`s3compat_probe`'));
     }
 
     // ---- writes to non-local disks ---------------------------------------------------------
@@ -369,6 +383,96 @@ class RestoreToRemoteDiskTest extends TestCase
 
         $this->assertNotSame(0, $exit);
         $this->assertStringContainsString('needs manual recovery', strtolower($output));
+    }
+
+    // ---- validation only and stale local copies ---------------------------------------------
+
+    #[Test]
+    public function validate_only_accepts_a_good_archive_and_changes_nothing(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $zip = $this->backupZip(['storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf' => 'PDFBYTES']);
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+        $output = Artisan::output();
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertStringContainsString('Nothing was changed', $output);
+        $this->assertFileDoesNotExist($this->privateRoot.'/private_uploads/eula-pdfs/'.$this->tag.'.pdf');
+        $this->assertSame([99], $this->probeValues(), 'the database was not replaced');
+    }
+
+    #[Test]
+    public function validate_only_rejects_an_archive_whose_checksum_does_not_match(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        $zip = $this->backupZip([$path => 'PDFBYTES'], [
+            'version' => 1,
+            'created_at' => date('c'),
+            'remote_files' => 'included',
+            'files' => [['role' => 'private', 'key' => 'private_uploads/eula-pdfs/'.$this->tag.'.pdf', 'archive_path' => $path, 'bytes' => 8, 'sha256' => str_repeat('0', 64)]],
+        ]);
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+
+        $this->assertNotSame(0, $exit, Artisan::output());
+        $this->assertSame([99], $this->probeValues());
+    }
+
+    #[Test]
+    public function local_copies_in_a_backup_do_not_overwrite_objects_on_a_remote_disk(): void
+    {
+        $this->useRemoteDisks();
+        Storage::disk('public')->put('avatars/'.$this->tag.'.png', 'REAL-S3-OBJECT');
+        $zip = $this->backupZip(['public/uploads/avatars/staged-'.$this->tag.'.png' => 'STAGED'], [
+            'version' => 1,
+            'created_at' => date('c'),
+            'remote_files' => 'included',
+            'remote_roles' => ['public', 'private'],
+            'files' => [[
+                'role' => 'public',
+                'key' => 'avatars/staged-'.$this->tag.'.png',
+                'archive_path' => 'public/uploads/avatars/staged-'.$this->tag.'.png',
+                'bytes' => 6,
+                'sha256' => hash('sha256', 'STAGED'),
+            ]],
+        ]);
+        $za = new ZipArchive;
+        $za->open($zip);
+        $za->addFromString('public/uploads/avatars/'.$this->tag.'.png', 'STALE-LOCAL-COPY');
+        $za->close();
+
+        [$exit, $output] = $this->restore($zip);
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertSame('REAL-S3-OBJECT', file_get_contents($this->publicRoot.'/avatars/'.$this->tag.'.png'), 'the stale local copy was not written over the object');
+        $this->assertSame('STAGED', file_get_contents($this->publicRoot.'/avatars/staged-'.$this->tag.'.png'), 'the copy that is part of the S3 backup is restored');
+        $this->assertStringContainsString('were skipped', $output);
+    }
+
+    #[Test]
+    public function local_copies_from_a_local_install_backup_are_still_moved_to_the_remote_disk(): void
+    {
+        $this->useRemoteDisks();
+        $zip = $this->backupZip([], [
+            'version' => 1,
+            'created_at' => date('c'),
+            'remote_files' => 'excluded',
+            'remote_roles' => [],
+            'files' => [],
+        ]);
+        $za = new ZipArchive;
+        $za->open($zip);
+        $za->addFromString('public/uploads/avatars/'.$this->tag.'.png', 'LOCAL-COPY');
+        $za->close();
+
+        [$exit, $output] = $this->restore($zip);
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertSame('LOCAL-COPY', file_get_contents($this->publicRoot.'/avatars/'.$this->tag.'.png'));
     }
 
     // ---- web flow ---------------------------------------------------------------------------
