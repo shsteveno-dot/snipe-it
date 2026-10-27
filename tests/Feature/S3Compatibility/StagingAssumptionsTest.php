@@ -36,8 +36,8 @@ class StagingAssumptionsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (! in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
-            $this->markTestSkipped('The restore tests need a MySQL or MariaDB server.');
+        if (! in_array(DB::connection()->getDriverName(), ['mysql'], true)) {
+            $this->markTestSkipped('The restore tests need a MySQL server.');
         }
         $this->protectRealUploadDirectories();
         $this->work = sys_get_temp_dir().'/s3compat-assume-'.bin2hex(random_bytes(4));

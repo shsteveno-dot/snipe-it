@@ -78,6 +78,8 @@ class RemoteUploadsStagerTest extends TestCase
         $this->putObject('public', 'unmanaged/other.png', 'x');
         $this->putObject('public', 'avatars/.gitkeep', '');
         $this->putObject('public', 'random-root-file.txt', 'x');
+        $this->putObject('public', 'default.png', 'x');
+        $this->putObject('public', 'snipe-logo.png', 'x');
         $this->putObject('custom_private', 'other-prefix/data.bin', 'x');
         $this->putObject('custom_private', 'backups/old.zip', 'x');
         $this->putObject('custom_private', 'private_uploads/backups/old.zip', 'x');
