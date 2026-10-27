@@ -67,6 +67,10 @@ class ImportLocations extends Command
         }
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
     private function importFrom(string $path, string $key): int
     {
         $csv = Reader::createFromPath($path, 'r');

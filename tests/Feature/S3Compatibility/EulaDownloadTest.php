@@ -139,6 +139,9 @@ class EulaDownloadTest extends TestCase
         $this->assertSame(hash('sha256', "%PDF-1.4\nbody"), hash('sha256', File::get($response->baseResponse->getFile()->getPathname())));
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     #[Test]
     #[DataProvider('routes')]
     public function users_without_permission_are_still_refused_on_a_custom_s3_disk(string $route, bool $needsViewPermission): void
