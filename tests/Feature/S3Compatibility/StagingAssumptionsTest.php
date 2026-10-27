@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\S3Compatibility\ProtectsRealUploadDirectories;
 use Tests\Support\S3Compatibility\UsesFakeRemoteDisks;
 use Tests\TestCase;
 use ZipArchive;
@@ -22,9 +23,12 @@ use ZipArchive;
  */
 class StagingAssumptionsTest extends TestCase
 {
+    use ProtectsRealUploadDirectories;
     use UsesFakeRemoteDisks;
 
-    private string $work;
+    private string $work = '';
+
+    private string $scratch = '';
 
     /** @var array<int, string> */
     private array $created = [];
@@ -32,17 +36,29 @@ class StagingAssumptionsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        if (! in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
+            $this->markTestSkipped('The restore tests need a MySQL or MariaDB server.');
+        }
+        $this->protectRealUploadDirectories();
         $this->work = sys_get_temp_dir().'/s3compat-assume-'.bin2hex(random_bytes(4));
         File::ensureDirectoryExists($this->work);
     }
 
     protected function tearDown(): void
     {
-        File::deleteDirectory($this->work);
+        if ($this->scratch !== '') {
+            DB::purge('mysql');
+            config(['database.connections.mysql.database' => env('DB_DATABASE')]);
+            DB::statement('DROP DATABASE IF EXISTS `'.$this->scratch.'`');
+        }
+        if ($this->work !== '') {
+            File::deleteDirectory($this->work);
+        }
         $this->cleanUpFakeRemoteDisks();
         foreach ($this->created as $path) {
             File::isDirectory($path) ? File::deleteDirectory($path) : @unlink($path);
         }
+        $this->releaseRealUploadDirectories();
         parent::tearDown();
     }
 
@@ -69,8 +85,8 @@ class StagingAssumptionsTest extends TestCase
         ];
 
         // The restore wipes and rewrites tables of the configured database, so point it at a scratch one.
-        $scratch = 's3compat_restore';
-        DB::statement("CREATE DATABASE IF NOT EXISTS `$scratch`");
+        $scratch = $this->scratch = 's3compat_assume_'.bin2hex(random_bytes(4));
+        DB::statement("CREATE DATABASE `$scratch`");
         config([
             'database.connections.mysql.database' => $scratch,
             'database.connections.mysql.dump.dump_binary_path' => '/usr/bin',
@@ -87,8 +103,6 @@ class StagingAssumptionsTest extends TestCase
         $this->assertSame('PDF-BYTES', file_get_contents(base_path('storage/private_uploads/eula-pdfs/'.$tag.'.pdf')));
         // The extension-less CSV is only accepted when the name ends in "csv".
         $this->assertFileExists(base_path('storage/private_uploads/imports/'.$tag.'-legacy-csv'), $output);
-
-        DB::statement("DROP DATABASE IF EXISTS `$scratch`");
     }
 
     #[Test]
