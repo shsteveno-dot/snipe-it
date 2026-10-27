@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"snipeit-distroless-entrypoint/internal/handoff"
+	"snipeit-runtime/internal/handoff"
 )
 
 // Run supervises the one-shot init command and then its long-running service children.
