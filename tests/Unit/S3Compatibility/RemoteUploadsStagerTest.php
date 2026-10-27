@@ -14,6 +14,7 @@ use Tests\TestCase;
 /**
  * FR-11: S3 hosted upload files are copied to a local staging directory that mirrors the archive paths
  * and described by a SHA-256 manifest; failures leave nothing behind.
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
 class RemoteUploadsStagerTest extends TestCase
 {
