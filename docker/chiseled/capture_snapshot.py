@@ -197,7 +197,7 @@ def main():  # noqa: C901
     identities['platform'] = 'linux/' + args.architecture
     lock = {'format': 1, 'architecture': args.architecture, 'ubuntu': '24.04',
             'created_at': now.isoformat(), 'bootstrap': BOOTSTRAP,
-            'bootstrap_validation': 'Externally validated digest supplied by user; exact digest executed successfully in this session.',
+            'bootstrap_validation': 'Bootstrap image pinned by digest (see BOOTSTRAP in capture_snapshot.py); the digest can be re-checked by pulling the image and comparing.',
             'verifier': {'name': 'gpgv', 'binary_sha256': sha(pathlib.Path('/usr/bin/gpgv').read_bytes()),
                          'version': subprocess.check_output(['gpgv', '--version'], text=True).splitlines()[0]},  # nosec B603
             'trust_anchor': retain(keyring.read_bytes()), 'signer': SIGNER,
