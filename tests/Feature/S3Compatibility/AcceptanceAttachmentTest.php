@@ -3,6 +3,8 @@
 namespace Tests\Feature\S3Compatibility;
 
 use App\Enums\FileStorage;
+use App\Models\Setting;
+use App\Models\User;
 use App\Notifications\AcceptanceItemAcceptedToUserNotification;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\File;
@@ -27,6 +29,10 @@ class AcceptanceAttachmentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // The mail layout only renders once the installation counts as set up (settings row and a user).
+        Setting::factory()->create();
+        User::factory()->create();
 
         $this->remoteRoot = sys_get_temp_dir().'/s3compat-private-'.bin2hex(random_bytes(4));
         File::ensureDirectoryExists($this->remoteRoot);

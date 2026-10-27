@@ -22,6 +22,7 @@ use Throwable;
  *
  * Callers must stop the web, queue, scheduler and sync jobs first: nothing here blocks writers, so the
  * result is a copy of the files at the time they were read, not a consistent snapshot.
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class RemoteUploadsStager
 {
