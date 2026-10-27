@@ -136,6 +136,9 @@ class RestoreFromBackupBinaryPickerTest extends TestCase
             $this->markTestSkipped('The executable PHP stub uses a Unix shebang.');
         }
 
+        // The argument-array client launch and the client's exit status are the shell-less behaviour.
+        config(['app.shellless' => true]);
+
         $clientBinary = $this->tmpDir.'/mysql';
         $capturePath = $this->tmpDir.'/client-invocation.json';
         $archivePath = $this->tmpDir.'/backup.zip';
