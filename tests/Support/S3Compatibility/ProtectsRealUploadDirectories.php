@@ -81,6 +81,7 @@ trait ProtectsRealUploadDirectories
             FileStorage::publicDirsForRestore(),
             array_values(FileStorage::privateDirsForRestore()),
             array_filter(array_keys(FileStorage::privateDirsForRestore()), 'is_string'),
+            [FileStorage::Backups->privateDir()],
         );
 
         $found = [];
