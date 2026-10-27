@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"snipeit-distroless-entrypoint/internal/handoff"
+	"snipeit-runtime/internal/handoff"
 )
 
 func TestInitBoundaryFixture(t *testing.T) {

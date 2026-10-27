@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"snipeit-distroless-entrypoint/internal/supervisor"
+	"snipeit-runtime/internal/supervisor"
 )
 
 const app = "/var/www/html"
