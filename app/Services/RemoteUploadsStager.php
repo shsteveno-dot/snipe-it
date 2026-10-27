@@ -109,6 +109,7 @@ class RemoteUploadsStager
                 'version' => self::MANIFEST_VERSION,
                 'created_at' => gmdate('c'),
                 'remote_files' => 'included',
+                'remote_roles' => $this->remoteRoles(),
                 'files' => $files,
             ];
             $this->writeManifest($manifest);
@@ -143,6 +144,7 @@ class RemoteUploadsStager
                 'version' => self::MANIFEST_VERSION,
                 'created_at' => gmdate('c'),
                 'remote_files' => 'excluded',
+                'remote_roles' => $this->remoteRoles(),
                 'files' => [],
             ]);
         } catch (Throwable $e) {
@@ -314,6 +316,20 @@ class RemoteUploadsStager
         sort($keys);
 
         return $keys;
+    }
+
+    /**
+     * The roles whose files live on a non-local disk, so a restore can tell the local copies in the backup
+     * from the real ones.
+     *
+     * @return array<int, string>
+     */
+    private function remoteRoles(): array
+    {
+        return array_values(array_filter([
+            $this->publicIsRemote() ? 'public' : null,
+            $this->privateIsRemote() ? 'private' : null,
+        ]));
     }
 
     private function publicIsRemote(): bool
