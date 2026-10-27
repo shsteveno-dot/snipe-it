@@ -1,7 +1,7 @@
 {
   "architecture": "arm64",
   "bootstrap": "docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
-  "bootstrap_validation": "Externally validated digest supplied by user; exact digest executed successfully in this session.",
+  "bootstrap_validation": "Bootstrap image pinned by digest (see BOOTSTRAP in capture_snapshot.py); the digest can be re-checked by pulling the image and comparing.",
   "created_at": "2026-10-08T04:20:46.394470+00:00",
   "finalized_at": "2026-10-08T04:21:12.601325+00:00",
   "format": 1,

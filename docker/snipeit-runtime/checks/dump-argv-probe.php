@@ -1,6 +1,11 @@
 <?php
 
 require '/var/www/html/vendor/autoload.php';
+function fixtureShellless(bool $enabled): void
+{
+    Illuminate\Container\Container::getInstance()->instance('config', new Illuminate\Config\Repository(['app' => ['shellless' => $enabled]]));
+}
+fixtureShellless(true);
 function fixtureEnv(string $assignment): void
 {
     putenv($assignment);
@@ -21,6 +26,13 @@ function checkDump(bool $condition, string $message): void
 function fixtureDumper(string $directory, string $class = Spatie\DbDumper\Databases\MySql::class): object
 {
     return $class::create()->setHost('fixture-host')->setPort(3307)->setDbName('fixture')->setUserName('fixture-user')->setPassword('fixture-password')->setDumpBinaryPath($directory);
+}
+function fixtureProcess(string $directory, string $dumpFile): Symfony\Component\Process\Process
+{
+    $dumper = fixtureDumper($directory);
+    $dumper->setTempFileHandle(tmpfile());
+
+    return $dumper->getProcess($dumpFile);
 }
 function readCapture(string $capture): array
 {
@@ -55,7 +67,7 @@ foreach(array_slice($argv,1) as $arg){
  if(str_starts_with($arg,'--result-file='))$output=substr($arg,14);
 }
 $contents=$credentials!==null?file_get_contents($credentials):'';
-$capture=['script'=>$argv[0],'argv'=>array_slice($argv,1),'credentials_valid'=>str_contains($contents,"password = 'fixture-password'")&&str_contains($contents,"user = 'fixture-user'"),'environment'=>getenv('DUMP_MARKER')];
+$capture=['script'=>$argv[0],'argv'=>array_slice($argv,1),'credentials_valid'=>str_contains($contents,"password = 'fixture-password'")&&str_contains($contents,"user = 'fixture-user'"),'environment'=>getenv('DUMP_MARKER'),'ssl_disabled'=>str_contains($contents,'ssl-mode=DISABLED')];
 file_put_contents(getenv('DUMP_CAPTURE'),json_encode($capture,JSON_THROW_ON_ERROR));
 fwrite(STDOUT,"fixture stdout\n");fwrite(STDERR,"fixture stderr\n");
 $mode=getenv('DUMP_MODE');if($mode==='timeout')usleep(2500000);if($mode==='nonzero')exit(23);if($mode==='missing')exit(0);
@@ -158,6 +170,29 @@ OPTIONS;
         cleanDumpFixture($root);
     }
 }
+function sslAndGateDump(): void
+{
+    [$root,$capture] = makeDumpFixture();
+    try {
+        fixtureDumper($root)->setSkipSsl()->setSslFlag('ssl-mode=DISABLED')->dumpToFile($root.'/with-flag');
+        $seen = readCapture($capture);
+        checkDump($seen['ssl_disabled'], 'DB_DUMP_SKIP_SSL still reaches the credentials file');
+        checkDump(! str_contains(json_encode($seen['argv']), 'ssl'), 'SSL flag is not duplicated in argv');
+        fixtureDumper($root)->dumpToFile($root.'/plain');
+        checkDump(! readCapture($capture)['ssl_disabled'], 'no SSL flag unless requested');
+
+        $out = $root.'/gate';
+        fixtureShellless(false);
+        $original = fixtureProcess($root, $out)->getCommandLine();
+        fixtureShellless(true);
+        $arguments = fixtureProcess($root, $out)->getCommandLine();
+        checkDump(str_contains($original, ' > ') && ! str_contains($original, '--result-file='), 'without app.shellless the vendor shell command line is used unchanged');
+        checkDump(str_contains($arguments, '--result-file=') && ! str_contains($arguments, ' > '), 'with app.shellless the dump runs from an argument array');
+    } finally {
+        fixtureShellless(true);
+        cleanDumpFixture($root);
+    }
+}
 function failedDump(): void
 {
     [$root,$capture] = makeDumpFixture();
@@ -247,10 +282,10 @@ function excludedDump(): void
 }
 if (realpath($_SERVER['SCRIPT_FILENAME']) === __FILE__) {
     try {
-        $cases = ($argv[1] ?? 'exact') === 'suite' ? ['exact', 'structured', 'legacy', 'failure', 'append', 'exclusions'] : [$argv[1] ?? 'exact'];
+        $cases = ($argv[1] ?? 'exact') === 'suite' ? ['exact', 'structured', 'legacy', 'failure', 'append', 'exclusions', 'ssl'] : [$argv[1] ?? 'exact'];
         foreach ($cases as $case) {
             match ($case) {
-                'exact' => exactDump(),'structured' => structuredDump(),'legacy' => legacyDump(),'failure' => failedDump(),'append' => appendDump(),'exclusions' => excludedDump()
+                'exact' => exactDump(),'structured' => structuredDump(),'legacy' => legacyDump(),'failure' => failedDump(),'append' => appendDump(),'exclusions' => excludedDump(),'ssl' => sslAndGateDump()
             };
             echo "PASS $case\n";
         }

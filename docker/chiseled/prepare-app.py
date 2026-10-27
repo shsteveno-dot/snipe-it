@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Project application assembly matching the verified checkpoint's layout."""
+"""Project application assembly: the layout of the application tree inside the image."""
 import os
 from pathlib import Path
 import shutil
