@@ -129,11 +129,6 @@ class RestoreToRemoteDiskTest extends TestCase
         return [$exit, Artisan::output()];
     }
 
-    private function probeTableRows(): int
-    {
-        return (int) DB::connection()->selectOne('SELECT COUNT(*) AS c FROM `'.self::SCRATCH.'`.information_schema.tables WHERE table_schema = ? AND table_name = ?', [self::SCRATCH, 's3compat_probe'])->c;
-    }
-
     private function seedProbeTable(): void
     {
         DB::statement('CREATE TABLE `'.self::SCRATCH.'`.`s3compat_probe` (`id` int)');
