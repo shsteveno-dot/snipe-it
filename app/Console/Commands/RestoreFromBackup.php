@@ -345,7 +345,7 @@ class RestoreFromBackup extends Command
          */
         $manifest_indices = [];
         $unsafe_paths = [];
-        $logical_names = []; // name inside the archive, without the staging directory => zip index
+        $staged_names = []; // name inside the staging directory => zip index
 
         for ($i = 0; $i < $za->numFiles; $i++) {
             $stat_results = $za->statIndex($i);
@@ -390,7 +390,9 @@ class RestoreFromBackup extends Command
             // They are classified by the path they have inside that directory.
             $logical = self::stripStagingPrefix($raw_path);
             $staged = $logical !== $raw_path;
-            $logical_names[$logical] = $i;
+            if ($staged) {
+                $staged_names[$logical] = $i;
+            }
             $class_path = $staged ? $logical : $raw_path;
 
             foreach (['public' => $public_dirs, 'private' => $private_dirs] as $purpose => $dirs) {
@@ -507,9 +509,28 @@ class RestoreFromBackup extends Command
         // Everything below changes the install, so the archive is checked completely first.
         $problems = [];
         $manifest = $this->readManifest($za, $manifest_indices, $problems);
-        $expected_sha = $this->verifyArchive($za, $manifest, $logical_names, $unsafe_paths, $problems);
+        $expected_sha = $this->verifyArchive($za, $manifest, $staged_names, $unsafe_paths, $problems);
         if (($sql_stat['size'] ?? 0) === 0) {
             $problems[] = 'The database dump in the backup file is empty: '.$sql_stat['name'];
+        } else {
+            $sql_check = $za->getStream($sql_stat['name']);
+            $bytes_read = 0;
+            $read_failed = $sql_check === false;
+            if ($sql_check !== false) {
+                while (! feof($sql_check)) {
+                    $chunk = @fread($sql_check, SQLStreamer::$buffer_size);
+                    if ($chunk === false || ($chunk === '' && ! feof($sql_check))) {
+                        $read_failed = true;
+
+                        break;
+                    }
+                    $bytes_read += strlen($chunk);
+                }
+                fclose($sql_check);
+            }
+            if ($read_failed || $bytes_read !== $sql_stat['size']) {
+                $problems[] = 'Could not read the complete database dump: '.$sql_stat['name'];
+            }
         }
         if (count($problems) > 0) {
             foreach ($problems as $problem) {
@@ -808,13 +829,13 @@ class RestoreFromBackup extends Command
      * Checks the archive against its manifest without writing anything: no unsafe paths, every listed
      * file present with the listed size and SHA-256.
      *
-     * @param  array<string, int>  $logical_names
+     * @param  array<string, int>  $staged_names
      * @param  array<int, string>  $unsafe_paths
      * @param  array<int, string>  $problems
      * @return array<int, string> zip index => expected sha256
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    private function verifyArchive(ZipArchive $za, ?array $manifest, array $logical_names, array $unsafe_paths, array &$problems): array
+    private function verifyArchive(ZipArchive $za, ?array $manifest, array $staged_names, array $unsafe_paths, array &$problems): array
     {
         foreach ($unsafe_paths as $path) {
             $problems[] = 'The archive contains an unsafe path: '.$path;
@@ -830,13 +851,13 @@ class RestoreFromBackup extends Command
 
                 continue;
             }
-            if (! isset($logical_names[$path])) {
+            if (! isset($staged_names[$path])) {
                 $problems[] = 'Listed in the manifest but missing from the archive: '.$path;
 
                 continue;
             }
 
-            $index = $logical_names[$path];
+            $index = $staged_names[$path];
             $size = $za->statIndex($index)['size'] ?? null;
             if ($size !== $bytes) {
                 $problems[] = "Size of $path differs from the manifest (archive: $size, manifest: $bytes).";
