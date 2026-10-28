@@ -151,14 +151,18 @@ class BackupDiskConsistencyTest extends TestCase
         config(['filesystems.disks.backup' => ['driver' => 'local', 'root' => storage_path('app')]]);
         Storage::forgetDisk('backup');
 
-        $this->actingAs(User::factory()->superuser()->create())
-            ->post(route('settings.backups.upload'), ['file' => $this->makeZip('shipped.zip')])
-            ->assertSessionHas('success');
+        $before = glob(storage_path('app/backups/uploaded-*-shipped.zip')) ?: [];
+        try {
+            $this->actingAs(User::factory()->superuser()->create())
+                ->post(route('settings.backups.upload'), ['file' => $this->makeZip('shipped.zip')])
+                ->assertSessionHas('success');
 
-        $found = glob(storage_path('app/backups/uploaded-*-shipped.zip'));
-        $this->assertNotEmpty($found, 'local layout must stay storage/app/backups/<name>');
-        foreach ($found as $f) {
-            unlink($f);
+            $found = array_diff(glob(storage_path('app/backups/uploaded-*-shipped.zip')) ?: [], $before);
+            $this->assertCount(1, $found, 'local layout must stay storage/app/backups/<name>');
+        } finally {
+            foreach (array_diff(glob(storage_path('app/backups/uploaded-*-shipped.zip')) ?: [], $before) as $file) {
+                unlink($file);
+            }
         }
     }
 }
