@@ -3,6 +3,7 @@
 namespace Tests\Feature\S3Compatibility;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
@@ -21,6 +22,10 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        if (! in_array(DB::connection()->getDriverName(), ['mysql'], true)) {
+            $this->markTestSkipped('The restore tests need a MySQL server.');
+        }
 
         $this->workDir = sys_get_temp_dir().'/s3compat-webrestore-'.bin2hex(random_bytes(4));
         File::ensureDirectoryExists($this->workDir.'/backup-disk/'.config('backup.backup.name', 'backups'));
@@ -73,7 +78,8 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
         $this->actingAs($admin)
             ->post(route('settings.backups.restore', $filename))
             ->assertRedirect(route('settings.backups.index'))
-            ->assertSessionHas('error', fn ($message) => str_contains($message, 'Restore aborted before touching the database'));
+            ->assertSessionHas('error', fn ($message) => str_contains($message, 'Restore aborted before touching the database')
+                && str_contains($message, 'SHA-256 of public/uploads/avatars/x.png differs from the manifest.'));
 
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
     }
