@@ -407,6 +407,80 @@ class RestoreToRemoteDiskTest extends TestCase
     }
 
     #[Test]
+    public function validate_only_rejects_a_corrupted_database_dump(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $sql = str_repeat("INSERT INTO `s3compat_probe` VALUES (1);\n", 100000);
+        $zip = $this->backupZip([], null, $sql);
+        $za = new ZipArchive;
+        $this->assertTrue($za->open($zip));
+        $za->setCompressionName('db-dumps/mysql-test.sql', ZipArchive::CM_DEFLATE);
+        $za->close();
+
+        $file = fopen($zip, 'r+b');
+        $header = fread($file, 30);
+        $this->assertSame("PK\x03\x04", substr($header, 0, 4));
+        $lengths = unpack('vname/vextra', substr($header, 26, 4));
+        $offset = 30 + $lengths['name'] + $lengths['extra'];
+        fseek($file, $offset);
+        $byte = ord(fread($file, 1));
+        fseek($file, $offset);
+        // A reserved DEFLATE block type corrupts the SQL payload without changing the ZIP directory.
+        fwrite($file, chr($byte | 0x06));
+        fclose($file);
+
+        $this->assertTrue($za->open($zip));
+        $this->assertSame(strlen($sql), $za->statName('db-dumps/mysql-test.sql')['size']);
+        $za->close();
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+        $output = Artisan::output();
+
+        $this->assertNotSame(0, $exit, $output);
+        $this->assertStringContainsString('Could not read the complete database dump: db-dumps/mysql-test.sql', $output);
+        $this->assertSame([99], $this->probeValues());
+    }
+
+    #[Test]
+    public function a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $key = 'private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        $path = 'storage/'.$key;
+        Storage::disk('custom_private')->put($key, 'CURRENT');
+        $zip = $this->backupZip([$path => 'STAGED'], [
+            'version' => 1,
+            'remote_files' => 'included',
+            'remote_roles' => ['private'],
+            'files' => [[
+                'role' => 'private',
+                'key' => $key,
+                'archive_path' => $path,
+                'bytes' => 6,
+                'sha256' => hash('sha256', 'STAGED'),
+            ]],
+        ]);
+        $za = new ZipArchive;
+        $za->open($zip);
+        $za->addFromString($path, 'STALE!');
+        $za->close();
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+
+        $this->assertSame(0, $exit, Artisan::output());
+        $this->assertSame([99], $this->probeValues());
+        $this->assertSame('CURRENT', Storage::disk('custom_private')->get($key));
+
+        [$exit, $output] = $this->restore($zip);
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertSame([1], $this->probeValues());
+        $this->assertSame('STAGED', Storage::disk('custom_private')->get($key));
+    }
+
+    #[Test]
     public function validate_only_rejects_an_archive_whose_checksum_does_not_match(): void
     {
         $this->useRemoteDisks();
