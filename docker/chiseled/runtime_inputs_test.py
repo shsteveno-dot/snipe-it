@@ -11,8 +11,8 @@ from runtime_inputs import load_lock
 
 BASE = Path(__file__).resolve().parent
 EXPECTED = {
-    'amd64': '6c70e4217dae63bff51fc4bfe4898185210957625b51211b1f92d1c6971e889d',
-    'arm64': 'bad66bfe8d3e5f13a95cc5b436e87c97daed5ef422de87f93c57a1bcd2093059',
+    'amd64': 'c212b5db1094a83f5514d5c9c2b4aaf5b85cf2b9b1b096617289f6a8111deb70',
+    'arm64': '41dd0ff32073dbd431aedbc38729b51273646da1560ba1f880b4ba79dc2b9f2b',
 }
 
 
