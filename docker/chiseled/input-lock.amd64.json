@@ -2,8 +2,8 @@
   "architecture": "amd64",
   "bootstrap": "docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
   "bootstrap_validation": "Bootstrap image pinned by digest (see BOOTSTRAP in capture_snapshot.py); the digest can be re-checked by pulling the image and comparing.",
-  "created_at": "2026-10-08T02:21:39.916676+00:00",
-  "finalized_at": "2026-10-08T02:26:32.921138+00:00",
+  "created_at": "2026-10-30T02:37:44.541487+00:00",
+  "finalized_at": "2026-10-30T02:50:27.455711+00:00",
   "format": 1,
   "identities": {
     "builder": "docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
@@ -281,17 +281,17 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "74492419b8fda803774b8c9acef6afc5d2f9ff31782635aae212906adae7b277",
-        "size": 330730
+        "sha256": "70b188a86d81f30d7510aab30e25d638ed5037dded6691af1533952b71ac61de",
+        "size": 330968
       },
       "component": "main",
-      "filename": "pool/main/b/brotli/libbrotli1_1.1.0-2build2_amd64.deb",
+      "filename": "pool/main/b/brotli/libbrotli1_1.1.0-2ubuntu0.1_amd64.deb",
       "name": "libbrotli1",
-      "repository": "http://archive.ubuntu.com/ubuntu/",
+      "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "brotli",
-      "source_version": "1.1.0-2build2",
-      "suite": "noble",
-      "version": "1.1.0-2build2"
+      "source_version": "1.1.0-2ubuntu0.1",
+      "suite": "noble-security",
+      "version": "1.1.0-2ubuntu0.1"
     },
     {
       "architecture": "amd64",
@@ -1751,17 +1751,17 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "84b9cf5752b29c9f92c27cd4c4ba9bbcc70b5ccf9b1b515421a28ae23212e273",
-        "size": 62988
+        "sha256": "376249c8de139568221dbb242318cc8cb8f02299e3a62b7432948e1754fbddf9",
+        "size": 63158
       },
       "component": "main",
-      "filename": "pool/main/z/zlib/zlib1g_1.3.dfsg-3.1ubuntu2.2_amd64.deb",
+      "filename": "pool/main/z/zlib/zlib1g_1.3.dfsg-3.1ubuntu2.3_amd64.deb",
       "name": "zlib1g",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "zlib",
-      "source_version": "1:1.3.dfsg-3.1ubuntu2.2",
+      "source_version": "1:1.3.dfsg-3.1ubuntu2.3",
       "suite": "noble-security",
-      "version": "1:1.3.dfsg-3.1ubuntu2.2"
+      "version": "1:1.3.dfsg-3.1ubuntu2.3"
     }
   ],
   "repositories": [
@@ -1813,8 +1813,8 @@
     {
       "codename": "noble",
       "freshness": {
-        "date": "Wed, 21 Oct 2026 18:27:28 UTC",
-        "live_deadline": "2026-10-23T18:27:28+00:00",
+        "date": "Thu, 29 Oct 2026 23:34:05 UTC",
+        "live_deadline": "2026-10-31T23:34:05+00:00",
         "policy": "48-hour-publication-window",
         "valid_until": null
       },
@@ -1822,32 +1822,32 @@
         {
           "component": "main",
           "gzip": {
-            "sha256": "d0b3ceb426fbc89c92796d437abcfd15e241be8a5d94673fdb014355747db4b7",
-            "size": 1411309
+            "sha256": "34c3bb06905e18ab7bdb5978b1a2ebc7101b437d2f719e26c7d1e722723ab0d0",
+            "size": 1411737
           },
           "gzip_path": "main/binary-amd64/Packages.gz",
           "packages": {
-            "sha256": "8159809327f001cd59d7655c23479311eb2e12c95f33fa5625931cf97dd4b76d",
-            "size": 6239577
+            "sha256": "dd8f0e30250c8a7df48247a76479d8b533acfcbd16e77181c2457ede52e6a618",
+            "size": 6241173
           },
           "path": "main/binary-amd64/Packages"
         },
         {
           "component": "universe",
           "gzip": {
-            "sha256": "ee3b77cfc0946c19d8c7c6232c2290035c5bd717fde20288e191bd74fa33d9db",
-            "size": 1549382
+            "sha256": "0ed2ed96030054a1a1024c43d40aaf09f26e0a871f5223829e8429b2e2ec7872",
+            "size": 1549836
           },
           "gzip_path": "universe/binary-amd64/Packages.gz",
           "packages": {
-            "sha256": "ea513faa34525c68c9a2a75242acb5818fe3c43c60a81ace8e11a150915fe21f",
-            "size": 7674629
+            "sha256": "9c5ba85b87832d284963422965704dde2c8ab861661f571aa1bf45e9180bf9bc",
+            "size": 7675869
           },
           "path": "universe/binary-amd64/Packages"
         }
       ],
       "inrelease": {
-        "sha256": "45d084735a64c70d1eb524156d290f5e52fcaa42214fdbe66c7ab05dade9f3fa",
+        "sha256": "72e8b86629d1642b3f481b12c87863ce2ca29d94f8cc08ebf45b9c4cdb00d02d",
         "size": 126127
       },
       "origin": "Ubuntu",
@@ -1858,8 +1858,8 @@
     {
       "codename": "noble",
       "freshness": {
-        "date": "Wed, 07 Oct 2026 18:04:00 UTC",
-        "live_deadline": "2026-10-09T18:04:00+00:00",
+        "date": "Thu, 29 Oct 2026 23:35:03 UTC",
+        "live_deadline": "2026-10-31T23:35:03+00:00",
         "policy": "48-hour-publication-window",
         "valid_until": null
       },
@@ -1867,32 +1867,32 @@
         {
           "component": "main",
           "gzip": {
-            "sha256": "3976d76c5b1025fa0ed644145edb5339aa8f1484e5bd0472b33e2947400b2020",
-            "size": 1700960
+            "sha256": "0d49fed54eebfdfc7a30581da462315f718d26660c47c4b127a70b183023f729",
+            "size": 1739549
           },
           "gzip_path": "main/binary-amd64/Packages.gz",
           "packages": {
-            "sha256": "8398fc11d51333e8d67a8f0f004821c4acb6185b70cba842ffa3bdcd07b17972",
-            "size": 7432038
+            "sha256": "f15d4841bb1a0401a8eaa7fc48119fddb3b22d6f9ec0570c3f482f576d3282e6",
+            "size": 7607567
           },
           "path": "main/binary-amd64/Packages"
         },
         {
           "component": "universe",
           "gzip": {
-            "sha256": "bf9825c2ad608410bc6e46ec6ade693f6085d5b263118d2df415e46cd6fa3dc0",
-            "size": 2165271
+            "sha256": "1f6eae21acd820c129987446fe76b979f8f5a2543aebaf22dce4b6b43c629be8",
+            "size": 2172356
           },
           "gzip_path": "universe/binary-amd64/Packages.gz",
           "packages": {
-            "sha256": "63847e1f466cda053b7afc9dc286616c79b637baec83c4f4789353b4d8a62f1a",
-            "size": 10612034
+            "sha256": "653ca1714d646a01802f764c4b99d608e0d2f8bfdefa3b1913a610ff454dc532",
+            "size": 10646537
           },
           "path": "universe/binary-amd64/Packages"
         }
       ],
       "inrelease": {
-        "sha256": "0711096e05b2c7f5217ae4474af592385644e0931f49d716b07b56a0ad4a9fab",
+        "sha256": "96c33b3572665457051772ca8456301bbf4f1c19d877231d8c86f259c584de44",
         "size": 126125
       },
       "origin": "Ubuntu",
