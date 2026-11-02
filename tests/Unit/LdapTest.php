@@ -418,4 +418,140 @@ class LdapTest extends TestCase
         $possibly_recached_cert_file = Setting::get_client_side_cert_path(); // this should *NOT* re-cache from the Settings
         $this->assertStringEqualsFile($possibly_recached_cert_file, 'WEIRDLY UPDATED CERT FILE');
     }
+
+    public function test_selected_ous_is_null_when_every_ou_is_in_scope()
+    {
+        $this->settings->set(['ldap_selected_ous' => null]);
+
+        $this->assertNull(Ldap::selectedOus());
+        $this->assertTrue(Ldap::isDnInSelectedOus('CN=Someone,OU=Anything,DC=gogoro,DC=com'));
+    }
+
+    public function test_unreadable_selected_ous_select_nothing()
+    {
+        $this->settings->set(['ldap_selected_ous' => 'not json']);
+
+        $this->assertSame([], Ldap::selectedOus());
+        $this->assertFalse(Ldap::isDnInSelectedOus('CN=Someone,OU=G1,DC=gogoro,DC=com'));
+    }
+
+    public function test_dn_must_sit_directly_in_a_selected_ou()
+    {
+        $ous = ['OU=G1,OU=GogoroUsers,DC=gogoro,DC=com', 'ou=Test Users, ou=GogoroUsers, dc=gogoro, dc=com'];
+
+        $this->assertTrue(Ldap::isDnDirectlyInOus('CN=Someone,OU=G1,OU=GogoroUsers,DC=gogoro,DC=com', $ous));
+        $this->assertTrue(Ldap::isDnDirectlyInOus('cn=someone,ou=g1,ou=gogorousers,dc=gogoro,dc=com', $ous));
+        $this->assertTrue(Ldap::isDnDirectlyInOus('CN=Someone,OU=Test Users,OU=GogoroUsers,DC=gogoro,DC=com', $ous));
+
+        $this->assertFalse(Ldap::isDnDirectlyInOus('CN=Someone,OU=New,OU=G1,OU=GogoroUsers,DC=gogoro,DC=com', $ous));
+        $this->assertFalse(Ldap::isDnDirectlyInOus('CN=Someone,OU=NotG1,OU=GogoroUsers,DC=gogoro,DC=com', $ous));
+        $this->assertFalse(Ldap::isDnDirectlyInOus('CN=Someone,OU=GogoroUsers,DC=gogoro,DC=com', $ous));
+    }
+
+    public function test_an_escaped_comma_in_a_name_is_not_a_dn_separator()
+    {
+        $name_with_comma = 'CN=Wu'.chr(92).', Rosa,OU=G1,DC=gogoro,DC=com';
+
+        $this->assertTrue(Ldap::isDnDirectlyInOus($name_with_comma, ['OU=G1,DC=gogoro,DC=com']));
+        $this->assertFalse(Ldap::isDnDirectlyInOus($name_with_comma, ['Rosa,OU=G1,DC=gogoro,DC=com']));
+    }
+
+    public function test_ou_tree_is_depth_first_with_the_base_dn_on_top()
+    {
+        $tree = Ldap::buildOuTree('OU=GogoroUsers,DC=gogoro,DC=com', [
+            'OU=TPE,OU=GogoroUsers,DC=gogoro,DC=com',
+            'OU=GogoroUsers,DC=gogoro,DC=com',
+            'OU=Team2,OU=G1,OU=GogoroUsers,DC=gogoro,DC=com',
+            'OU=G1,OU=GogoroUsers,DC=gogoro,DC=com',
+            'OU=Deep,OU=Team2,OU=G1,OU=GogoroUsers,DC=gogoro,DC=com',
+            'OU=Elsewhere,DC=gogoro,DC=com',
+        ]);
+
+        $this->assertSame(
+            ['OU=GogoroUsers,DC=gogoro,DC=com', 'G1', 'Team2', 'Deep', 'TPE'],
+            array_column($tree, 'name'),
+        );
+        $this->assertSame([0, 1, 2, 3, 1], array_column($tree, 'depth'));
+        $this->assertSame([], $tree[0]['ancestors']);
+        $this->assertSame([0, 1, 2], $tree[3]['ancestors']);
+        $this->assertSame([0], $tree[4]['ancestors']);
+    }
+
+    public function test_find_ldap_users_keeps_only_entries_in_selected_ous()
+    {
+        $this->settings->set(['ldap_selected_ous' => json_encode(['OU=G1,DC=gogoro,DC=com', 'OU=TPE,DC=gogoro,DC=com'])]);
+        $this->mockLdapSearchReturning([
+            'count' => 3,
+            0 => ['dn' => 'CN=Unselected,OU=IT,DC=gogoro,DC=com'],
+            1 => ['dn' => 'CN=KeptOne,OU=G1,DC=gogoro,DC=com'],
+            2 => ['dn' => 'CN=KeptTwo,OU=TPE,DC=gogoro,DC=com'],
+        ]);
+
+        $results = Ldap::findLdapUsers();
+
+        $this->assertSame(2, $results['count']);
+        $this->assertSame('CN=KeptOne,OU=G1,DC=gogoro,DC=com', $results[0]['dn']);
+        $this->assertSame('CN=KeptTwo,OU=TPE,DC=gogoro,DC=com', $results[1]['dn']);
+        $this->assertArrayNotHasKey(2, $results);
+    }
+
+    public function test_find_ldap_users_keeps_every_entry_when_every_ou_is_in_scope()
+    {
+        $this->settings->set(['ldap_selected_ous' => null]);
+        $this->mockLdapSearchReturning([
+            'count' => 1,
+            0 => ['dn' => 'CN=Someone,OU=IT,DC=gogoro,DC=com'],
+        ]);
+
+        $this->assertSame(1, Ldap::findLdapUsers()['count']);
+    }
+
+    public function test_login_is_refused_for_a_user_outside_the_selected_ous()
+    {
+        $this->settings->enableLdap()->set(['ldap_selected_ous' => json_encode(['OU=G1,DC=gogoro,DC=com'])]);
+        $this->mockLdapLoginFoundAt('CN=Someone,OU=IT,DC=gogoro,DC=com');
+
+        $this->assertFalse(Ldap::findAndBindUserLdap('username', 'password'));
+    }
+
+    public function test_login_is_refused_for_a_user_outside_the_selected_ous_on_the_legacy_path()
+    {
+        // No bind DN configured, so the fast find-and-bind is skipped entirely.
+        $this->settings->enableAnonymousLdap()->set(['ldap_selected_ous' => json_encode(['OU=G1,DC=gogoro,DC=com'])]);
+        $this->mockLdapLoginFoundAt('CN=Someone,OU=IT,DC=gogoro,DC=com');
+
+        $this->assertFalse(Ldap::findAndBindUserLdap('username', 'password'));
+    }
+
+    public function test_login_works_for_a_user_in_a_selected_ou()
+    {
+        $this->settings->enableLdap()->set(['ldap_selected_ous' => json_encode(['OU=G1,DC=gogoro,DC=com'])]);
+        $this->mockLdapLoginFoundAt('CN=Someone,OU=G1,DC=gogoro,DC=com');
+
+        $this->assertSame(['sn' => 'Surname'], Ldap::findAndBindUserLdap('username', 'password'));
+    }
+
+    private function mockLdapSearchReturning(array $entries): void
+    {
+        $this->settings->enableLdap();
+        $this->getFunctionMock('App\\Models', 'ldap_connect')->expects($this->once())->willReturn('hello');
+        $this->getFunctionMock('App\\Models', 'ldap_set_option')->expects($this->any());
+        $this->getFunctionMock('App\\Models', 'ldap_bind')->expects($this->once())->willReturn(true);
+        $this->getFunctionMock('App\\Models', 'ldap_search')->expects($this->once())->willReturn(['stuff']);
+        $this->getFunctionMock('App\\Models', 'ldap_parse_result')->expects($this->once())->willReturn(true);
+        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->expects($this->once())->willReturn($entries);
+    }
+
+    private function mockLdapLoginFoundAt(string $dn): void
+    {
+        $this->getFunctionMock('App\\Models', 'ldap_connect')->expects($this->any())->willReturn('hello');
+        $this->getFunctionMock('App\\Models', 'ldap_set_option')->expects($this->any());
+        $this->getFunctionMock('App\\Models', 'ldap_bind')->expects($this->any())->willReturn(true);
+        $this->getFunctionMock('App\\Models', 'ldap_unbind')->expects($this->any());
+        $this->getFunctionMock('App\\Models', 'ldap_search')->expects($this->any())->willReturn('results');
+        $this->getFunctionMock('App\\Models', 'ldap_count_entries')->expects($this->any())->willReturn(1);
+        $this->getFunctionMock('App\\Models', 'ldap_first_entry')->expects($this->any())->willReturn('entry');
+        $this->getFunctionMock('App\\Models', 'ldap_get_dn')->expects($this->any())->willReturn($dn);
+        $this->getFunctionMock('App\\Models', 'ldap_get_attributes')->expects($this->any())->willReturn(['SN' => 'Surname']);
+    }
 }
