@@ -196,6 +196,10 @@
             padding: 8px 10px;
         }
 
+        .ldap-wizard .ldap-ou-count {
+            color: var(--color-fg);
+        }
+
         .ldap-wizard .ldap-ou-tree {
             max-height: 360px;
             overflow: auto;
@@ -683,7 +687,7 @@
 
                             <div class="ldap-ou-panel">
                                 <div class="ldap-ou-toolbar">
-                                    <span class="text-muted">
+                                    <span class="ldap-ou-count">
                                         @if ($ldap_all_ous)
                                             {{ trans('admin/settings/general.ldap_wizard.ou_scope.all_selected') }}
                                         @else
