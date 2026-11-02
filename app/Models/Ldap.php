@@ -149,6 +149,9 @@ class Ldap extends Model
             if (! $userDn) {
                 throw new Exception('No user DN found');
             }
+            if (! self::isDnInSelectedOus($userDn)) {
+                throw new Exception('User DN is outside the selected OUs');
+            }
             \Log::debug("FOUND DN IS: $userDn");
             // The temptation now is to do ldap_unbind on the $admin_conn, but that gets handled in the 'finally' below.
             // I don't know if that means a separate 'connection' is maintained to the LDAP server or not, and would
@@ -250,6 +253,11 @@ class Ldap extends Model
         }
 
         if (! $entry = ldap_first_entry($connection, $results)) {
+            return false;
+        }
+
+        // The fast path above also refuses unselected OUs, but its failure falls through to here.
+        if (self::selectedOus() !== null && ! self::isDnInSelectedOus((string) ldap_get_dn($connection, $entry))) {
             return false;
         }
 
@@ -676,6 +684,8 @@ class Ldap extends Model
                 return redirect()->route('users.index')->with('error', trans('admin/users/message.error.ldap_could_not_get_entries').ldap_error($ldapconn)); // TODO this is never called in any routed context - only from the Artisan command. So this redirect will never work.
             }
 
+            $results = self::withoutUnselectedOus($results);
+
             // Add results to result set
             $global_count += $results['count'];
             $result_set = array_merge($result_set, $results);
@@ -688,5 +698,176 @@ class Ldap extends Model
         $results = $result_set;
 
         return $results;
+    }
+
+    /**
+     * The OU DNs picked in the LDAP wizard, or null when every OU is in scope.
+     * Unreadable stored data selects nothing rather than opening up every OU.
+     *
+     * @return list<string>|null
+     */
+    public static function selectedOus(): ?array
+    {
+        $stored = Setting::getSettings()->ldap_selected_ous ?? null;
+
+        if ($stored === null) {
+            return null;
+        }
+
+        $decoded = json_decode($stored, true);
+
+        return is_array($decoded) ? array_values(array_filter($decoded, 'is_string')) : [];
+    }
+
+    /**
+     * Whether a user DN is in scope for sync and login. LDAP filters can't express
+     * this because AD doesn't match on DN components.
+     */
+    public static function isDnInSelectedOus(string $dn): bool
+    {
+        $selected_ous = self::selectedOus();
+
+        return $selected_ous === null || self::isDnDirectlyInOus($dn, $selected_ous);
+    }
+
+    /**
+     * Whether the OU directly holding a DN is in the list. Each OU is judged on its
+     * own, so an OU created below a selected one stays out until it is selected too.
+     *
+     * @param  list<string>  $ous
+     */
+    public static function isDnDirectlyInOus(string $dn, array $ous): bool
+    {
+        return in_array(self::parentDn($dn), array_map(self::normalizeDn(...), $ous), true);
+    }
+
+    /**
+     * Every DN under $base_dn matching $filter, paged so that a server-side size
+     * limit (1000 by default on AD) can't truncate the answer.
+     *
+     * @return list<string>
+     *
+     * @throws Exception when the search fails
+     */
+    public static function findDns($connection, string $base_dn, string $filter): array
+    {
+        $dns = [];
+        $cookie = '';
+
+        do {
+            $page_control = [['oid' => LDAP_CONTROL_PAGEDRESULTS, 'iscritical' => false, 'value' => ['size' => 500, 'cookie' => $cookie]]];
+            $search_results = @ldap_search($connection, $base_dn, $filter, ['dn'], 0, -1, -1, LDAP_DEREF_NEVER, $page_control);
+            if (! $search_results) {
+                throw new Exception(ldap_error($connection));
+            }
+
+            $errcode = null;
+            $matcheddn = null;
+            $errmsg = null;
+            $referrals = null;
+            $controls = [];
+            ldap_parse_result($connection, $search_results, $errcode, $matcheddn, $errmsg, $referrals, $controls);
+            $cookie = $controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'] ?? '';
+
+            $entries = ldap_get_entries($connection, $search_results);
+            for ($i = 0; $i < $entries['count']; $i++) {
+                $dns[] = $entries[$i]['dn'];
+            }
+        } while ($cookie !== '');
+
+        return $dns;
+    }
+
+    /**
+     * Arranges OU DNs under $base_dn into depth-first rows for the wizard's tree.
+     * The base DN is always the first row, since it can hold users directly.
+     *
+     * @param  list<string>  $ou_dns
+     * @return list<array{dn: string, name: string, depth: int, ancestors: list<int>}>
+     */
+    public static function buildOuTree(string $base_dn, array $ou_dns): array
+    {
+        $normalized_base = self::normalizeDn($base_dn);
+        $paths = [];
+
+        foreach ($ou_dns as $ou_dn) {
+            $normalized_dn = self::normalizeDn($ou_dn);
+            if (str_ends_with($normalized_dn, ','.$normalized_base)) {
+                $relative_dn = substr($normalized_dn, 0, -strlen(','.$normalized_base));
+                $paths[implode("\n", array_reverse(self::splitDn($relative_dn)))] = $ou_dn;
+            }
+        }
+
+        uksort($paths, 'strnatcasecmp');
+
+        $rows = [['dn' => $base_dn, 'name' => $base_dn, 'depth' => 0, 'ancestors' => []]];
+        $row_index_by_path = [];
+
+        foreach ($paths as $path => $ou_dn) {
+            $ancestors = [0];
+            $ancestor_path = [];
+            $path_parts = explode("\n", $path);
+            foreach (array_slice($path_parts, 0, -1) as $path_part) {
+                $ancestor_path[] = $path_part;
+                $ancestor_key = implode("\n", $ancestor_path);
+                if (isset($row_index_by_path[$ancestor_key])) {
+                    $ancestors[] = $row_index_by_path[$ancestor_key];
+                }
+            }
+
+            $row_index_by_path[$path] = count($rows);
+            $rows[] = [
+                'dn' => $ou_dn,
+                'name' => preg_replace('/^[^=]*=/', '', self::splitDn($ou_dn)[0]),
+                'depth' => count($path_parts),
+                'ancestors' => $ancestors,
+            ];
+        }
+
+        return $rows;
+    }
+
+    private static function normalizeDn(string $dn): string
+    {
+        return mb_strtolower(preg_replace('/\s*([,=])\s*/', '$1', trim($dn)));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function splitDn(string $dn): array
+    {
+        // \x5C is a backslash: an escaped comma is part of a value, not a separator.
+        return preg_split('/(?<!\x5C),/', $dn);
+    }
+
+    private static function parentDn(string $dn): string
+    {
+        return implode(',', array_slice(self::splitDn(self::normalizeDn($dn)), 1));
+    }
+
+    /**
+     * Drops entries outside the selected OUs from an ldap_get_entries() result, keeping its shape.
+     *
+     * @param  array<int|string, mixed>  $entries
+     * @return array<int|string, mixed>
+     */
+    private static function withoutUnselectedOus(array $entries): array
+    {
+        $selected_ous = self::selectedOus();
+
+        if ($selected_ous === null) {
+            return $entries;
+        }
+
+        $kept = [];
+        foreach ($entries as $key => $entry) {
+            if (is_int($key) && self::isDnDirectlyInOus((string) ($entry['dn'] ?? ''), $selected_ous)) {
+                $kept[] = $entry;
+            }
+        }
+        $kept['count'] = count($kept);
+
+        return $kept;
     }
 }

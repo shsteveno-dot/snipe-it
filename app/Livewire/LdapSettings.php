@@ -128,6 +128,16 @@ class LdapSettings extends Component
 
     public string $ldap_auth_filter_query = '';
 
+    // Which OUs under the base DN are in scope. When ldap_all_ous is on the
+    // list is ignored and persists as NULL, so OUs created later are included.
+    public bool $ldap_all_ous = true;
+
+    /** @var list<string> */
+    public array $ldap_selected_ous = [];
+
+    // Rows for the tree, from Ldap::buildOuTree(). Not persisted; loaded on demand.
+    public array $ouTree = [];
+
     // Step 3: Attribute mapping. LDAP attribute names Snipe-IT reads
     // from each entry. Only ldap_username_field + ldap_fname_field are
     // required per the legacy StoreLdapSettings rules.
@@ -310,6 +320,10 @@ class LdapSettings extends Component
         $this->ldap_basedn = (string) $setting->ldap_basedn;
         $this->ldap_filter = (string) $setting->ldap_filter;
         $this->ldap_auth_filter_query = (string) $setting->ldap_auth_filter_query;
+
+        $selected_ous = Ldap::selectedOus();
+        $this->ldap_all_ous = $selected_ous === null;
+        $this->ldap_selected_ous = $selected_ous ?? [];
 
         $this->ldap_username_field = (string) $setting->ldap_username_field;
         $this->ldap_fname_field = (string) $setting->ldap_fname_field;
@@ -673,6 +687,7 @@ class LdapSettings extends Component
         $setting->ldap_basedn = $this->ldap_basedn;
         $setting->ldap_filter = $this->ldap_filter;
         $setting->ldap_auth_filter_query = $this->ldap_auth_filter_query;
+        $setting->ldap_selected_ous = $this->ldap_all_ous ? null : json_encode(array_values($this->ldap_selected_ous));
 
         // Clear the local password field so the next re-render doesn't
         // send the value back to the browser after a successful save.
@@ -705,6 +720,9 @@ class LdapSettings extends Component
             return false;
         }
         if (trim($this->ldap_auth_filter_query) === '') {
+            return false;
+        }
+        if (! $this->ldap_all_ous && $this->ldap_selected_ous === []) {
             return false;
         }
 
@@ -761,6 +779,24 @@ class LdapSettings extends Component
             ],
             'ldap_filter' => ['nullable', 'regex:/^[^(]/'],
             'ldap_auth_filter_query' => 'required|not_in:uid=samaccountname',
+            'ldap_selected_ous' => [
+                \Illuminate\Validation\Rule::requiredIf(! $this->ldap_all_ous),
+                'array',
+                // A base DN edit can strand OUs picked under the old one, and
+                // with no user matching them every sync would come back empty.
+                /** @SuppressWarnings(PHPMD.UnusedFormalParameter) */
+                function ($attribute, $value, $fail) use ($normalizeDn) {
+                    $base = $normalizeDn($this->ldap_basedn);
+                    foreach ((array) $value as $ou) {
+                        $normalized_ou = $normalizeDn($ou);
+                        if (! $this->ldap_all_ous && $normalized_ou !== $base && ! str_ends_with($normalized_ou, ','.$base)) {
+                            $fail(trans('admin/settings/general.ldap_wizard.ou_scope.outside_basedn'));
+
+                            return;
+                        }
+                    }
+                },
+            ],
         ];
     }
 
@@ -772,34 +808,139 @@ class LdapSettings extends Component
             'ldap_basedn' => trans('admin/settings/general.ldap_basedn'),
             'ldap_filter' => trans('admin/settings/general.ldap_filter'),
             'ldap_auth_filter_query' => trans('admin/settings/general.ldap_auth_filter_query'),
+            'ldap_selected_ous' => trans('admin/settings/general.ldap_wizard.ou_scope.label'),
         ];
     }
 
     /**
-     * Combined bind + search test. Binds with the form credentials
-     * (never trusts persisted, the whole point is to verify what the
-     * user just typed), then runs a search under the form base DN with
-     * the form filter. Success = bind AND search both succeeded AND
-     * search returned at least one entry (zero entries is functionally
-     * broken for sync). Any failure surfaces a specific message
-     * pointing at the actual problem (bind vs search).
-     *
-     * @SuppressWarnings("PHPMD.ElseExpression")
+     * Reads the OUs under the form's base DN into $ouTree, with the form's
+     * credentials so it works before step 2 is saved. Selected OUs that no
+     * longer exist are dropped from the selection.
      */
-    protected function runStep2NetworkTest(): void
+    public function loadOuTree(): void
     {
-        $this->clearTestResult();
-
-        if (! $this->checkRateLimit('ldap-test-step2', 'ldap bind test')) {
+        if ($this->isReadOnly) {
             return;
         }
 
-        $conn = $this->openLdapConnectionForTest('ldap bind test');
+        $this->clearTestResult();
+
+        if (trim($this->ldap_basedn) === '') {
+            $this->addError('ldap_basedn', trans('validation.required', ['attribute' => trans('admin/settings/general.ldap_basedn')]));
+
+            return;
+        }
+
+        if (! $this->checkRateLimit('ldap-ou-tree', 'ldap search test')) {
+            return;
+        }
+
+        $conn = $this->openLdapConnectionForTest('ldap search test');
         if (! $conn) {
             return;
         }
 
-        // Bind. SASL EXTERNAL uses the client cert loaded by
+        if ($this->bindWithFormCredentials($conn, 'ldap search test') === null) {
+            return;
+        }
+
+        try {
+            $ou_dns = Ldap::findDns($conn, $this->ldap_basedn, '(objectClass=organizationalUnit)');
+        } catch (\Exception $e) {
+            @ldap_unbind($conn);
+            $this->recordTestResult(
+                'error',
+                trans('admin/settings/general.ldap_wizard.search.search_failed', ['error' => $e->getMessage()]),
+                'ldap search test',
+            );
+
+            return;
+        }
+        @ldap_unbind($conn);
+
+        $this->ouTree = Ldap::buildOuTree($this->ldap_basedn, $ou_dns);
+
+        $tree_dns = array_column($this->ouTree, 'dn');
+        $tree_dns_lower = array_map('mb_strtolower', $tree_dns);
+        $still_present = [];
+        foreach ($this->ldap_selected_ous as $selected_ou) {
+            $position = array_search(mb_strtolower($selected_ou), $tree_dns_lower, true);
+            if ($position !== false) {
+                $still_present[] = $tree_dns[$position];
+            }
+        }
+        if (count($still_present) !== count($this->ldap_selected_ous)) {
+            $this->dirty = true;
+        }
+        $this->ldap_selected_ous = $still_present;
+    }
+
+    /**
+     * The "all" checkbox. Turning it off starts from everything checked, since
+     * the usual job is unticking the few OUs that shouldn't sync.
+     */
+    public function toggleAllOus(): void
+    {
+        if ($this->isReadOnly) {
+            return;
+        }
+
+        if ($this->ldap_all_ous) {
+            if ($this->ouTree === []) {
+                $this->loadOuTree();
+            }
+            if ($this->ouTree === []) {
+                return;
+            }
+            $this->ldap_all_ous = false;
+            $this->ldap_selected_ous = array_column($this->ouTree, 'dn');
+        } else {
+            $this->ldap_all_ous = true;
+            $this->ldap_selected_ous = [];
+        }
+
+        $this->markOuSelectionChanged();
+    }
+
+    /**
+     * Toggles one tree row, and every row below it with it. Takes the row index
+     * so a DN never has to be escaped into a wire:click expression.
+     */
+    public function toggleOu(int $index): void
+    {
+        if ($this->isReadOnly || $this->ldap_all_ous || ! isset($this->ouTree[$index])) {
+            return;
+        }
+
+        $affected = [$this->ouTree[$index]['dn']];
+        foreach ($this->ouTree as $row) {
+            if (in_array($index, $row['ancestors'], true)) {
+                $affected[] = $row['dn'];
+            }
+        }
+
+        $this->ldap_selected_ous = in_array($this->ouTree[$index]['dn'], $this->ldap_selected_ous, true)
+            ? array_values(array_diff($this->ldap_selected_ous, $affected))
+            : array_values(array_unique([...$this->ldap_selected_ous, ...$affected]));
+
+        $this->markOuSelectionChanged();
+    }
+
+    private function markOuSelectionChanged(): void
+    {
+        $this->dirty = true;
+        $this->clearTestResult();
+        $this->resetValidation('ldap_selected_ous');
+    }
+
+    /**
+     * Binds $conn with the credentials on the form, falling back to the persisted
+     * password when the username is unchanged. Returns the identity bound as, or
+     * null after recording the error and unbinding.
+     */
+    protected function bindWithFormCredentials(\LDAP\Connection $conn, string $actionType): ?string
+    {
+        // SASL EXTERNAL uses the client cert loaded by
         // openLdapConnectionForTest() (via LDAP_OPT_X_TLS_CERTFILE /
         // _KEYFILE) as the auth identity, so no username / password
         // gets passed. Simple bind path resolves the password from the
@@ -826,10 +967,10 @@ class LdapSettings extends Component
                     $this->recordTestResult(
                         'error',
                         trans('admin/settings/general.ldap_wizard.bind.pword_decrypt_failed'),
-                        'ldap bind test',
+                        $actionType,
                     );
 
-                    return;
+                    return null;
                 }
             }
 
@@ -844,17 +985,49 @@ class LdapSettings extends Component
                 $this->recordTestResult(
                     'error',
                     trans('admin/settings/general.ldap_wizard.test.connect_failed', ['server' => $server]).' ('.$ldapError.')',
-                    'ldap bind test',
+                    $actionType,
                 );
 
-                return;
+                return null;
             }
             $this->recordTestResult(
                 'error',
                 trans('admin/settings/general.ldap_wizard.bind.rejected', ['error' => $ldapError]),
-                'ldap bind test',
+                $actionType,
             );
 
+            return null;
+        }
+
+        return $uname;
+    }
+
+    /**
+     * Combined bind + search test. Binds with the form credentials
+     * (never trusts persisted, the whole point is to verify what the
+     * user just typed), then runs a search under the form base DN with
+     * the form filter. Success = bind AND search both succeeded AND
+     * search returned at least one entry (zero entries is functionally
+     * broken for sync). Any failure surfaces a specific message
+     * pointing at the actual problem (bind vs search).
+     *
+     * @SuppressWarnings("PHPMD.ElseExpression")
+     */
+    protected function runStep2NetworkTest(): void
+    {
+        $this->clearTestResult();
+
+        if (! $this->checkRateLimit('ldap-test-step2', 'ldap bind test')) {
+            return;
+        }
+
+        $conn = $this->openLdapConnectionForTest('ldap bind test');
+        if (! $conn) {
+            return;
+        }
+
+        $uname = $this->bindWithFormCredentials($conn, 'ldap bind test');
+        if ($uname === null) {
             return;
         }
 
@@ -879,6 +1052,26 @@ class LdapSettings extends Component
         }
 
         $count = ldap_count_entries($conn, $searchResult);
+
+        // With OUs picked, count what a sync would really keep, or a selection
+        // holding no users would pass here and quietly sync nobody.
+        if (! $this->ldap_all_ous) {
+            try {
+                $count = count(array_filter(
+                    Ldap::findDns($conn, $this->ldap_basedn, $filter),
+                    fn ($dn) => Ldap::isDnDirectlyInOus($dn, $this->ldap_selected_ous),
+                ));
+            } catch (\Exception $e) {
+                @ldap_unbind($conn);
+                $this->recordTestResult(
+                    'error',
+                    trans('admin/settings/general.ldap_wizard.search.search_failed', ['error' => $e->getMessage()]),
+                    'ldap search test',
+                );
+
+                return;
+            }
+        }
         @ldap_unbind($conn);
 
         if ($count === 0) {
@@ -1092,6 +1285,16 @@ class LdapSettings extends Component
         $dn = ldap_get_dn($conn, $entry);
         $attributes = array_change_key_case((array) ldap_get_attributes($conn, $entry));
         @ldap_unbind($conn);
+
+        if (! $this->ldap_all_ous && ! Ldap::isDnDirectlyInOus((string) $dn, $this->ldap_selected_ous)) {
+            $this->recordFieldError(
+                'test_sample_username',
+                trans('admin/settings/general.ldap_wizard.ou_scope.sample_not_selected', ['dn' => $dn]),
+                'ldap search test',
+            );
+
+            return;
+        }
 
         // Build the preview table: for each Snipe-IT field, resolve the
         // configured LDAP attribute name to its actual value (or a
@@ -1562,6 +1765,11 @@ class LdapSettings extends Component
         // Clear AD  here so the component state matches what the user sees.
         if ($property === 'is_ad' && ! $this->is_ad && $this->ad_domain !== '') {
             $this->ad_domain = '';
+        }
+
+        // The tree belongs to the base DN it was read from.
+        if ($property === 'ldap_basedn') {
+            $this->ouTree = [];
         }
 
         // Every string-typed prop that participates in the LDAP
