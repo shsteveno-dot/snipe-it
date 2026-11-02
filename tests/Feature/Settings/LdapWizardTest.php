@@ -852,4 +852,127 @@ class LdapWizardTest extends TestCase
             ->set('ldap_server', 'ldap://ldap.example.com')
             ->assertSet('dirty', true);
     }
+
+    public function test_mount_hydrates_ou_selection(): void
+    {
+        $this->actAsSuperuser();
+
+        $this->ensureSetting(['ldap_selected_ous' => null]);
+        Livewire::test(LdapSettings::class)
+            ->assertSet('ldap_all_ous', true)
+            ->assertSet('ldap_selected_ous', []);
+
+        $this->ensureSetting(['ldap_selected_ous' => json_encode(['ou=g1,dc=example,dc=com'])]);
+        Livewire::test(LdapSettings::class)
+            ->assertSet('ldap_all_ous', false)
+            ->assertSet('ldap_selected_ous', ['ou=g1,dc=example,dc=com']);
+    }
+
+    public function test_turning_all_ous_off_starts_with_every_loaded_ou_checked(): void
+    {
+        $this->actAsSuperuser();
+        $this->ensureSetting();
+
+        Livewire::test(LdapSettings::class)
+            ->set('ouTree', $this->sampleOuTree())
+            ->call('toggleAllOus')
+            ->assertSet('ldap_all_ous', false)
+            ->assertSet('ldap_selected_ous', ['dc=example,dc=com', 'ou=g1,dc=example,dc=com', 'ou=team,ou=g1,dc=example,dc=com', 'ou=it,dc=example,dc=com'])
+            ->assertSet('dirty', true)
+            ->call('toggleAllOus')
+            ->assertSet('ldap_all_ous', true)
+            ->assertSet('ldap_selected_ous', []);
+    }
+
+    public function test_toggling_an_ou_cascades_down_but_not_up(): void
+    {
+        $this->actAsSuperuser();
+        $this->ensureSetting();
+
+        Livewire::test(LdapSettings::class)
+            ->set('ouTree', $this->sampleOuTree())
+            ->call('toggleAllOus')
+            ->call('toggleOu', 1)
+            ->assertSet('ldap_selected_ous', ['dc=example,dc=com', 'ou=it,dc=example,dc=com'])
+            ->call('toggleOu', 2)
+            ->assertSet('ldap_selected_ous', ['dc=example,dc=com', 'ou=it,dc=example,dc=com', 'ou=team,ou=g1,dc=example,dc=com'])
+            ->call('toggleOu', 1)
+            ->assertSet('ldap_selected_ous', ['dc=example,dc=com', 'ou=it,dc=example,dc=com', 'ou=team,ou=g1,dc=example,dc=com', 'ou=g1,dc=example,dc=com']);
+    }
+
+    public function test_toggling_an_ou_does_nothing_while_all_ous_is_on_or_for_an_unknown_row(): void
+    {
+        $this->actAsSuperuser();
+        $this->ensureSetting();
+
+        Livewire::test(LdapSettings::class)
+            ->set('ouTree', $this->sampleOuTree())
+            ->call('toggleOu', 1)
+            ->assertSet('ldap_selected_ous', [])
+            ->call('toggleAllOus')
+            ->call('toggleOu', 99)
+            ->assertCount('ldap_selected_ous', 4);
+    }
+
+    public function test_step2_rejects_an_empty_ou_selection(): void
+    {
+        $this->actAsSuperuser();
+        $this->ensureSetting();
+
+        Livewire::test(LdapSettings::class)
+            ->set('highestStepReached', 2)
+            ->set('currentStep', 2)
+            ->set('ldap_all_ous', false)
+            ->set('ldap_selected_ous', [])
+            ->call('saveAndAdvance')
+            ->assertHasErrors(['ldap_selected_ous']);
+    }
+
+    public function test_step2_rejects_selected_ous_outside_the_base_dn(): void
+    {
+        $this->actAsSuperuser();
+        $this->ensureSetting();
+
+        Livewire::test(LdapSettings::class)
+            ->set('highestStepReached', 2)
+            ->set('currentStep', 2)
+            ->set('ldap_basedn', 'ou=users,dc=example,dc=com')
+            ->set('ldap_all_ous', false)
+            ->set('ldap_selected_ous', ['ou=g1,dc=other,dc=com'])
+            ->call('saveAndAdvance')
+            ->assertHasErrors(['ldap_selected_ous']);
+    }
+
+    public function test_changing_the_base_dn_clears_the_loaded_tree(): void
+    {
+        $this->actAsSuperuser();
+        $this->ensureSetting();
+
+        Livewire::test(LdapSettings::class)
+            ->set('ouTree', $this->sampleOuTree())
+            ->set('ldap_basedn', 'dc=other,dc=com')
+            ->assertSet('ouTree', []);
+    }
+
+    public function test_ou_actions_are_blocked_in_read_only_mode(): void
+    {
+        $this->actAsSuperuser();
+        $this->ensureSetting();
+        config(['app.lock_passwords' => true]);
+
+        Livewire::test(LdapSettings::class)
+            ->set('ouTree', $this->sampleOuTree())
+            ->call('toggleAllOus')
+            ->assertSet('ldap_all_ous', true);
+    }
+
+    private function sampleOuTree(): array
+    {
+        return [
+            ['dn' => 'dc=example,dc=com', 'name' => 'dc=example,dc=com', 'depth' => 0, 'ancestors' => []],
+            ['dn' => 'ou=g1,dc=example,dc=com', 'name' => 'g1', 'depth' => 1, 'ancestors' => [0]],
+            ['dn' => 'ou=team,ou=g1,dc=example,dc=com', 'name' => 'team', 'depth' => 2, 'ancestors' => [0, 1]],
+            ['dn' => 'ou=it,dc=example,dc=com', 'name' => 'it', 'depth' => 1, 'ancestors' => [0]],
+        ];
+    }
 }
