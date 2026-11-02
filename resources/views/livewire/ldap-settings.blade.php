@@ -178,6 +178,83 @@
         #disableLdapModal.modal-danger .modal-body p {
             color: #fff;
         }
+        .ldap-wizard .ldap-ou-all {
+            height: auto;
+            margin: 7px 0 10px;
+        }
+
+        .ldap-wizard .ldap-ou-panel {
+            border: 1px solid var(--box-header-top-border-color);
+            border-radius: 3px;
+        }
+
+        .ldap-wizard .ldap-ou-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 10px;
+        }
+
+        .ldap-wizard .ldap-ou-tree {
+            max-height: 360px;
+            overflow: auto;
+            padding: 4px 0;
+            border-top: 1px solid var(--box-header-top-border-color);
+        }
+
+        .ldap-wizard .ldap-ou-tree--all {
+            opacity: 0.65;
+        }
+
+        .ldap-wizard .ldap-ou-row {
+            display: flex;
+            align-items: center;
+            padding-top: 3px;
+            padding-right: 10px;
+            padding-bottom: 3px;
+            white-space: nowrap;
+        }
+
+        .ldap-wizard .ldap-ou-row:hover {
+            background-color: var(--table-stripe-bg);
+        }
+
+        .ldap-wizard .ldap-ou-toggle,
+        .ldap-wizard .ldap-ou-toggle-spacer {
+            flex: 0 0 20px;
+            width: 20px;
+        }
+
+        .ldap-wizard .ldap-ou-toggle {
+            padding: 0;
+            border: 0;
+            background: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .ldap-wizard .ldap-ou-label {
+            align-items: center;
+            width: auto;
+            height: auto;
+            margin: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            box-shadow: none;
+        }
+
+        .ldap-wizard .ldap-ou-name i {
+            width: 16px;
+            margin-right: 4px;
+            text-align: center;
+        }
+
+        .ldap-wizard .ldap-ou-empty {
+            margin: 0;
+            padding: 8px 10px;
+            border-top: 1px solid var(--box-header-top-border-color);
+        }
     </style>
 
     <div class="panel box box-default">
@@ -580,6 +657,102 @@
                                 :ignore-autofill="true"
                                 :readonly="$isReadOnly"
                             />
+                        </x-slot:input>
+                    </x-form.row>
+
+                    <!-- OUs in scope -->
+                    <x-form.row
+                        name="ldap_selected_ous"
+                        :label="trans('admin/settings/general.ldap_wizard.ou_scope.label')"
+                        help_text="{{ trans('admin/settings/general.ldap_wizard.ou_scope.help') }}"
+                        help_class="col-md-7 col-md-offset-3"
+                    >
+                        <x-slot:input>
+                            {{-- wire:key carries the state: morphing updates the checked attribute
+                                 but not the live checkbox, so a changed box has to be replaced. --}}
+                            <label class="form-control ldap-ou-all">
+                                <input
+                                    type="checkbox"
+                                    wire:key="ou-all-{{ (int) $ldap_all_ous }}"
+                                    @checked($ldap_all_ous)
+                                    @disabled($isReadOnly)
+                                    wire:click.prevent="toggleAllOus"
+                                >
+                                {{ trans('admin/settings/general.ldap_wizard.ou_scope.all') }}
+                            </label>
+
+                            <div class="ldap-ou-panel">
+                                <div class="ldap-ou-toolbar">
+                                    <span class="text-muted">
+                                        @if ($ldap_all_ous)
+                                            {{ trans('admin/settings/general.ldap_wizard.ou_scope.all_selected') }}
+                                        @else
+                                            {{ trans('admin/settings/general.ldap_wizard.ou_scope.selected_count', ['count' => count($ldap_selected_ous)]) }}
+                                        @endif
+                                    </span>
+                                    <button
+                                        type="button"
+                                        class="btn btn-default btn-sm"
+                                        wire:click="loadOuTree"
+                                        wire:loading.attr="disabled"
+                                        wire:target="loadOuTree,toggleAllOus"
+                                        @disabled($isReadOnly)
+                                    >
+                                        <i class="fas fa-sync-alt" wire:loading.class="fa-spin" wire:target="loadOuTree,toggleAllOus" aria-hidden="true"></i>
+                                        {{ $ouTree === [] ? trans('admin/settings/general.ldap_wizard.ou_scope.load') : trans('admin/settings/general.ldap_wizard.ou_scope.reload') }}
+                                    </button>
+                                </div>
+
+                                @if ($ouTree !== [])
+                                    <div class="ldap-ou-tree{{ $ldap_all_ous ? ' ldap-ou-tree--all' : '' }}" x-data="{ collapsed: {} }" role="tree">
+                                        @foreach ($ouTree as $index => $row)
+                                            @php
+                                                $hasChildren = isset($ouTree[$index + 1]) && in_array($index, $ouTree[$index + 1]['ancestors'], true);
+                                                $isChecked = $ldap_all_ous || in_array($row['dn'], $ldap_selected_ous, true);
+                                            @endphp
+                                            <div
+                                                class="ldap-ou-row"
+                                                role="treeitem"
+                                                wire:key="ou-row-{{ md5($row['dn']) }}"
+                                                title="{{ $row['dn'] }}"
+                                                x-show="! @js($row['ancestors']).some(ancestor => collapsed[ancestor])"
+                                                style="padding-left: {{ 8 + $row['depth'] * 22 }}px;"
+                                            >
+                                                @if ($hasChildren)
+                                                    <button
+                                                        type="button"
+                                                        class="ldap-ou-toggle"
+                                                        aria-label="{{ trans('admin/settings/general.ldap_wizard.ou_scope.toggle_children') }}"
+                                                        x-bind:aria-expanded="! collapsed[{{ $index }}]"
+                                                        x-on:click="collapsed[{{ $index }}] = ! collapsed[{{ $index }}]"
+                                                    >
+                                                        <i class="fas" x-bind:class="collapsed[{{ $index }}] ? 'fa-caret-right' : 'fa-caret-down'" aria-hidden="true"></i>
+                                                    </button>
+                                                @else
+                                                    <span class="ldap-ou-toggle-spacer"></span>
+                                                @endif
+                                                <label class="form-control ldap-ou-label">
+                                                    <input
+                                                        type="checkbox"
+                                                        wire:key="ou-box-{{ md5($row['dn']) }}-{{ (int) $isChecked }}-{{ (int) $ldap_all_ous }}"
+                                                        @checked($isChecked)
+                                                        @disabled($ldap_all_ous || $isReadOnly)
+                                                        wire:click.prevent="toggleOu({{ $index }})"
+                                                    >
+                                                    <span class="ldap-ou-name">
+                                                        <i class="fas {{ $index === 0 ? 'fa-sitemap' : 'fa-folder' }} text-muted" aria-hidden="true"></i>
+                                                        {{ $row['name'] }}
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @elseif (! $ldap_all_ous)
+                                    <p class="help-block ldap-ou-empty">
+                                        {{ trans('admin/settings/general.ldap_wizard.ou_scope.selected_not_loaded') }}
+                                    </p>
+                                @endif
+                            </div>
                         </x-slot:input>
                     </x-form.row>
 
