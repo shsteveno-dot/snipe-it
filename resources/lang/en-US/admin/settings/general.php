@@ -46,7 +46,7 @@ return [
     'backups_remote_label' => 'S3 files',
     'backups_remote_label_included' => 'Included',
     'backups_remote_label_excluded' => 'Not included',
-    'backups_remote_label_unknown' => 'Unknown',
+    'backups_remote_label_unknown' => 'Not recorded',
     'backups_logged_out' => 'All existing users, including you, will be logged out once your restore is complete.',
     'backups_large' => 'Very large backups may time out on the restore attempt and may still need to be run via command line. ',
     'barcode_settings' => 'Barcode Settings',
