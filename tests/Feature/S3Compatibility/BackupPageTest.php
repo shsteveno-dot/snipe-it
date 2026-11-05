@@ -118,31 +118,52 @@ class BackupPageTest extends TestCase
     }
 
     #[Test]
-    public function each_backup_on_a_local_backup_disk_is_labelled_from_its_manifest(): void
+    public function backups_on_a_local_backup_disk_are_labelled_from_the_name_not_the_manifest(): void
     {
         $this->remoteDisks();
-        $this->zip('snipe-it-included.zip', ['version' => 1, 'remote_files' => 'included', 'files' => []]);
-        $this->zip('snipe-it-excluded.zip', ['version' => 1, 'remote_files' => 'excluded', 'files' => []]);
-        $this->zip('snipe-it-legacy.zip', null);
+        $this->zip('snipe-it-a-with-s3.zip', ['version' => 1, 'remote_files' => 'excluded', 'files' => []]);
+        $this->zip('snipe-it-b-without-s3.zip', ['version' => 1, 'remote_files' => 'included', 'files' => []]);
+        $this->zip('snipe-it-legacy.zip', ['version' => 1, 'remote_files' => 'included', 'files' => []]);
 
-        $files = collect($this->page()->assertOk()->viewData('files'))->keyBy('filename');
+        $response = $this->page()->assertOk();
+        $files = collect($response->viewData('files'))->keyBy('filename');
 
-        $this->assertSame('included', $files['snipe-it-included.zip']['remote_files']);
-        $this->assertSame('excluded', $files['snipe-it-excluded.zip']['remote_files']);
+        $this->assertSame('included', $files['snipe-it-a-with-s3.zip']['remote_files']);
+        $this->assertSame('excluded', $files['snipe-it-b-without-s3.zip']['remote_files']);
         $this->assertSame('unknown', $files['snipe-it-legacy.zip']['remote_files']);
+        $response->assertSee('<td>'.trans('admin/settings/general.backups_remote_label_included').'</td>', false);
+        $response->assertSee('<td>'.trans('admin/settings/general.backups_remote_label_excluded').'</td>', false);
+        $response->assertSee('<td>'.trans('admin/settings/general.backups_remote_label_unknown').'</td>', false);
     }
 
     #[Test]
-    public function backups_on_a_remote_backup_disk_are_listed_as_unknown_without_downloading_them(): void
+    public function backups_on_a_remote_backup_disk_are_labelled_from_the_name_without_downloading_them(): void
     {
         $this->remoteDisks();
         $this->fakeRemoteDisk('backup');
-        Storage::disk('backup')->put('backups/snipe-it-x.zip', 'zipbytes');
+        Storage::disk('backup')->put('backups/snipe-it-a-with-s3.zip', 'zipbytes');
+        Storage::disk('backup')->put('backups/snipe-it-b-without-s3.zip', 'zipbytes');
+        Storage::disk('backup')->put('backups/snipe-it-legacy.zip', 'zipbytes');
         \Tests\Support\S3Compatibility\FakeRemoteAdapter::$log = [];
 
         $files = collect($this->page()->assertOk()->viewData('files'))->keyBy('filename');
 
-        $this->assertSame('unknown', $files['snipe-it-x.zip']['remote_files']);
+        $this->assertSame('included', $files['snipe-it-a-with-s3.zip']['remote_files']);
+        $this->assertSame('excluded', $files['snipe-it-b-without-s3.zip']['remote_files']);
+        $this->assertSame('unknown', $files['snipe-it-legacy.zip']['remote_files']);
         $this->assertSame([], \Tests\Support\S3Compatibility\FakeRemoteAdapter::keysFor('read'), 'listing must not read backup contents');
+    }
+
+    #[Test]
+    public function an_uploaded_copy_keeps_its_label(): void
+    {
+        $this->remoteDisks();
+        $this->zip('uploaded-1790000000-snipe-it-a-without-s3.zip', null);
+        $this->zip('uploaded-1790000001-snipe-it-b-with-s3-1.zip', null);
+
+        $files = collect($this->page()->assertOk()->viewData('files'))->keyBy('filename');
+
+        $this->assertSame('excluded', $files['uploaded-1790000000-snipe-it-a-without-s3.zip']['remote_files']);
+        $this->assertSame('included', $files['uploaded-1790000001-snipe-it-b-with-s3-1.zip']['remote_files']);
     }
 }
