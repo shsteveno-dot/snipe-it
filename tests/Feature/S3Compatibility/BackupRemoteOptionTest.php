@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\S3Compatibility;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -20,6 +21,8 @@ class BackupRemoteOptionTest extends TestCase
 
     /** @var array<int, array<string, mixed>> what the stubbed backup:run saw */
     private array $calls = [];
+
+    private string $backupRoot = '';
 
     protected function setUp(): void
     {
@@ -40,6 +43,9 @@ class BackupRemoteOptionTest extends TestCase
 
     protected function tearDown(): void
     {
+        if ($this->backupRoot !== '') {
+            File::deleteDirectory($this->backupRoot);
+        }
         $this->cleanUpFakeRemoteDisks();
 
         parent::tearDown();
@@ -63,7 +69,7 @@ class BackupRemoteOptionTest extends TestCase
                     ];
                 }
             }
-            app()->instance('s3compat.backup-run-calls', array_merge(app('s3compat.backup-run-calls') ?? [], [['extra' => $extra]]));
+            app()->instance('s3compat.backup-run-calls', array_merge(app('s3compat.backup-run-calls') ?? [], [['extra' => $extra, 'filename' => $this->option('filename')]]));
 
             return $exitCode;
         })->purpose('stub');
@@ -186,6 +192,109 @@ class BackupRemoteOptionTest extends TestCase
 
         $this->assertSame([], $this->calls()[0]['extra'], 'no manifest directory is added for all-local installs');
         $this->assertSame($before, config('backup.backup.source.files.include'));
+    }
+
+    #[Test]
+    public function a_scheduled_backup_gets_a_dated_name_with_the_marker(): void
+    {
+        $this->artisan('snipeit:backup')->assertExitCode(0);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-without-s3\.zip$/', $this->calls()[0]['filename']);
+
+        config(['backup.include_remote_files' => true]);
+        $this->stubBackupRun(0);
+        $this->artisan('snipeit:backup')->assertExitCode(0);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-with-s3\.zip$/', $this->calls()[0]['filename']);
+    }
+
+    #[Test]
+    public function a_given_filename_gets_the_marker_and_a_wrong_marker_is_replaced(): void
+    {
+        $this->artisan('snipeit:backup', ['--filename' => 'manual-backup-1', '--without-remote-files' => true])->assertExitCode(0);
+        $this->assertSame('manual-backup-1-without-s3.zip', $this->calls()[0]['filename']);
+
+        $this->stubBackupRun(0);
+        $this->artisan('snipeit:backup', ['--filename' => 'x-without-s3.zip', '--with-remote-files' => true])->assertExitCode(0);
+        $this->assertSame('x-with-s3.zip', $this->calls()[0]['filename']);
+    }
+
+    #[Test]
+    public function an_all_local_install_keeps_its_filenames(): void
+    {
+        config(['filesystems.disks.public' => ['driver' => 'local', 'root' => sys_get_temp_dir()]]);
+        config(['filesystems.default' => 'local']);
+        Storage::forgetDisk('public');
+        Storage::forgetDisk('local');
+
+        $this->artisan('snipeit:backup', ['--filename' => 'manual-backup-1'])->assertExitCode(0);
+        $this->assertSame('manual-backup-1.zip', $this->calls()[0]['filename']);
+
+        $this->stubBackupRun(0);
+        $this->artisan('snipeit:backup')->assertExitCode(0);
+        $this->assertNull($this->calls()[0]['filename'], 'spatie picks the default name');
+    }
+
+    #[Test]
+    public function the_pre_restore_check_finds_the_marked_backup_and_the_restore_goes_on(): void
+    {
+        $response = $this->restoreThroughTheWebWithStubbedCommands();
+
+        $response->assertSessionHas('error', fn ($message) => str_contains($message, '-with-s3.zip'));
+        $response->assertSessionMissing('success');
+        $this->assertNotSame(trans('admin/settings/message.restore.pre_backup_failed'), session('error'));
+        $this->assertSame(1, app('s3compat.db-wipes'), 'the restore must get past the pre-restore check');
+        $this->assertCount(1, glob($this->backupRoot.'/backups/snipe-it-pre-restore-*-with-s3.zip'));
+    }
+
+    #[Test]
+    public function the_pre_restore_check_still_works_on_an_all_local_install(): void
+    {
+        config(['filesystems.disks.public' => ['driver' => 'local', 'root' => sys_get_temp_dir()]]);
+        config(['filesystems.default' => 'local']);
+        Storage::forgetDisk('public');
+        Storage::forgetDisk('local');
+
+        $this->restoreThroughTheWebWithStubbedCommands();
+
+        $this->assertSame(1, app('s3compat.db-wipes'), 'the restore must get past the pre-restore check');
+        $this->assertCount(1, glob($this->backupRoot.'/backups/snipe-it-pre-restore-*[0-9].zip'));
+    }
+
+    /**
+     * Runs the real snipeit:backup inside the web restore. backup:run writes the file it was asked for, and
+     * the database wipe and the restore are stubbed so the test database survives; the restore "fails" at
+     * its last step so the controller stops right after the part being tested.
+     */
+    private function restoreThroughTheWebWithStubbedCommands(): \Illuminate\Testing\TestResponse
+    {
+        $this->backupRoot = sys_get_temp_dir().'/s3compat-prerestore-'.bin2hex(random_bytes(4));
+        File::ensureDirectoryExists($this->backupRoot.'/backups');
+        config(['filesystems.disks.backup' => ['driver' => 'local', 'root' => $this->backupRoot]]);
+        config(['backup.backup.name' => 'backups', 'backup.backup.destination.filename_prefix' => 'snipe-it-']);
+        Storage::forgetDisk('backup');
+
+        $zip = new \ZipArchive;
+        $zip->open($this->backupRoot.'/backups/source.zip', \ZipArchive::CREATE);
+        $zip->addFromString('db-dumps/mysql-test.sql', 'SELECT 1;');
+        $zip->close();
+
+        $root = $this->backupRoot;
+        app()->instance('s3compat.db-wipes', 0);
+        Artisan::command('backup:run {--filename=}', function () use ($root) {
+            file_put_contents($root.'/backups/'.config('backup.backup.destination.filename_prefix').($this->option('filename') ?? 'default.zip'), 'zip');
+
+            return 0;
+        })->purpose('stub');
+        Artisan::command('db:wipe {--force}', function () {
+            app()->instance('s3compat.db-wipes', app('s3compat.db-wipes') + 1);
+
+            return 0;
+        })->purpose('stub');
+        Artisan::command('snipeit:restore {filename?} {--validate-only} {--force} {--no-progress}', function () {
+            return $this->option('validate-only') ? 0 : 1;
+        })->purpose('stub');
+
+        return $this->actingAs(User::factory()->superuser()->create())
+            ->post(route('settings.backups.restore', 'source.zip'));
     }
 
     #[Test]
