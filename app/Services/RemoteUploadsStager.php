@@ -61,6 +61,39 @@ class RemoteUploadsStager
     }
 
     /**
+     * The name a backup is stored under: when a disk is remote it records whether the S3 files are included,
+     * so the backup page can show it without opening the archive. Any marker already in the name is replaced.
+     * A restore never looks at this name, it trusts the manifest inside the archive.
+     */
+    public function backupFilename(string $filename, bool $includeRemote): string
+    {
+        $base = preg_replace('/\.zip$/i', '', $filename);
+
+        if (! $this->needsStaging()) {
+            return $base.'.zip';
+        }
+
+        $base = preg_replace('/-(?:with|without)-s3$/i', '', $base);
+
+        return $base.($includeRemote ? '-with-s3' : '-without-s3').'.zip';
+    }
+
+    /**
+     * Reads the marker written by backupFilename(). An uploaded copy keeps it, including the "-1" a browser's
+     * " (1)" turns into; older or renamed backups without a marker are unknown.
+     *
+     * @return 'included'|'excluded'|'unknown'
+     */
+    public static function remoteFilesFromFilename(string $filename): string
+    {
+        if (! preg_match('/-(with|without)-s3(?:-\d+)?\.zip$/i', $filename, $matches)) {
+            return 'unknown';
+        }
+
+        return strtolower($matches[1]) === 'with' ? 'included' : 'excluded';
+    }
+
+    /**
      * Free space needed: the staged copy, the worst case zip (nothing compresses), the database dump, plus
      * a margin. This is an estimate for failing early; the copy still checks every write.
      */
