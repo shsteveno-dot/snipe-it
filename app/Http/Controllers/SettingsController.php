@@ -922,7 +922,6 @@ class SettingsController extends Controller
         $disk = Storage::disk('backup');
         $files_raw = [];
         $remote_in_use = $this->remoteUploadsInUse();
-        $backup_disk_is_local = config('filesystems.disks.backup.driver') === 'local';
 
         foreach ($disk->files($backupName) as $file) {
             // Skip dotfiles like .gitignore and .DS_STORE
@@ -935,8 +934,8 @@ class SettingsController extends Controller
                 'filesize' => Setting::fileSizeConvert($disk->size($file)),
                 'modified_value' => $file_timestamp,
                 'modified_display' => date($settings->date_display_format.' '.$settings->time_display_format, $file_timestamp),
-                // Only a local backup can be opened cheaply; a remote one is never downloaded just to be labelled.
-                'remote_files' => ($remote_in_use && $backup_disk_is_local) ? $this->remoteFilesLabel($disk->path($file)) : 'unknown',
+                // Comes from the name on every disk, so a backup is never opened or downloaded just to be labelled.
+                'remote_files' => RemoteUploadsStager::remoteFilesFromFilename(basename($file)),
             ];
         }
 
@@ -959,35 +958,6 @@ class SettingsController extends Controller
     {
         return config('filesystems.disks.public.driver') !== 'local'
             || config('filesystems.disks.'.config('filesystems.default').'.driver') !== 'local';
-    }
-
-    /**
-     * Reads the remote-files manifest out of a backup archive: included, excluded, or unknown (an archive
-     * without a manifest, or one that cannot be read).
-     */
-    private function remoteFilesLabel(string $path): string
-    {
-        $zip = new ZipArchive;
-        if ($zip->open($path) !== true) {
-            return 'unknown';
-        }
-
-        try {
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $name = (string) $zip->getNameIndex($i);
-                if (basename($name) !== RemoteUploadsStager::MANIFEST) {
-                    continue;
-                }
-                $manifest = json_decode((string) $zip->getFromIndex($i), true);
-                $state = is_array($manifest) ? ($manifest['remote_files'] ?? null) : null;
-
-                return in_array($state, ['included', 'excluded'], true) ? $state : 'unknown';
-            }
-        } finally {
-            $zip->close();
-        }
-
-        return 'unknown';
     }
 
     /**
@@ -1286,7 +1256,9 @@ class SettingsController extends Controller
             // Take a fresh pre-restore backup so we can point the operator at
             // it if the restore fails after we wipe. This is the mitigation
             // the pre-existing
-            $requestedBackupFilename = 'pre-restore-'.date('Y-m-d-H-i-s').'.zip';
+            // The existence check below needs the name snipeit:backup will really use, S3 marker included.
+            $requestedBackupFilename = (new RemoteUploadsStager(RemoteUploadsStager::defaultBase()))
+                ->backupFilename('pre-restore-'.date('Y-m-d-H-i-s').'.zip', true);
             // spatie prepends filename_prefix to the filename provided so this is the actual name on disk:
             $preRestoreBackupFilename = config('backup.backup.destination.filename_prefix').$requestedBackupFilename;
             $preRestoreDiskPath = $backupName.'/'.$preRestoreBackupFilename;
