@@ -75,6 +75,8 @@ class SystemBackup extends Command
 
         try {
             if ($stager->needsStaging()) {
+                $arguments['--filename'] = $stager->backupFilename($arguments['--filename'] ?? now()->format('Y-m-d-H-i-s'), $includeRemote);
+
                 if ($includeRemote) {
                     $this->info('Copying the files stored on S3 for the backup...');
                     $extra = $stager->stage()['root'];

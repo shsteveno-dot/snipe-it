@@ -342,6 +342,26 @@ class RestoreToRemoteDiskTest extends TestCase
     }
 
     #[Test]
+    public function a_restore_follows_the_manifest_even_when_the_filename_says_otherwise(): void
+    {
+        $this->useRemoteDisks();
+        Storage::disk('custom_private')->put('private_uploads/eula-pdfs/existing-'.$this->tag.'.pdf', 'EXISTING');
+        $zip = $this->backupZip(
+            [],
+            ['version' => 1, 'created_at' => date('c'), 'remote_files' => 'excluded', 'files' => []],
+        );
+        $renamed = substr($zip, 0, -4).'-with-s3.zip';
+        rename($zip, $renamed);
+
+        [$exit, $output] = $this->restore($renamed);
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertStringContainsString('S3 files are not part of this backup', $output);
+        $this->assertFileExists($this->privateRoot.'/private_uploads/eula-pdfs/existing-'.$this->tag.'.pdf');
+        $this->assertSame([], FakeRemoteAdapter::keysFor('delete'));
+    }
+
+    #[Test]
     public function an_archive_without_a_manifest_restores_with_a_warning(): void
     {
         $this->useRemoteDisks();
