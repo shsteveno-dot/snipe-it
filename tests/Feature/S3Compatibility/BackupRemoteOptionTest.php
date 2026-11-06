@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\S3Compatibility;
 
+use App\Console\Commands\SystemBackup;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -51,10 +52,13 @@ class BackupRemoteOptionTest extends TestCase
         parent::tearDown();
     }
 
-    private function stubBackupRun(int $exitCode): void
+    private function stubBackupRun(int $exitCode, bool $leavesPartialZip = false): void
     {
         $this->calls = [];
-        Artisan::command('backup:run {--filename=}', function () use ($exitCode) {
+        Artisan::command('backup:run {--filename=}', function () use ($exitCode, $leavesPartialZip) {
+            if ($leavesPartialZip) {
+                Storage::disk('backup')->put(config('backup.backup.name').'/'.config('backup.backup.destination.filename_prefix').$this->option('filename'), 'PARTIAL');
+            }
             $extra = [];
             foreach (config('backup.backup.source.files.include') as $path) {
                 $manifest = $path.'/snipeit-remote-manifest.json';
@@ -215,6 +219,41 @@ class BackupRemoteOptionTest extends TestCase
         $this->stubBackupRun(0);
         $this->artisan('snipeit:backup', ['--filename' => 'x-without-s3.zip', '--with-remote-files' => true])->assertExitCode(0);
         $this->assertSame('x-with-s3.zip', $this->calls()[0]['filename']);
+
+        $this->stubBackupRun(0);
+        $this->artisan('snipeit:backup', ['--filename' => 'y-without-s3.ZIP', '--with-remote-files' => true])->assertExitCode(0);
+        $this->assertSame('y-with-s3.zip', $this->calls()[0]['filename'], 'an uppercase extension is normalised before the marker is replaced');
+    }
+
+    #[Test]
+    public function callers_are_told_the_name_the_backup_is_stored_under(): void
+    {
+        config(['backup.backup.destination.filename_prefix' => 'snipe-it-']);
+
+        $this->artisan('snipeit:backup', ['--filename' => 'before-bulk-delete'])->assertExitCode(0);
+
+        $this->assertSame('snipe-it-'.$this->calls()[0]['filename'], SystemBackup::storedFilename('before-bulk-delete'));
+        $this->assertSame('snipe-it-before-bulk-delete-without-s3.zip', SystemBackup::storedFilename('before-bulk-delete'));
+    }
+
+    #[Test]
+    public function a_failed_run_removes_its_incomplete_zip_from_a_local_backup_disk(): void
+    {
+        $this->backupRoot = sys_get_temp_dir().'/s3compat-partial-'.bin2hex(random_bytes(4));
+        config([
+            'filesystems.disks.backup' => ['driver' => 'local', 'root' => $this->backupRoot],
+            'backup.backup.name' => 'backups',
+            'backup.backup.destination.filename_prefix' => 'snipe-it-',
+            'backup.backup.destination.disks' => ['backup'],
+        ]);
+        Storage::forgetDisk('backup');
+        Storage::disk('backup')->put('backups/snipe-it-older-with-s3.zip', 'GOOD');
+        $this->stubBackupRun(1, leavesPartialZip: true);
+
+        $this->artisan('snipeit:backup', ['--filename' => 'broken', '--with-remote-files' => true])->assertExitCode(1);
+
+        $this->assertFalse(Storage::disk('backup')->exists('backups/snipe-it-broken-with-s3.zip'), 'the broken zip must not be listed as Included');
+        $this->assertTrue(Storage::disk('backup')->exists('backups/snipe-it-older-with-s3.zip'), 'other backups are left alone');
     }
 
     #[Test]
