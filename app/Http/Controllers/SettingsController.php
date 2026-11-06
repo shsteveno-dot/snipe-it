@@ -942,13 +942,16 @@ class SettingsController extends Controller
         // Reverse the array so it lists oldest first
         $files = array_reverse($files_raw);
 
+        // Backups made while uploads were on S3 keep their label after the uploads move back to local disks.
+        $show_remote_column = $remote_in_use || collect($files)->contains(fn (array $file) => $file['remote_files'] !== 'unknown');
+
         // Belt-and-suspenders UI feedback for the shared backup+restore
         // mutex. The write-side rejects a concurrent trigger regardless,
         // this just stops the admin from clicking a button that will
         // immediately bounce.
         $backupRestoreRunning = $this->isOperationLocked(self::BACKUP_RESTORE_LOCK);
 
-        return view('settings/backups', compact('files', 'remote_in_use', 'backupRestoreRunning'));
+        return view('settings/backups', compact('files', 'remote_in_use', 'show_remote_column', 'backupRestoreRunning'));
     }
 
     /**
