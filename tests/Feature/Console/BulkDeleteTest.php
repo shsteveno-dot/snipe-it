@@ -14,6 +14,7 @@ use App\Models\License;
 use App\Models\LicenseSeat;
 use App\Models\Maintenance;
 use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
@@ -836,5 +837,31 @@ class BulkDeleteTest extends TestCase
             ->assertExitCode(0);
 
         Mail::assertNothingSent();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Backup before deleting
+    // ---------------------------------------------------------------------------
+
+    public function test_backup_message_names_the_file_the_backup_is_stored_under(): void
+    {
+        $this->freezeTime();
+        config(['backup.backup.destination.filename_prefix' => 'snipe-it-']);
+        $passedFilename = null;
+        Artisan::command('backup:run {--filename=}', function () use (&$passedFilename) {
+            $passedFilename = $this->option('filename');
+
+            return 0;
+        })->purpose('stub');
+        $admin = User::factory()->superuser()->create();
+        $company = Company::factory()->create();
+        Asset::factory()->for($company)->create();
+        $expected = 'snipe-it-backup-before-bulk-delete-cli-'.now()->format('Y-m-d-H-i-s').'.zip';
+
+        $this->runCommand($admin, [$company->id], ['assets'], doBackup: true)
+            ->expectsOutputToContain("Backup completed: {$expected}")
+            ->assertExitCode(0);
+
+        $this->assertSame($expected, 'snipe-it-'.$passedFilename);
     }
 }
