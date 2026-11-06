@@ -100,7 +100,7 @@
               <th scope="col" data-sortable="true" data-field="modified_display" data-sort-name="modified_value">{{ trans('admin/settings/table.created') }}</th>
               <th scope="col" data-field="modified_value" data-visible="false"></th>
               <th scope="col" data-sortable="true">{{ trans('admin/settings/table.size') }}</th>
-              @if ($remote_in_use)
+              @if ($show_remote_column)
                   <th scope="col">{{ trans('admin/settings/general.backups_remote_label') }}</th>
               @endif
               <th scope="col">{{ trans('table.actions') }}</th>
@@ -117,7 +117,7 @@
               <td>{{ $file['modified_display'] }} </td>
               <td>{{ $file['modified_value'] }} </td>
               <td>{{ $file['filesize'] }}</td>
-              @if ($remote_in_use)
+              @if ($show_remote_column)
                   <td>{{ trans('admin/settings/general.backups_remote_'.($file['remote_files'] === 'included' ? 'label_included' : ($file['remote_files'] === 'excluded' ? 'label_excluded' : 'label_unknown'))) }}</td>
               @endif
               <td>
