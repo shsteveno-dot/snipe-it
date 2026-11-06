@@ -94,6 +94,23 @@ class BackupPageTest extends TestCase
     }
 
     #[Test]
+    public function marked_backups_keep_their_label_after_uploads_move_back_to_local_disks(): void
+    {
+        config(['filesystems.default' => 'local']);
+        Storage::forgetDisk('local');
+        $this->zip('snipe-it-legacy.zip', null);
+
+        $this->page()->assertOk()->assertDontSee('<th scope="col">'.trans('admin/settings/general.backups_remote_label').'</th>', false);
+
+        $this->zip('snipe-it-a-with-s3.zip', null);
+
+        $response = $this->page()->assertOk();
+        $response->assertSee('<th scope="col">'.trans('admin/settings/general.backups_remote_label').'</th>', false);
+        $response->assertSee('<td>'.trans('admin/settings/general.backups_remote_label_included').'</td>', false);
+        $response->assertDontSee('include_remote_files', false);
+    }
+
+    #[Test]
     public function the_generate_button_passes_the_choice_on(): void
     {
         $this->remoteDisks();
