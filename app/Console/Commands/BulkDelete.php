@@ -305,10 +305,11 @@ class BulkDelete extends Command
         // Run backup if requested
         if ($doBackup && ! $dryRun) {
             $backupFilename = 'backup-before-bulk-delete-cli-'.now()->format('Y-m-d-H-i-s');
-            info("Running backup ({$backupFilename}.zip)...");
+            $storedFilename = SystemBackup::storedFilename($backupFilename);
+            info("Running backup ({$storedFilename})...");
             $result = $this->callSilently('snipeit:backup', ['--filename' => $backupFilename]);
             if ($result === 0) {
-                info("Backup completed: {$backupFilename}.zip");
+                info("Backup completed: {$storedFilename}");
             } else {
                 warning("Backup may have failed (exit code {$result}). Proceeding anyway.");
             }
