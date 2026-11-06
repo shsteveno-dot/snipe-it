@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\RemoteUploadsException;
 use App\Services\RemoteUploadsStager;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Backup\Commands\BackupCommand;
 use Spatie\Backup\Config\Config;
 
@@ -53,18 +54,6 @@ class SystemBackup extends Command
             return self::FAILURE;
         }
 
-        $arguments = [];
-        if ($this->option('filename')) {
-            $filename = $this->option('filename');
-
-            // Make sure the filename ends in .zip
-            if (! ends_with($filename, '.zip')) {
-                $filename = $filename.'.zip';
-            }
-
-            $arguments['--filename'] = $filename;
-        }
-
         // The flags win over BACKUP_INCLUDE_REMOTE_FILES, which is what scheduled backups use.
         $includeRemote = $this->option('with-remote-files')
             ? true
@@ -72,11 +61,11 @@ class SystemBackup extends Command
 
         $stager = new RemoteUploadsStager(RemoteUploadsStager::defaultBase());
         $include = config('backup.backup.source.files.include');
+        $filename = self::filenameForRun($stager, $this->option('filename') ?: null, $includeRemote);
+        $arguments = $filename === null ? [] : ['--filename' => $filename];
 
         try {
             if ($stager->needsStaging()) {
-                $arguments['--filename'] = $stager->backupFilename($arguments['--filename'] ?? now()->format('Y-m-d-H-i-s'), $includeRemote);
-
                 if ($includeRemote) {
                     $this->info('Copying the files stored on S3 for the backup...');
                     $extra = $stager->stage()['root'];
@@ -90,7 +79,13 @@ class SystemBackup extends Command
             }
 
             // Pass the exit code on, so a failed backup is not reported as a success.
-            return $this->call('backup:run', $arguments);
+            $exitCode = $this->call('backup:run', $arguments);
+
+            if ($exitCode !== self::SUCCESS && $filename !== null && $stager->needsStaging()) {
+                $this->removeIncompleteBackup($filename);
+            }
+
+            return $exitCode;
         } catch (RemoteUploadsException $e) {
             $this->error($e->getMessage());
             $this->error('The backup was not created.');
@@ -99,6 +94,53 @@ class SystemBackup extends Command
         } finally {
             $this->useIncludes($include);
             $stager->cleanup();
+        }
+    }
+
+    /**
+     * The name the backup is stored under on the backup disk, prefix included, for callers that tell the
+     * operator where to find it. Without a flag, the backup follows BACKUP_INCLUDE_REMOTE_FILES.
+     */
+    public static function storedFilename(string $filename, ?bool $includeRemote = null): string
+    {
+        $stager = new RemoteUploadsStager(RemoteUploadsStager::defaultBase());
+
+        return config('backup.backup.destination.filename_prefix', '')
+            .self::filenameForRun($stager, $filename, $includeRemote ?? (bool) config('backup.include_remote_files'));
+    }
+
+    /**
+     * The --filename handed to backup:run: always ending in a lowercase .zip, with the S3 marker when a disk
+     * is remote. Null lets spatie pick its dated default on all-local installs.
+     */
+    private static function filenameForRun(RemoteUploadsStager $stager, ?string $filename, bool $includeRemote): ?string
+    {
+        if ($filename === null && ! $stager->needsStaging()) {
+            return null;
+        }
+
+        return $stager->backupFilename($filename ?? now()->format('Y-m-d-H-i-s'), $includeRemote);
+    }
+
+    /**
+     * Spatie writes straight to the final name, so a copy that fails half way leaves a broken zip behind that
+     * the backup page would label from its name. Only local disks can hold such a partial file; an object
+     * store either has the whole upload or nothing.
+     */
+    private function removeIncompleteBackup(string $filename): void
+    {
+        $path = config('backup.backup.name').'/'.config('backup.backup.destination.filename_prefix', '').$filename;
+
+        foreach (config('backup.backup.destination.disks', []) as $diskName) {
+            if (config("filesystems.disks.{$diskName}.driver") !== 'local') {
+                continue;
+            }
+
+            $disk = Storage::disk($diskName);
+            if ($disk->exists($path)) {
+                $disk->delete($path);
+                $this->warn("Removed the incomplete backup {$path} from the {$diskName} disk.");
+            }
         }
     }
 
