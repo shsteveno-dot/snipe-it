@@ -35,11 +35,7 @@ trait ProtectsRealUploadDirectories
 
     protected function protectRealUploadDirectories(): void
     {
-        $lock = fopen(sys_get_temp_dir().'/snipeit-upload-directories.lock', 'c');
-        if ($lock !== false) {
-            flock($lock, LOCK_EX);
-            $this->uploadDirectoriesLock = $lock;
-        }
+        $this->lockRealUploadDirectories();
 
         $leftover = array_values(array_filter(
             $this->uploadFilesInThisCheckout(),
@@ -54,6 +50,23 @@ trait ProtectsRealUploadDirectories
             if (is_file(base_path($relative))) {
                 $this->trackedUploadFiles[$relative] = (string) file_get_contents(base_path($relative));
             }
+        }
+    }
+
+    /**
+     * Takes only the cross-process lock, for tests that put a temporary file into the real upload
+     * directories and must not race the tests that prune or move them.
+     */
+    protected function lockRealUploadDirectories(): void
+    {
+        if ($this->uploadDirectoriesLock !== null) {
+            return;
+        }
+
+        $lock = fopen(sys_get_temp_dir().'/snipeit-upload-directories.lock', 'c');
+        if ($lock !== false) {
+            flock($lock, LOCK_EX);
+            $this->uploadDirectoriesLock = $lock;
         }
     }
 
