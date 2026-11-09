@@ -1,0 +1,32 @@
+{
+  "rebase": {
+    "image": "snipeit-chiseled:rebase-develop-330a2a34",
+    "image_id": "sha256:4d396eb429989fc0b670a38fb22b55a8417e1b785bc4d4829d2897f492dd5e78",
+    "cli": {
+      "zend_modules_lists_opcache": true,
+      "version_mentions_opcache": true,
+      "opcache_enabled": true,
+      "jit_off": true,
+      "file_cache_empty": true
+    },
+    "apache": {
+      "sapi_is_apache": true,
+      "opcache_enabled": true,
+      "hits_after_20_requests": true,
+      "jit_off": true,
+      "file_cache_empty": true,
+      "no_opcache_errors_in_log": true
+    },
+    "apache_probe": {
+      "sapi": "apache2handler",
+      "loaded": true,
+      "enabled": true,
+      "hits": 23,
+      "jit": "",
+      "file_cache": "",
+      "memory_consumption": "128"
+    },
+    "opcache_log_errors": [],
+    "result": "pass"
+  }
+}

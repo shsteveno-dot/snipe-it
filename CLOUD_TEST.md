@@ -2,30 +2,36 @@
 
 `cloud-test` 分支 = `all-changes`（我們的改動，rebase 在上游 `grokability/snipe-it` 的 develop 上）+ 這個說明檔。每次有新改動都會推到這裡，請你測試並提出修改建議。
 
-**不要修改程式碼。** 唯一允許的 push 是最後把結果檔推回 `cloud-test`（見「回報」）。
+**不要修改程式碼。** 唯一允許的 push 是最後把結果檔推回 `cloud-test`（見「回報」和「這次的重點」）。
 
 **一路做完，不要中途結束回應。** 等背景工作時，每次等待不超過 5 分鐘，每 5 分鐘在對話裡寫一行進度（目前步驟、第幾次測試、已知的失敗和略過數字），然後繼續做。
 
 ## 這次的重點
 
-第 5 輪。基準：上游 develop `f9f3a6067c`；程式碼和 `all-changes` `930b3456cc` 相同。如果你是接著上一輪的同一個 session，容器裡已經有 `vendor/` 和 MariaDB，`git pull` 後跳過安裝，直接跑測試。
+第 6 輪：**chiseled Docker image 的建置與驗收**（這輪不跑 PHPUnit，第 5 輪已經穩定）。程式碼和 `all-changes` `930b3456cc` 相同，基準上游 develop `f9f3a6067c`。
 
-- 新改動 `930b3456cc`（第 4 輪建議 1、2、3）：
-  - 新增 `tests/Support/S3Compatibility/UsesScratchDatabase.php`，`RestoreToRemoteDiskTest` 和 `StagingAssumptionsTest` 共用（`useScratchDatabase()`、`scratchConnection()`、`dropScratchDatabase()`、`mysqlClientDirectory()`）。
-  - 還原資料庫名稱改成用 `setUp` 時記下的值，不再用 `env('DB_DATABASE')`（平行模式下是 `snipeit_test_test_<N>`）。
-  - mysql client 目錄不再寫死 `/usr/bin`：先用 `DB_DUMP_PATH`，再找 `/usr/bin`、`/usr/local/bin`、`/opt/homebrew/bin`、PATH，都沒有就跳過測試。
-- 要確認：
-  1. 兩個 restore 測試類別在單一 process 和平行模式都全過，0 略過；`RestoreToRemoteDiskTest` 每個測試仍約 0.1 秒（沒有回到每個測試重跑 migration）。
-  2. 平行模式下，`tearDown` 之後 `database.connections.mysql.database` 是 worker 自己的 `snipeit_test_test_<N>`，不是 `snipeit_test`。可以暫時加一行 `fwrite(STDERR, ...)` 觀察後再還原，不要 commit。
-  3. 資料庫檢查（跑完 S3 目錄和全套後各做一次）：
-     - `SHOW DATABASES LIKE 's3compat%'` 沒有結果；
-     - `SELECT table_schema, COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'snipeit_test%' GROUP BY table_schema` 各資料庫數量一致；
-     - `SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 's3compat_probe'` 是 0。
-  4. `mysqlClientDirectory()`：預設設定（`DB_DUMP_PATH` 未設，`/usr/local/bin` 沒有 mysql）時會找到 `/usr/bin`。再暫時把 PATH 和候選目錄都弄成找不到（例如暫時改名 mysql 執行檔），確認測試是「跳過」而不是失敗，然後還原。
-  5. 平行模式跑 `tests/Feature/S3Compatibility` 10 次（每次約 11 秒），全部 0 失敗、0 略過。
-  6. 平行全套一次：除了已知的 DNS 測試外 0 失敗。DNS 不通時，可以照「已知狀況」先補 `/etc/hosts` 再跑，讓結果是 0 失敗，跑完還原。
-- 如果這輪除了已知狀況外沒有新問題，請在報告開頭明確寫「穩定」，並只列出真正值得做的建議（沒有就寫沒有）。
-- 之前的結果在這個分支的歷史裡：第 1 輪 `a3611109df`、第 2 輪 `ed51bd3f4f`、第 3 輪 `8e930e5a00`、第 4 輪 `ea0fc2c737`（`CLOUD_TEST_RESULT.md`）。
+背景：`Dockerfile.chiseled` 建出一個沒有 shell、沒有套件管理器的 Ubuntu chiseled image（說明在 `docker/chiseled/README.md`）。之前在本機用舊的 develop（`73323cb76d`，分支頭 `330a2a3439`）建過一次，三個驗收腳本都通過，結果在 `cloud-verify/previous-run/*.json`。這輪要用目前的程式碼重建並重跑驗收。
+
+驗收腳本在 `cloud-verify/`（從本機的 verification 目錄複製過來，**只拿來執行，不要修改**）：
+- `cloud-verify/verification/chiseled-opcache/check_sapi.py <image> --out <json> --label round6`：CLI 和 Apache 的 OPcache 狀態。
+- `cloud-verify/verification/chiseled-opcache/check_invariants.py <image> --boot --out <json> --label round6`：沒有 shell、沒有套件管理器和編譯器、使用者、entrypoint；`--boot` 會用正式的安全選項在內部網路啟動，要求 init 成功、`/health` 回 ok。
+- `cloud-verify/verification/chiseled-opcache/regression.py --self-test`，然後 `regression.py <image> --out <json> --label round6`：網頁安裝和登入、`schedule:run`、SMTP 寄信、備份、1536m 記憶體上限下不 OOM、沒有 OPcache 檔案寫進應用目錄。會用到 `mysql:8.4`、`python:3.12-slim` 和 `cloud-verify/s3mock/server.py`、`cloud-verify/verification/compatibility-closure/smtp-fixture.py`。
+- 一律用 `python3 -I` 執行。腳本會自己建立和移除容器、網路和 volume。
+
+步驟：
+1. 啟動 dockerd（root，帶代理設定讓 dockerd 能 pull image），跑 `docker run --rm hello-world` 確認可用。磁碟只有約 12 GB：需要的話可以刪掉 `vendor/`、停掉 MariaDB 騰空間，在報告裡說明。
+2. `python3 -I docker/chiseled/repin_app_inputs.py --check`，要回 `locks are up to date`。
+3. 建 image：`docker buildx build -f Dockerfile.chiseled --platform linux/amd64 -t snipeit-chiseled:round6 --load .`（README 的指令加上 `--load`）。build 裡的 `apt-get`、`fetch_inputs.py`、composer 都要連網，這個環境要用 `--network host` 並傳入代理設定和代理的 CA。
+   - **允許的暫時調整**：只為了讓 build 能透過代理連網，例如 `--build-arg HTTPS_PROXY=...`、在 `tools` 階段暫時加入代理 CA。不能改到最後 image 的內容（`candidate` 階段從 `scratch` 組出來，代理 CA 不能出現在裡面）。所有調整寫進報告（附 diff），**不要 commit**，做完還原。
+   - `api.github.com` 是 403；composer 在 build 裡下載 dist 失敗時會自動改用 git clone，如果卡住請說明在哪一步。
+   - 記錄 build 耗時、image 大小和 image ID。
+4. 跑三個驗收腳本（順序：`check_sapi`、`check_invariants --boot`、`regression --self-test`、`regression`），每個都要 exit 0、結果 `pass`。把輸出的 json 和 `previous-run/` 比較，列出不同的項目。
+5. 另外確認：最後的 image 裡沒有代理 CA 或代理設定（例如 `docker image inspect` 的 Env、`docker create` 後 `docker export` 搜尋 `/root/.ccr` 或代理 CA 的檔名）。
+6. 結束後刪掉這輪建立的 image、容器、網路、volume 和 build cache（`docker buildx prune -af`），停掉 dockerd。
+
+回報時把三個驗收 json 一起 commit 成 `cloud-verify/round6/*.json`（加上 `CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`；`cloud-test-output.txt` 放 build 的最後 200 行和三個腳本的輸出）。「修改建議」只寫和 chiseled image 有關、真正值得做的。
+
+之前的結果在這個分支的歷史裡：第 1–5 輪 `a3611109df`、`ed51bd3f4f`、`8e930e5a00`、`ea0fc2c737`、`ea5bed8301`（`CLOUD_TEST_RESULT.md`）。
 
 ## 步驟
 
