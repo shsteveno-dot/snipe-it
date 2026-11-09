@@ -1,45 +1,45 @@
 # 雲端測試任務
 
-這個分支是我們的改動 rebase 到上游最新 develop（`f9f3a6067c`）之後，再加上這一個說明檔。請在這個 repo 跑完整的 PHPUnit 測試，並和上游 develop 比較，**不要修改程式碼**。唯一允許的 push 是最後把結果檔推到 `cloud-test` 分支（見「回報內容」）。
+`cloud-test` 分支 = `all-changes`（我們的改動，rebase 在上游 `grokability/snipe-it` 的 develop 上）+ 這個說明檔。每次有新改動都會推到這裡，請你測試並提出修改建議。
 
-## 背景
+**不要修改程式碼。** 唯一允許的 push 是最後把結果檔推回 `cloud-test`（見「回報」）。
 
-- 這個分支 = 上游 `grokability/snipe-it` 的 develop（`f9f3a6067c`）+ 我們 17 個 commit（S3 相容、LDAP OU 篩選、chiseled image、備份檔名標記等）。
-- 目標：確認我們的改動沒有讓任何測試失敗。只在這個分支失敗、上游 develop 沒失敗的測試才算問題。
+## 這次的重點
+
+- 基準：上游 develop `f9f3a6067c`；分支頭是 `all-changes` `50443fc6bd` 加上這個說明檔。
+- 新改動：`50443fc6bd` 在 `tests/Feature/Notifications/Email/CheckoutResponseEmailTest.php` 加了 `Storage::fake()`。上次平行全套時，這個測試在 `storage/private_uploads/eula-pdfs/` 留下 PDF，導致 35 個 S3 測試（`MoveUploadsToNewDiskTest`、`RestoreToRemoteDiskTest`、`StagingAssumptionsTest`）被跳過。
+- 要確認：**用 MySQL/MariaDB 平行跑全套後，上面三個 S3 測試檔 0 個跳過**，而且 `eula-pdfs` 裡沒有留下檔案。如果還是有跳過，請列出跳過訊息和是哪些檔案造成的。
+- 上次的結果在這個分支的歷史裡（commit `a3611109df` 的 `CLOUD_TEST_RESULT.md`），可以拿來比較。
 
 ## 步驟
 
-1. 環境：PHP 8.3（8.2 也可以），擴充套件 `pdo_mysql pdo_sqlite zip gd bcmath ldap exif intl mbstring xml curl`，Composer 2，MariaDB 10.11 或 MySQL 8。
-   沒有的話用 apt 安裝（例如 `php8.3-cli php8.3-mysql php8.3-sqlite3 php8.3-zip php8.3-gd php8.3-bcmath php8.3-ldap php8.3-intl php8.3-mbstring php8.3-xml php8.3-curl mariadb-server composer`）。
-2. `composer install --no-interaction --prefer-dist`
-3. 設定測試環境：
-   - `cp .env.testing.example .env.testing`，把 DB_DATABASE / DB_USERNAME / DB_PASSWORD 改成本機 MariaDB 的值（例如建一個 `snipeit_test` 資料庫，使用者要有 CREATE DATABASE 權限，因為平行測試會另外建 `snipeit_test_test_N`）。
-   - 確認 `.env.testing` 有 `IMPORT_MEMORY_LIMIT=2G` 和 `LDAP_MEM_LIM=2G`（範本裡已經有）。少了這兩行，全套測試會在大約第 3600 個測試時因為記憶體上限 500M 當掉。
-   - `cp .env.testing .env`
-4. 跑全套（和上游 CI 一樣用平行模式）：
-   `php -d memory_limit=2G artisan test --parallel --colors=never 2>&1 | tee /tmp/branch.txt`
-   平行模式有問題的話，改用 `php -d memory_limit=2G vendor/bin/phpunit --colors=never`。
-5. 有失敗的話，到上游 develop 跑同一批失敗的測試檔做比較：
-   ```
-   git fetch https://github.com/grokability/snipe-it.git develop
-   git worktree add /tmp/dev FETCH_HEAD
-   ```
-   在 `/tmp/dev` 重做步驟 2–3（同一個資料庫設定），只跑失敗的測試檔。
-6. 結束後刪掉 `/tmp/dev` worktree 和測試資料庫。
+先做這三件事，可以省掉上次浪費的約 15 分鐘：
 
-## 已知與環境有關的失敗（上游 develop 也會失敗）
+- 讀 `.github/workflows/tests-mysql.yml`，照它的初始化步驟做（`key:generate`、`passport:install` 等），**金鑰要在開跑前就產生**。
+- 用 `curl -sI https://api.github.com/repos/laravel/framework/zipball` 測一下能不能下載 zip。不能的話直接用 `composer install --prefer-source`，並提早處理只有 dist 的套件（上次是 `phpstan/phpstan`）。不要修改 `composer.lock`。
+- 跑測試一律加 `--display-skipped`，跑完先看略過的原因。
 
-- `Tests\Unit\CustomFieldTest::test_db_name_{chinese,japanese,korean,arabic}`：`intl` 的音譯結果因版本不同而不同。
-- `Tests\Feature\SyncAdapters\ExtraFieldMappingTest::test_{purchase,eol}_date_accepts_iso_8601_datetime`：`APP_TIMEZONE` 不是 UTC 時，午夜 UTC 的日期會存成前一天（範本是 UTC 的話應該會過）。
+接著：
 
-在本機上一次跑的結果（舊的 develop `73323cb76d`）：6029 個測試、6 個失敗，就是上面這 6 個，上游 develop 也一樣。
+1. 環境：PHP 8.3，擴充套件 `pdo_mysql pdo_sqlite zip gd bcmath ldap exif intl mbstring xml curl`，Composer 2，MariaDB 10.11。
+2. `cp .env.testing.example .env.testing`，填入資料庫設定（使用者要有 CREATE DATABASE 權限，平行模式會建 `<db>_test_N`）。確認有 `IMPORT_MEMORY_LIMIT=2G`、`LDAP_MEM_LIM=2G`。`cp .env.testing .env`。
+3. 平行全套：`php -d memory_limit=2G artisan test --parallel --display-skipped --colors=never 2>&1 | tee /tmp/branch.txt`
+4. 有失敗或可疑的略過時，到上游 develop 對照（`git fetch https://github.com/grokability/snipe-it.git develop` 後 `git worktree add /tmp/dev FETCH_HEAD`），只需要重跑相關的測試檔；確定是新的問題才跑上游全套。
+5. 結束後刪掉 `/tmp/dev` 和測試資料庫。
 
-## 回報內容
+## 已知狀況
 
-把下面內容寫成 `CLOUD_TEST_RESULT.md`，另外把完整測試輸出存成 `cloud-test-output.txt`，兩個檔案 commit 後 push 到 `cloud-test` 分支（只加這兩個檔案，不改其他檔案）。如果推不到 `cloud-test`，就推到你自己的分支，並在對話裡說分支名稱。最後在對話裡也貼一份同樣的摘要。
+- `Tests\Feature\Livewire\ImporterMutexTest::test_locks_are_scoped_per_file_so_a_second_file_can_still_start`：平行模式下偶發失敗（共用 file cache + 各 process 的 Import ID 重複），上游也有同樣風險。乾淨 cache 單獨跑會過。
+- 本機（非 UTC 時區、不同 intl 版本）才會失敗的 `CustomFieldTest` 和 `ExtraFieldMappingTest`，在 UTC 的雲端環境應該會過。
 
+## 回報
 
-1. 環境：PHP 版本、資料庫版本、CPU 核心數、平行或單程序、總耗時。
-2. 測試總數、通過、失敗、略過。
-3. 每個失敗的測試：名稱、錯誤摘要（前幾行），以及在上游 develop 是否也失敗。
-4. 結論：有沒有只在這個分支失敗的測試。有的話，指出可能相關的 commit 和檔案，但不要修改。
+把結果寫成 `CLOUD_TEST_RESULT.md`，完整輸出存成 `cloud-test-output.txt`，只 commit 這兩個檔案，push 到 `cloud-test`。推不到的話推到你自己的分支，並在對話裡說名稱。對話裡也貼一份摘要。
+
+內容：
+
+1. 環境：PHP、資料庫版本、CPU 核心數、平行或單程序、各階段耗時（安裝、每次全套、分析）。
+2. 測試數量：總數、通過、失敗、錯誤、略過、未完成，以及和上次結果的差異。
+3. 每個失敗或可疑略過：名稱、錯誤摘要、上游 develop 是否也有。
+4. 「這次的重點」逐項回答。
+5. **修改建議**：你認為該改的地方（程式碼、測試、這份說明檔），寫出檔案、原因和建議的改法（可以附 diff），但不要 commit 到程式碼。依重要性排序，並標明是我們的改動造成的，還是上游本來就有的問題。
