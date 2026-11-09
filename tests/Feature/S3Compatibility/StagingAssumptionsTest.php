@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\S3Compatibility\ProtectsRealUploadDirectories;
 use Tests\Support\S3Compatibility\UsesFakeRemoteDisks;
+use Tests\Support\S3Compatibility\UsesScratchDatabase;
 use Tests\TestCase;
 use ZipArchive;
 
@@ -25,12 +26,9 @@ class StagingAssumptionsTest extends TestCase
 {
     use ProtectsRealUploadDirectories;
     use UsesFakeRemoteDisks;
-
-    private const SCRATCH_CONNECTION = 's3compat_scratch_admin';
+    use UsesScratchDatabase;
 
     private string $work = '';
-
-    private string $scratch = '';
 
     /** @var array<int, string> */
     private array $created = [];
@@ -48,11 +46,7 @@ class StagingAssumptionsTest extends TestCase
 
     protected function tearDown(): void
     {
-        if ($this->scratch !== '') {
-            config(['database.connections.mysql.database' => env('DB_DATABASE')]);
-            DB::connection(self::SCRATCH_CONNECTION)->statement('DROP DATABASE IF EXISTS `'.$this->scratch.'`');
-            DB::purge(self::SCRATCH_CONNECTION);
-        }
+        $this->dropScratchDatabase();
         if ($this->work !== '') {
             File::deleteDirectory($this->work);
         }
@@ -87,15 +81,7 @@ class StagingAssumptionsTest extends TestCase
         ];
 
         // The restore wipes and rewrites tables of the configured database, so point it at a scratch one.
-        // CREATE DATABASE goes through a second connection: on the test connection it would commit the test
-        // transaction and make the next test rerun every migration.
-        config(['database.connections.'.self::SCRATCH_CONNECTION => config('database.connections.mysql')]);
-        $scratch = $this->scratch = 's3compat_assume_'.bin2hex(random_bytes(4));
-        DB::connection(self::SCRATCH_CONNECTION)->statement("CREATE DATABASE `$scratch`");
-        config([
-            'database.connections.mysql.database' => $scratch,
-            'database.connections.mysql.dump.dump_binary_path' => '/usr/bin',
-        ]);
+        $this->useScratchDatabase('s3compat_assume_');
 
         $exit = Artisan::call('snipeit:restore', ['filename' => $zipPath, '--force' => true, '--no-progress' => true]);
         $output = Artisan::output();
@@ -162,7 +148,7 @@ class StagingAssumptionsTest extends TestCase
         File::ensureDirectoryExists($backupRoot);
         config(['filesystems.disks.backup' => ['driver' => 'local', 'root' => $backupRoot]]);
         Storage::forgetDisk('backup');
-        config(['database.connections.mysql.dump.dump_binary_path' => '/usr/bin']);
+        config(['database.connections.mysql.dump.dump_binary_path' => $this->mysqlClientDirectory()]);
 
         $exit = Artisan::call('snipeit:backup', ['--with-remote-files' => true, '--filename' => 'e2e.zip']);
         $output = Artisan::output();
