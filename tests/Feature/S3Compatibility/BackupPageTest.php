@@ -135,6 +135,25 @@ class BackupPageTest extends TestCase
     }
 
     #[Test]
+    public function a_failed_backup_shows_the_reason_rather_than_a_progress_line(): void
+    {
+        Artisan::command('snipeit:backup {--filename=} {--force} {--with-remote-files} {--without-remote-files}', function () {
+            $this->line('Starting backup...');
+            $this->line('Dumping database snipeit...');
+            $this->line('Determining files to backup...');
+            $this->line('Backup failed because: The "/var/www/html/storage/oauth-private.key" directory does not exist..');
+            $this->line('#0 /var/www/html/vendor/spatie/laravel-backup/src/Tasks/Backup/FileSelection.php(85)');
+
+            return 1;
+        })->purpose('stub');
+
+        $this->actingAs(User::factory()->superuser()->create())
+            ->post(route('settings.backups.create'), ['include_remote_files' => '0'])
+            ->assertRedirect(route('settings.backups.index'))
+            ->assertSessionHas('error', 'Backup failed because: The "/var/www/html/storage/oauth-private.key" directory does not exist..');
+    }
+
+    #[Test]
     public function backups_on_a_local_backup_disk_are_labelled_from_the_name_not_the_manifest(): void
     {
         $this->remoteDisks();
