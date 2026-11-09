@@ -73,7 +73,11 @@ class BackupRemoteOptionTest extends TestCase
                     ];
                 }
             }
-            app()->instance('s3compat.backup-run-calls', array_merge(app('s3compat.backup-run-calls') ?? [], [['extra' => $extra, 'filename' => $this->option('filename')]]));
+            app()->instance('s3compat.backup-run-calls', array_merge(app('s3compat.backup-run-calls') ?? [], [[
+                'extra' => $extra,
+                'filename' => $this->option('filename'),
+                'include' => config('backup.backup.source.files.include'),
+            ]]));
 
             return $exitCode;
         })->purpose('stub');
@@ -196,6 +200,60 @@ class BackupRemoteOptionTest extends TestCase
 
         $this->assertSame([], $this->calls()[0]['extra'], 'no manifest directory is added for all-local installs');
         $this->assertSame($before, config('backup.backup.source.files.include'));
+    }
+
+    /**
+     * @return array{0: array<int, string>, 1: string, 2: array<int, string>} existing paths, the temp root, missing paths
+     */
+    private function includeWithMissingPaths(): array
+    {
+        $root = sys_get_temp_dir().'/s3compat-missing-'.bin2hex(random_bytes(4));
+        File::ensureDirectoryExists($root.'/uploads');
+        file_put_contents($root.'/present.key', 'KEY');
+        $missing = [$root.'/oauth-private.key'];
+        // A key file the Chiseled image links to a volume that does not have it.
+        if (@symlink($root.'/nowhere/oauth-public.key', $root.'/oauth-public.key')) {
+            $missing[] = $root.'/oauth-public.key';
+        }
+        $existing = [$root.'/uploads', $root.'/present.key'];
+        config(['backup.backup.source.files.include' => array_merge($existing, $missing)]);
+
+        return [$existing, $root, $missing];
+    }
+
+    #[Test]
+    public function missing_include_paths_are_left_out_and_named_instead_of_failing_the_backup(): void
+    {
+        [$existing, $root, $missing] = $this->includeWithMissingPaths();
+        $before = config('backup.backup.source.files.include');
+
+        $command = $this->artisan('snipeit:backup', ['--without-remote-files' => true]);
+        foreach ($missing as $path) {
+            $command->expectsOutputToContain("Skipping {$path}: it does not exist.");
+        }
+        $command->assertExitCode(0);
+
+        $include = $this->calls()[0]['include'];
+        $this->assertSame($existing, array_slice($include, 0, count($existing)));
+        $this->assertCount(count($existing) + 1, $include, 'only the S3 manifest directory is added');
+        $this->assertSame([], array_values(array_intersect($missing, $include)));
+        $this->assertSame($before, config('backup.backup.source.files.include'), 'the configured list is put back');
+        File::deleteDirectory($root);
+    }
+
+    #[Test]
+    public function missing_include_paths_are_left_out_on_an_all_local_install_too(): void
+    {
+        config(['filesystems.disks.public' => ['driver' => 'local', 'root' => sys_get_temp_dir()]]);
+        config(['filesystems.default' => 'local']);
+        Storage::forgetDisk('public');
+        Storage::forgetDisk('local');
+        [$existing, $root, $missing] = $this->includeWithMissingPaths();
+
+        $this->artisan('snipeit:backup')->assertExitCode(0);
+
+        $this->assertSame($existing, $this->calls()[0]['include']);
+        File::deleteDirectory($root);
     }
 
     #[Test]
