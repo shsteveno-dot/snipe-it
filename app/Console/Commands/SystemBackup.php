@@ -61,6 +61,7 @@ class SystemBackup extends Command
 
         $stager = new RemoteUploadsStager(RemoteUploadsStager::defaultBase());
         $include = config('backup.backup.source.files.include');
+        $existing = $this->existingPaths($include);
         $filename = self::filenameForRun($stager, $this->option('filename') ?: null, $includeRemote);
         $arguments = $filename === null ? [] : ['--filename' => $filename];
 
@@ -75,7 +76,9 @@ class SystemBackup extends Command
                 }
 
                 // Spatie reads this directory like any other include, so the copies end up in the zip.
-                $this->useIncludes(array_merge($include, [$extra]));
+                $this->useIncludes(array_merge($existing, [$extra]));
+            } elseif ($existing !== $include) {
+                $this->useIncludes($existing);
             }
 
             // Pass the exit code on, so a failed backup is not reported as a success.
@@ -120,6 +123,30 @@ class SystemBackup extends Command
         }
 
         return $stager->backupFilename($filename ?? now()->format('Y-m-d-H-i-s'), $includeRemote);
+    }
+
+    /**
+     * Spatie hands every include that is not a file to Finder as a directory, so one missing path fails the
+     * whole backup ("The ... directory does not exist"). The OAuth keys are the usual case: when Passport
+     * reads them from PASSPORT_PRIVATE_KEY/PASSPORT_PUBLIC_KEY there are no key files, and in the Chiseled
+     * image storage/oauth-*.key are then symlinks to nothing. Missing paths are left out and named.
+     *
+     * @param  array<int, string>  $include
+     * @return array<int, string>
+     */
+    private function existingPaths(array $include): array
+    {
+        $existing = [];
+        foreach ($include as $path) {
+            // file_exists() follows symlinks, so a link to a missing target counts as missing.
+            if (file_exists($path)) {
+                $existing[] = $path;
+            } else {
+                $this->warn("Skipping {$path}: it does not exist.");
+            }
+        }
+
+        return $existing;
     }
 
     /**
