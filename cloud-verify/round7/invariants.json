@@ -1,0 +1,17 @@
+{
+  "round7": {
+    "image": "snipeit-chiseled:round7",
+    "checks": {
+      "no_shell_package_manager_or_compiler": true,
+      "user_10000_50": true,
+      "entrypoint_supervisor": true,
+      "boot_with_cap_drop_all_and_health_ok": true
+    },
+    "forbidden_present": [],
+    "user": "10000:50",
+    "entrypoint": [
+      "/snipeit-supervisor"
+    ],
+    "result": "pass"
+  }
+}
