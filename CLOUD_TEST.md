@@ -8,26 +8,28 @@
 
 ## 這次的重點
 
-第 7 輪：**chiseled image 的「本機檔案不進 image」修正**（這輪不跑 PHPUnit）。程式碼和 `all-changes` `65ecdf0ab4` 相同，基準上游 develop `f9f3a6067c`。上一輪（第 6 輪，`6bfd75f067`）的結果在 `cloud-verify/round6/`。
+第 8 輪：**備份遇到不存在的路徑會整個失敗**（正式環境的 bug）。程式碼和 `all-changes` `57e3245981` 相同，基準上游 develop `f9f3a6067c`。第 7 輪結果在 `cloud-verify/round7/`（commit `f72e861960`）。
 
-新改動：
-- `65ecdf0ab4`（第 6 輪建議 1、3）：`.dockerignore` 排除 `.env.testing`、`.phpunit.cache`、`storage/logs/*.log`、編譯過的 view、session、`storage/framework/testing`、`storage/app/backup-temp`、`bootstrap/cache/*.php`。`docker/chiseled/prepare-app.py` 另外刪掉這些檔案，以及 `.ai`、`.claude`、`cloud-verify`、`CLOUD_TEST*.md`；目錄和 `.gitignore` 保留。
-- `cloud-verify/` 的兩個腳本（第 6 輪建議 2、4）：`regression.py --self-test` 的斷言改成 `assert not hit`；`check_invariants.py` 刪容器時加 `-v`。
+正式環境（k8s、chiseled image、`/var/lib/snipeit` 沒有掛 volume、沒用 Passport）在網頁按備份失敗，`snipeit:backup --without-remote-files` 的輸出是：
+`Backup failed because: The "/var/www/html/storage/oauth-private.key" directory does not exist..`（`FileSelection.php(85): Finder->in()`）。
+原因：`config/backup.php` 一定會打包 `storage/oauth-*.key`；chiseled image 裡這兩個是指到 `/var/lib/snipeit/keys/` 的 symlink，那裡沒有檔案時，Spatie 把它當資料夾交給 Finder 就失敗。網頁只顯示輸出的第 3 段，所以使用者只看到「Determining files to backup」。
 
-這輪的做法：**刻意用「髒」的 checkout 建 image**，證明修正有效。
-1. 照第 6 輪的方式啟動 dockerd、`repin_app_inputs.py --check`。
-2. 建一個 worktree 當 build context，在裡面放這些假檔案（內容用無害的假字串，例如 `FAKE-LOCAL-FILE`）：`.env.testing`、`.phpunit.cache/test-results`、`.phpunit.result.cache`、`storage/logs/laravel.log`、`storage/framework/views/0123abcd.php`、`storage/framework/sessions/fakesession`、`storage/framework/testing/disks/x.txt`、`storage/app/backup-temp/x.txt`、`bootstrap/cache/services.php`、`bootstrap/cache/packages.php`。`CLOUD_TEST.md` 和 `cloud-verify/` 本來就在這個分支上。
-3. 照第 6 輪的做法建 image（代理 CA、composer 用 `git archive` 預先放進快取的暫時調整一樣允許，不要 commit），tag 用 `snipeit-chiseled:round7`。
-4. `docker create` → `docker export`，確認：
-   - 上面的假檔案、`.ai/`、`.claude/`、`cloud-verify/`、`CLOUD_TEST.md` **都不在** `/var/www/html` 裡（搜尋 `FAKE-LOCAL-FILE` 應該是 0 筆）；
-   - `storage/logs`、`storage/framework/views`、`storage/framework/sessions`、`storage/framework/cache`、`bootstrap/cache` 這些目錄**還在**；
-   - `bootstrap/cache/packages.php` 是 composer 在 build 時重新產生的（內容不是假字串）。
-5. 跑四個驗收（`check_sapi`、`check_invariants --boot`、`regression --self-test`、`regression`），**全部都要 exit 0**（self-test 這次應該通過）。和 `cloud-verify/round6/*.json` 比較。
-6. 跑完確認沒有留下匿名 volume（`docker volume ls -q` 是空的）。
-7. 清理：image、容器、網路、volume、build cache 都刪掉，停掉 dockerd，刪掉 worktree。
-8. 另外用上游原本的 `Dockerfile`（不是 chiseled）只做到 `COPY . /var/www/html` 這一步就夠，確認 `.dockerignore` 的新規則不會擋掉 build 需要的檔案。如果完整 build 太花時間或空間，可以只用 `docker buildx build --target` 或一個只有 `COPY .` 的暫時 Dockerfile 檢查 context 內容，在報告裡說明。
+新改動 `57e3245981`：
+- `app/Console/Commands/SystemBackup.php`：`existingPaths()` 把不存在的路徑（含斷掉的 symlink）從這次的 include 拿掉，印 `Skipping <path>: it does not exist.`；全本機安裝（沒有 S3）也一樣處理；設定在 `finally` 還原。
+- `app/Http/Controllers/SettingsController.php`：失敗時優先顯示 `Backup failed because: ...` 那一行。
+- 測試：`BackupRemoteOptionTest` 兩個新測試（含斷掉的 symlink），`BackupPageTest::a_failed_backup_shows_the_reason_rather_than_a_progress_line`。
+- `cloud-verify/.../regression.py` 新增檢查 `backup_without_key_files`：正常備份後刪掉 `/var/lib/snipeit/keys/oauth-*.key`，再跑一次 `snipeit:backup`，要 exit 0 且沒有 `Backup failed`。
 
-回報時把驗收 json commit 成 `cloud-verify/round7/*.json`，加上 `CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。
+要做的（`vendor/` 在第 6 輪刪掉了，要重新 `composer install --prefer-source`；`~/.cache/composer` 的 mirror 還在，應該比較快）：
+1. `vendor/bin/pint --test app/Console/Commands/SystemBackup.php app/Http/Controllers/SettingsController.php tests/Feature/S3Compatibility/BackupRemoteOptionTest.php tests/Feature/S3Compatibility/BackupPageTest.php`，有格式問題列在報告裡（不要改檔）。
+2. 新測試和相關類別：`BackupRemoteOptionTest`、`BackupPageTest` 全過；確認斷掉的 symlink 那段真的有建立（不是被 `@symlink` 失敗略過）。
+3. **反證**：暫時把 `SystemBackup::handle()` 裡的 `$existing` 改回 `$include`（只在本機改，不要 commit），確認 `missing_include_paths_are_left_out_and_named_instead_of_failing_the_backup` 會失敗，然後還原。
+4. 真的 Spatie（不是 stub）：在 MariaDB 測試環境下，把 `backup.backup.source.files.include` 設成含一個斷掉 symlink 的清單，跑一次真正的 `php artisan snipeit:backup --without-remote-files`（可以用 tinker 或暫時的設定），要 exit 0、輸出有 `Skipping`、產生 zip。做完還原。
+5. 平行模式跑 `tests/Feature/S3Compatibility` 5 次，0 失敗、0 略過；平行全套一次（DNS 不通就照「已知狀況」補 `/etc/hosts`）。
+6. chiseled：照第 6、7 輪的方式（代理、composer 用 `git archive` 預先放快取的暫時調整，不要 commit）建 `snipeit-chiseled:round8`，跑四個驗收（`check_sapi`、`check_invariants --boot`、`regression --self-test`、`regression`），全部 exit 0，`regression` 的 `backup_without_key_files` 要是 true。和 `cloud-verify/round7/*.json` 比較。
+7. 清理：image、容器、volume、build cache、worktree，停掉 dockerd。
+
+回報時把驗收 json commit 成 `cloud-verify/round8/*.json`，加上 `CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。
 
 ---
 
@@ -54,7 +56,7 @@
 
 回報時把三個驗收 json 一起 commit 成 `cloud-verify/round6/*.json`（加上 `CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`；`cloud-test-output.txt` 放 build 的最後 200 行和三個腳本的輸出）。「修改建議」只寫和 chiseled image 有關、真正值得做的。
 
-之前的結果在這個分支的歷史裡：第 1–6 輪 `a3611109df`、`ed51bd3f4f`、`8e930e5a00`、`ea0fc2c737`、`ea5bed8301`、`6bfd75f067`（`CLOUD_TEST_RESULT.md`）。
+之前的結果在這個分支的歷史裡：第 1–7 輪 `a3611109df`、`ed51bd3f4f`、`8e930e5a00`、`ea0fc2c737`、`ea5bed8301`、`6bfd75f067`、`f72e861960`（`CLOUD_TEST_RESULT.md`）。
 
 ## 步驟
 

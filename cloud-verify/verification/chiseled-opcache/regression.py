@@ -66,6 +66,18 @@ def run(image):
         details['backup'] = {'exit': backup.returncode, 'zips': found_zip, 'latest_zip_bytes': size,
                              'output_tail': (backup.stdout or '')[-800:]}
         checks['backup_dump_non_empty'] = backup.returncode == 0 and int(size or 0) > 0
+        # Deployments that keep Passport keys in PASSPORT_*_KEY (or none at all) have no key files, so
+        # storage/oauth-*.key are links to nothing. The backup must still succeed.
+        keys = stack.php('foreach(["oauth-private.key","oauth-public.key"] as $k){@unlink("/var/lib/snipeit/keys/".$k);}'
+                         'echo json_encode([file_exists("/var/www/html/storage/oauth-private.key"),'
+                         'file_exists("/var/www/html/storage/oauth-public.key")]);', check=False)
+        keyless = docker('exec', stack.app, '/usr/bin/php', '/var/www/html/artisan', 'snipeit:backup', check=False)
+        details['backup_without_key_files'] = {'key_files_present': json.loads(keys.stdout or '[]'),
+                                               'exit': keyless.returncode,
+                                               'output_tail': (keyless.stdout or '')[-800:]}
+        checks['backup_without_key_files'] = (json.loads(keys.stdout or '[true]') == [False, False]
+                                              and keyless.returncode == 0
+                                              and 'Backup failed' not in (keyless.stdout or ''))
         details['opcache_like_files'] = int(stack.php(FILE_SCAN).stdout or 0)
         checks['no_opcache_files_written'] = details['opcache_like_files'] == 0
         state = json.loads(docker('inspect', stack.app).stdout)[0]['State']
