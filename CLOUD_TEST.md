@@ -1,11 +1,11 @@
 # 雲端測試任務
 
-這個分支是 `all-changes`（commit `330a2a3439`）再加上這一個說明檔。請在這個 repo 跑完整的 PHPUnit 測試，並和上游 develop 比較，**不要修改程式碼**。唯一允許的 push 是最後把結果檔推到 `cloud-test` 分支（見「回報內容」）。
+這個分支是我們的改動 rebase 到上游最新 develop（`f9f3a6067c`）之後，再加上這一個說明檔。請在這個 repo 跑完整的 PHPUnit 測試，並和上游 develop 比較，**不要修改程式碼**。唯一允許的 push 是最後把結果檔推到 `cloud-test` 分支（見「回報內容」）。
 
 ## 背景
 
-- `all-changes` = 上游 `grokability/snipe-it` 的 develop（`73323cb76d`）+ 我們 17 個 commit（S3 相容、LDAP OU 篩選、chiseled image、備份檔名標記等）。
-- 目標：確認我們的改動沒有讓任何測試失敗。只在我們分支失敗、上游 develop 沒失敗的測試才算問題。
+- 這個分支 = 上游 `grokability/snipe-it` 的 develop（`f9f3a6067c`）+ 我們 17 個 commit（S3 相容、LDAP OU 篩選、chiseled image、備份檔名標記等）。
+- 目標：確認我們的改動沒有讓任何測試失敗。只在這個分支失敗、上游 develop 沒失敗的測試才算問題。
 
 ## 步驟
 
@@ -32,7 +32,7 @@
 - `Tests\Unit\CustomFieldTest::test_db_name_{chinese,japanese,korean,arabic}`：`intl` 的音譯結果因版本不同而不同。
 - `Tests\Feature\SyncAdapters\ExtraFieldMappingTest::test_{purchase,eol}_date_accepts_iso_8601_datetime`：`APP_TIMEZONE` 不是 UTC 時，午夜 UTC 的日期會存成前一天（範本是 UTC 的話應該會過）。
 
-在本機上一次跑的結果：6029 個測試、6 個失敗，就是上面這 6 個，上游 develop 也一樣。
+在本機上一次跑的結果（舊的 develop `73323cb76d`）：6029 個測試、6 個失敗，就是上面這 6 個，上游 develop 也一樣。
 
 ## 回報內容
 
@@ -42,4 +42,4 @@
 1. 環境：PHP 版本、資料庫版本、CPU 核心數、平行或單程序、總耗時。
 2. 測試總數、通過、失敗、略過。
 3. 每個失敗的測試：名稱、錯誤摘要（前幾行），以及在上游 develop 是否也失敗。
-4. 結論：有沒有只在 `all-changes` 失敗的測試。有的話，指出可能相關的 commit 和檔案，但不要修改。
+4. 結論：有沒有只在這個分支失敗的測試。有的話，指出可能相關的 commit 和檔案，但不要修改。
