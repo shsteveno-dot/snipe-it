@@ -6,6 +6,7 @@ use App\Mail\CheckoutAcceptanceResponseMail;
 use App\Models\CheckoutAcceptance;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CheckoutResponseEmailTest extends TestCase
@@ -15,6 +16,7 @@ class CheckoutResponseEmailTest extends TestCase
         parent::setUp();
 
         Mail::fake();
+        Storage::fake();
     }
 
     public function test_accepting_checkout_acceptance_configured_to_send_alert()
