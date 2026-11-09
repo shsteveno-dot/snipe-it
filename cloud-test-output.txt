@@ -1,0 +1,504 @@
+===== 1. 平行全套（cloud-test a01207d，php -d memory_limit=2G artisan test --parallel --display-skipped --colors=never），耗時 436 秒 =====
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+.............................................................   61 / 6061 (  1%)
+.............................................................  122 / 6061 (  2%)
+.............................................................  183 / 6061 (  3%)
+.............................................................  244 / 6061 (  4%)
+.............................................................  305 / 6061 (  5%)
+.............................................................  366 / 6061 (  6%)
+.............................................................  427 / 6061 (  7%)
+.............................................................  488 / 6061 (  8%)
+.............................................................  549 / 6061 (  9%)
+.............................................................  610 / 6061 ( 10%)
+.............................................................  671 / 6061 ( 11%)
+.............................................................  732 / 6061 ( 12%)
+.............................................................  793 / 6061 ( 13%)
+.............................................................  854 / 6061 ( 14%)
+.............................................................  915 / 6061 ( 15%)
+..............................................SS.............  976 / 6061 ( 16%)
+............................................................. 1037 / 6061 ( 17%)
+............................................................. 1098 / 6061 ( 18%)
+......................................IIII................... 1159 / 6061 ( 19%)
+............................................................. 1220 / 6061 ( 20%)
+..............S.....................III...................... 1281 / 6061 ( 21%)
+............................................................. 1342 / 6061 ( 22%)
+......................IIIII................................II 1403 / 6061 ( 23%)
+............I................................................ 1464 / 6061 ( 24%)
+.................IIIIIIIIIII........................IIII..... 1525 / 6061 ( 25%)
+............................................................. 1586 / 6061 ( 26%)
+............................................................. 1647 / 6061 ( 27%)
+............................................................. 1708 / 6061 ( 28%)
+................................................I............ 1769 / 6061 ( 29%)
+............................................................. 1830 / 6061 ( 30%)
+............................................................. 1891 / 6061 ( 31%)
+............................................................. 1952 / 6061 ( 32%)
+............................................................. 2013 / 6061 ( 33%)
+............................................................. 2074 / 6061 ( 34%)
+..I.......................................................... 2135 / 6061 ( 35%)
+..........................F.................................. 2196 / 6061 ( 36%)
+............................................................. 2257 / 6061 ( 37%)
+......F...................................................... 2318 / 6061 ( 38%)
+............................................................. 2379 / 6061 ( 39%)
+............................................................. 2440 / 6061 ( 40%)
+............................................................. 2501 / 6061 ( 41%)
+............................................I................ 2562 / 6061 ( 42%)
+............................................................. 2623 / 6061 ( 43%)
+............................................................. 2684 / 6061 ( 44%)
+............................................................. 2745 / 6061 ( 45%)
+............................................III...........III 2806 / 6061 ( 46%)
+............................................................. 2867 / 6061 ( 47%)
+...................IIIIIIIII................................. 2928 / 6061 ( 48%)
+............................................................. 2989 / 6061 ( 49%)
+............................................................. 3050 / 6061 ( 50%)
+............................................................. 3111 / 6061 ( 51%)
+............................................................. 3172 / 6061 ( 52%)
+............................................................. 3233 / 6061 ( 53%)
+............................................................. 3294 / 6061 ( 54%)
+............................................................. 3355 / 6061 ( 55%)
+............................................................. 3416 / 6061 ( 56%)
+............................................................. 3477 / 6061 ( 57%)
+............................................................. 3538 / 6061 ( 58%)
+............................................................. 3599 / 6061 ( 59%)
+............................................................. 3660 / 6061 ( 60%)
+............................................................. 3721 / 6061 ( 61%)
+............................................................. 3782 / 6061 ( 62%)
+............................................................. 3843 / 6061 ( 63%)
+............................................................. 3904 / 6061 ( 64%)
+............................................................. 3965 / 6061 ( 65%)
+............................................................. 4026 / 6061 ( 66%)
+............................................................. 4087 / 6061 ( 67%)
+............................................................. 4148 / 6061 ( 68%)
+............................................................. 4209 / 6061 ( 69%)
+............................................................. 4270 / 6061 ( 70%)
+............................................................. 4331 / 6061 ( 71%)
+............................................................. 4392 / 6061 ( 72%)
+............................................................. 4453 / 6061 ( 73%)
+............................................................. 4514 / 6061 ( 74%)
+............................................................. 4575 / 6061 ( 75%)
+............................................................. 4636 / 6061 ( 76%)
+............................................................. 4697 / 6061 ( 77%)
+............................................................. 4758 / 6061 ( 78%)
+............................................................. 4819 / 6061 ( 79%)
+......................................II..................... 4880 / 6061 ( 80%)
+..............II.....................I....................... 4941 / 6061 ( 81%)
+............................................................. 5002 / 6061 ( 82%)
+............................................................. 5063 / 6061 ( 83%)
+............................................................. 5124 / 6061 ( 84%)
+........FF................................................... 5185 / 6061 ( 85%)
+............................................................. 5246 / 6061 ( 86%)
+............................................FF.F............. 5307 / 6061 ( 87%)
+........F....................FF...........................FFF 5368 / 6061 ( 88%)
+......................................................F...... 5429 / 6061 ( 89%)
+............................................................. 5490 / 6061 ( 90%)
+............................................................. 5551 / 6061 ( 91%)
+............................................................. 5612 / 6061 ( 92%)
+............................................................. 5673 / 6061 ( 93%)
+............................................................. 5734 / 6061 ( 94%)
+............................................................. 5795 / 6061 ( 95%)
+............................................................. 5856 / 6061 ( 96%)
+............................................................. 5917 / 6061 ( 97%)
+............................................................. 5978 / 6061 ( 98%)
+............................................................. 6039 / 6061 ( 99%)
+......................                                        6061 / 6061 (100%)
+
+Time: 07:15.998, Memory: 150.50 MB
+
+There were 14 failures:
+
+1) Tests\Feature\SyncAdapters\GroupCompanyMappingTest::test_saving_adapter_persists_group_mappings_from_form
+Failed asserting that null is identical to '209'.
+
+/home/user/snipe-it/tests/Feature/SyncAdapters/GroupCompanyMappingTest.php:185
+
+2) Tests\Feature\SyncAdapters\GroupCompanyMappingTest::test_blank_mapping_clears_an_existing_group_mapping
+Failed asserting that '99' is null.
+
+/home/user/snipe-it/tests/Feature/SyncAdapters/GroupCompanyMappingTest.php:206
+
+3) Tests\Feature\SyncAdapters\Intune\IntuneSettingsPageTest::test_saving_intune_encrypts_only_the_secret_field
+Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+The intune url field must be a valid external URL (http:// or https://) that does not point at a private or local address.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost:8000/admin/adapters?adapter=intune'
++'http://localhost:8000'
+
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:45
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:432
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:206
+/home/user/snipe-it/tests/Feature/SyncAdapters/Intune/IntuneSettingsPageTest.php:47
+
+4) Tests\Feature\SyncAdapters\Intune\IntuneSettingsPageTest::test_unchecking_create_snipeit_assets_on_pull_persists_as_off
+Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+The intune url field must be a valid external URL (http:// or https://) that does not point at a private or local address.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost:8000/admin/adapters?adapter=intune'
++'http://localhost:8000'
+
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:45
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:432
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:206
+/home/user/snipe-it/tests/Feature/SyncAdapters/Intune/IntuneSettingsPageTest.php:83
+
+5) Tests\Feature\SyncAdapters\Intune\IntuneSettingsPageTest::test_checking_create_snipeit_assets_on_pull_persists_as_on
+Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+The intune url field must be a valid external URL (http:// or https://) that does not point at a private or local address.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost:8000/admin/adapters?adapter=intune'
++'http://localhost:8000'
+
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:45
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:432
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:206
+/home/user/snipe-it/tests/Feature/SyncAdapters/Intune/IntuneSettingsPageTest.php:103
+
+6) Tests\Feature\SyncAdapters\Kandji\KandjiSettingsPageTest::test_saving_kandji_persists_url_and_encrypts_token
+Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+The kandji url field must be a valid external URL (http:// or https://) that does not point at a private or local address.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost:8000/admin/adapters?adapter=kandji'
++'http://localhost:8000'
+
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:45
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:432
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:206
+/home/user/snipe-it/tests/Feature/SyncAdapters/Kandji/KandjiSettingsPageTest.php:41
+
+7) Tests\Feature\Companies\Api\CompanyWebhooksTest::test_can_filter_companies_with_webhooks
+Failed asserting that 0 is identical to 1.
+
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/AssertableJsonString.php:243
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:880
+/home/user/snipe-it/tests/Feature/Companies/Api/CompanyWebhooksTest.php:33
+
+8) Tests\Feature\SyncAdapters\AssetTagPatternTest::test_pattern_field_persists_on_save
+Failed asserting that null is identical to 'FLEET-{serial}'.
+
+/home/user/snipe-it/tests/Feature/SyncAdapters/AssetTagPatternTest.php:228
+
+9) Tests\Feature\SyncAdapters\AssetTagPatternTest::test_default_category_id_may_be_left_blank_on_save_and_triggers_discovered_hardware_fallback
+Session has unexpected errors: 
+
+{
+    "default": [
+        "The fleet url field must be a valid external URL (http:// or https://) that does not point at a private or local address."
+    ]
+}
+Failed asserting that true is false.
+
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:45
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:1695
+/home/user/snipe-it/tests/Feature/SyncAdapters/AssetTagPatternTest.php:251
+
+10) Tests\Feature\Companies\Api\WebhookEndpointSsrfTest::test_api_accepts_a_public_https_webhook_endpoint_from_superuser
+Response status message was not success
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'success'
++'error'
+
+/home/user/snipe-it/tests/Support/CustomTestMacros.php:88
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Macroable/Traits/Macroable.php:132
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:2014
+/home/user/snipe-it/tests/Feature/Companies/Api/WebhookEndpointSsrfTest.php:87
+
+11) Tests\Feature\SyncAdapters\Fleet\FleetLicenseTierTest::test_saving_free_tier_fleet_caches_free_and_hides_group_scoping
+Session has unexpected errors: 
+
+{
+    "default": [
+        "The fleet url field must be a valid external URL (http:// or https://) that does not point at a private or local address."
+    ]
+}
+Failed asserting that true is false.
+
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:45
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:1695
+/home/user/snipe-it/tests/Feature/SyncAdapters/Fleet/FleetLicenseTierTest.php:48
+
+12) Tests\Feature\SyncAdapters\Fleet\FleetLicenseTierTest::test_saving_premium_tier_fleet_caches_premium_and_keeps_group_scoping
+Failed asserting that null is identical to 'premium'.
+
+/home/user/snipe-it/tests/Feature/SyncAdapters/Fleet/FleetLicenseTierTest.php:72
+
+13) Tests\Feature\SyncAdapters\Fleet\FleetLicenseTierTest::test_free_tier_stays_hidden_across_subsequent_saves_until_upgrade
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'premium'
++'free'
+
+/home/user/snipe-it/tests/Feature/SyncAdapters/Fleet/FleetLicenseTierTest.php:121
+
+14) Tests\Feature\SyncAdapters\Fleet\FleetSettingsPageTest::test_saving_persists_url_and_encrypts_token
+Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+The fleet url field must be a valid external URL (http:// or https://) that does not point at a private or local address.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost:8000/admin/adapters?adapter=fleet'
++'http://localhost:8000'
+
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponseAssert.php:45
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:432
+/home/user/snipe-it/vendor/laravel/framework/src/Illuminate/Testing/TestResponse.php:206
+/home/user/snipe-it/tests/Feature/SyncAdapters/Fleet/FleetSettingsPageTest.php:64
+
+--
+
+There were 3 skipped tests:
+
+1) Tests\Feature\ApiRateLimitTest::test_rate_limit_decreases_remaining
+This test is flappy and keeps screwing up the test results.
+
+2) Tests\Feature\ApiRateLimitTest::test_rate_limit_decreases_remaining_over_sixty
+This test is flappy and keeps screwing up the test results.
+
+3) Tests\Feature\Assets\Api\DeleteAssetsTest::test_cannot_delete_asset_that_is_checked_out
+This behavior is not functioning yet.
+
+FAILURES!
+Tests: 6061, Assertions: 19706, Failures: 14, Skipped: 3, Incomplete: 53.
+
+===== 2. DNS 相關的 14 個失敗：同 8 個測試檔，單一 process =====
+--- 2a. 本分支，容器原本的 DNS（公開主機解析不到）
+  Tests:    14 failed, 56 passed (158 assertions)
+  Duration: 14.10s
+
+--- 2b. 本分支，在 /etc/hosts 暫時加入 example.com / graph.microsoft.com / graph.microsoft.us / example.api.kandji.io / hooks.slack.com 的公開 IP（跑完已還原）
+
+  Tests:    70 passed (181 assertions)
+  Duration: 14.91s
+
+--- 2c. 上游 develop f9f3a6067c（worktree /tmp/dev，共用同一個 vendor/），容器原本的 DNS
+
+  Tests:    14 failed, 56 passed (158 assertions)
+  Duration: 14.03s
+
+
+===== 3. 只跑 tests/Feature/S3Compatibility，平行模式 10 次（--parallel --display-skipped） =====
+run 1 rc=0 secs=87 :: OK (87 tests, 334 assertions)
+run 2 rc=0 secs=86 :: OK (87 tests, 334 assertions)
+run 3 rc=0 secs=84 :: OK (87 tests, 334 assertions)
+run 4 rc=0 secs=87 :: OK (87 tests, 334 assertions)
+run 5 rc=0 secs=88 :: OK (87 tests, 334 assertions)
+run 6 rc=0 secs=97 :: OK (87 tests, 334 assertions)
+run 7 rc=0 secs=94 :: OK (87 tests, 334 assertions)
+run 8 rc=0 secs=99 :: OK (87 tests, 334 assertions)
+run 9 rc=0 secs=97 :: OK (87 tests, 334 assertions)
+run 10 rc=0 secs=96 :: OK (87 tests, 334 assertions)
+
+--- run 1
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:26.244, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 2
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:25.307, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 3
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:23.323, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 4
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:26.456, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 5
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:27.092, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 6
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:36.137, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 7
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:33.282, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 8
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:37.585, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 9
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:36.693, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+--- run 10
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 87 ( 74%)
+......................                                            87 / 87 (100%)
+
+Time: 01:36.170, Memory: 54.50 MB
+
+OK (87 tests, 334 assertions)
+
+===== 4. S3 目錄第 11 次（加 --log-junit），各測試類別耗時 =====
+    7.0s   3 Tests\Feature\S3Compatibility\AcceptanceAttachmentTest
+    7.4s   6 Tests\Feature\S3Compatibility\BackupDiskConsistencyTest
+    7.7s   7 Tests\Feature\S3Compatibility\BackupPageTest
+    7.9s  17 Tests\Feature\S3Compatibility\BackupRemoteOptionTest
+    1.6s   9 Tests\Feature\S3Compatibility\EulaDownloadTest
+    0.7s   9 Tests\Feature\S3Compatibility\MiscRemediationTest
+    0.9s   9 Tests\Feature\S3Compatibility\MoveUploadsToNewDiskTest
+   86.1s  23 Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest
+    4.8s   3 Tests\Feature\S3Compatibility\StagingAssumptionsTest
+    0.1s   1 Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest
+-- RestoreToRemoteDiskTest 每個測試
+  3.76 an_invalid_archive_changes_nothing with data set "sha256 differs from the manifest"
+  3.77 an_invalid_archive_changes_nothing with data set "manifest lists a file that is not in the archive"
+  3.81 an_invalid_archive_changes_nothing with data set "unsafe path inside the archive"
+  3.65 an_invalid_archive_changes_nothing with data set "not a manifest-conformant size"
+  0.10 files_are_written_to_the_configured_remote_disks_with_matching_bytes
+  4.31 nested_paths_are_preserved_and_do_not_overwrite_each_other
+  4.08 objects_on_a_remote_disk_that_are_not_in_the_backup_are_left_alone
+  3.83 local_disks_are_pruned_and_written_as_before_with_nested_paths_kept
+  3.80 an_unreadable_archive_triggers_no_prune_and_a_non_zero_exit
+  3.91 an_archive_without_remote_files_leaves_the_remote_disks_untouched_and_warns
+  4.01 a_restore_follows_the_manifest_even_when_the_filename_says_otherwise
+  3.84 an_archive_without_a_manifest_restores_with_a_warning
+  4.02 a_write_failure_after_the_restore_started_is_reported_and_puts_the_app_in_maintenance
+  4.04 an_object_that_reads_back_differently_fails_the_restore
+  3.91 validate_only_accepts_a_good_archive_and_changes_nothing
+  4.10 validate_only_rejects_a_corrupted_database_dump
+  3.70 a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it
+  4.12 validate_only_rejects_an_archive_whose_checksum_does_not_match
+  4.18 local_copies_in_a_backup_do_not_overwrite_objects_on_a_remote_disk
+  4.00 validate_only_rejects_an_empty_database_dump
+  3.81 a_local_copy_without_an_object_on_the_remote_disk_is_still_restored
+  3.77 local_copies_from_a_local_install_backup_are_still_moved_to_the_remote_disk
+  3.54 the_web_restore_takes_its_safety_backup_with_remote_files_included
+
+===== 5. RestoreToRemoteDiskTest 兩個測試單獨跑，MariaDB general_log 摘要 =====
+兩個測試共有 257 個 CREATE TABLE；每個測試開始前都有一次 drop table `snipeit_test`.`accessories`, ...（migrate:fresh），單獨跑的時間分別是 3.92 秒和 3.39 秒。
+直接執行 php artisan snipeit:restore <非 zip 檔> 只需要 0.3 秒；MariaDB 的 CREATE/DROP DATABASE 各約 0.01 秒。
