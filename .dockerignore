@@ -7,9 +7,11 @@ app/storage/logs/*
 app/storage/views/*
 vendor/*
 storage/framework/cache/*
+!storage/framework/cache/.gitignore
 node_modules
 .vagrant
 .idea
+.claude
 
 # Files a developer's checkout generates locally; they must never reach an image.
 .env.testing
