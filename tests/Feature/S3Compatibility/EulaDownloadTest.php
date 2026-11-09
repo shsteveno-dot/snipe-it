@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\S3Compatibility\ProtectsRealUploadDirectories;
 use Tests\TestCase;
 
 /**
@@ -18,6 +19,8 @@ use Tests\TestCase;
  */
 class EulaDownloadTest extends TestCase
 {
+    use ProtectsRealUploadDirectories;
+
     private string $localFile = '';
 
     protected function tearDown(): void
@@ -25,6 +28,7 @@ class EulaDownloadTest extends TestCase
         if ($this->localFile !== '' && file_exists($this->localFile)) {
             unlink($this->localFile);
         }
+        $this->releaseRealUploadDirectories();
 
         parent::tearDown();
     }
@@ -109,6 +113,7 @@ class EulaDownloadTest extends TestCase
         $log = $this->acceptedLog($user);
         $pdf = "%PDF-1.4\n".random_bytes(256);
         $key = FileStorage::EulaPdfs->privateStorageKey().$log->filename;
+        $this->lockRealUploadDirectories();
         Storage::disk('local')->put($key, $pdf);
         $this->localFile = Storage::disk('local')->path($key);
         $this->assertSame(config('app.private_uploads').'/eula-pdfs/'.$log->filename, $this->localFile);
@@ -128,6 +133,7 @@ class EulaDownloadTest extends TestCase
         $user = User::factory()->superuser()->create();
         $log = $this->acceptedLog($user);
         $key = FileStorage::EulaPdfs->privateStorageKey().$log->filename;
+        $this->lockRealUploadDirectories();
         Storage::disk('local')->put($key, "%PDF-1.4\nbody");
         $this->localFile = Storage::disk('local')->path($key);
 

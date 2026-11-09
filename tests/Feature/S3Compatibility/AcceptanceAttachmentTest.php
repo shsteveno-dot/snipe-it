@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mime\Email;
+use Tests\Support\S3Compatibility\ProtectsRealUploadDirectories;
 use Tests\TestCase;
 
 /**
@@ -22,6 +23,8 @@ use Tests\TestCase;
  */
 class AcceptanceAttachmentTest extends TestCase
 {
+    use ProtectsRealUploadDirectories;
+
     private string $remoteRoot;
 
     private string $localCopy = '';
@@ -49,6 +52,7 @@ class AcceptanceAttachmentTest extends TestCase
         if ($this->localCopy !== '' && file_exists($this->localCopy)) {
             unlink($this->localCopy);
         }
+        $this->releaseRealUploadDirectories();
 
         parent::tearDown();
     }
@@ -107,6 +111,7 @@ class AcceptanceAttachmentTest extends TestCase
         $file = 'missing-'.bin2hex(random_bytes(4)).'.pdf';
 
         // A file at the old local path must not be picked up: only the configured disk counts.
+        $this->lockRealUploadDirectories();
         $this->localCopy = storage_path(FileStorage::EulaPdfs->privateStorageKey().$file);
         File::ensureDirectoryExists(dirname($this->localCopy));
         file_put_contents($this->localCopy, 'STALE LOCAL COPY');
@@ -124,6 +129,7 @@ class AcceptanceAttachmentTest extends TestCase
         $pdf = "%PDF-1.4\n".random_bytes(512)."\n%%EOF";
         $file = 'local-'.bin2hex(random_bytes(4)).'.pdf';
         $key = FileStorage::EulaPdfs->privateStorageKey().$file;
+        $this->lockRealUploadDirectories();
         Storage::disk('local')->put($key, $pdf);
         $this->localCopy = Storage::disk('local')->path($key);
 
