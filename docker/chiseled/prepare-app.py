@@ -20,13 +20,29 @@ for relative, target in links.items():
         shutil.rmtree(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.symlink_to(target)
-for name in ('docker', '.git', '.github', '.agents', '.codex', '.spec', 'tests'):
+for name in ('docker', '.git', '.github', '.agents', '.codex', '.spec', 'tests', '.ai', '.claude', 'cloud-verify',
+             '.phpunit.cache', 'storage/framework/testing', 'storage/app/backup-temp'):
     path = app / name
     if path.is_dir():
         shutil.rmtree(path)
-for pattern in ('Dockerfile*', 'docker-compose*', '.dockerignore'):
+for pattern in ('Dockerfile*', 'docker-compose*', '.dockerignore', '.env.testing', '.env.dusk.local',
+                '.phpunit.result.cache', 'CLOUD_TEST*.md', 'cloud-test-output.txt'):
     for path in app.glob(pattern):
         if path.is_file():
+            path.unlink()
+# Files a developer's checkout generates at run time: logs, compiled views, sessions, caches. A build from a
+# working directory would otherwise ship them; the directories and their .gitignore placeholders stay.
+for directory in ('storage/logs', 'storage/framework/views', 'storage/framework/sessions',
+                  'storage/framework/cache/data', 'bootstrap/cache'):
+    root = app / directory
+    if not root.is_dir():
+        continue
+    for path in list(root.iterdir()):
+        if path.name in ('.gitignore', '.gitkeep'):
+            continue
+        if path.is_dir() and not path.is_symlink():
+            shutil.rmtree(path)
+        else:
             path.unlink()
 (app / 'artisan').chmod(0o755)
 for path in [app, *app.rglob('*')]:
