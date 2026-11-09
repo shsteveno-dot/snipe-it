@@ -8,6 +8,24 @@
 
 ## 這次的重點
 
+第 9 輪：**只驗證第 8 輪新測試的修正**（短的一輪，不重建 chiseled、不跑全套）。程式碼和 `all-changes` `04a07b3584` 相同。第 8 輪結果在 `cloud-verify/round8/`（commit `2e55131084`），以下第 8 輪的說明保留作參考。
+
+新改動（第 8 輪建議 1）：
+- `db13e6c4b2`：`missing_include_paths_are_left_out_and_named_instead_of_failing_the_backup` 改成 `$command->assertExitCode(0)->run()`，先執行再讀 `calls()`。
+- `e2ac9efc4b`：兩個新測試的暫存目錄改在 `tearDown` 刪除（`$missingRoot`），測試失敗時也不會留在 `/tmp`。
+- `04a07b3584`：建立斷掉的 symlink 失敗時不再靜默略過：Windows 上 `markTestSkipped`，其他系統直接 `fail`；`$missing` 一定是兩個路徑。
+
+要做的（沿用現有容器；MariaDB 沒在跑就先 `service mariadb start`，用當下的 `$HTTPS_PROXY`）：
+1. `vendor/bin/pint --test tests/Feature/S3Compatibility/BackupRemoteOptionTest.php`。
+2. 單一 process 跑 `BackupRemoteOptionTest` 和 `BackupPageTest`：全過、0 略過。
+3. 反證：暫時把 `SystemBackup::handle()` 的 `$existing` 改回 `$include`，兩個新測試都要失敗，還原後通過（不要 commit）。故意讓測試失敗時，確認 `/tmp/s3compat-missing-*` 沒有留下來。
+4. 平行模式跑 `tests/Feature/S3Compatibility` 5 次，全部 0 失敗、0 略過，`/tmp/s3compat-missing-*` 沒有殘留。
+5. 如果全部符合，報告開頭寫「穩定」。
+
+回報：`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`（不用 json）。
+
+---
+
 第 8 輪：**備份遇到不存在的路徑會整個失敗**（正式環境的 bug）。程式碼和 `all-changes` `57e3245981` 相同，基準上游 develop `f9f3a6067c`。第 7 輪結果在 `cloud-verify/round7/`（commit `f72e861960`）。
 
 正式環境（k8s、chiseled image、`/var/lib/snipeit` 沒有掛 volume、沒用 Passport）在網頁按備份失敗，`snipeit:backup --without-remote-files` 的輸出是：
@@ -56,7 +74,7 @@
 
 回報時把三個驗收 json 一起 commit 成 `cloud-verify/round6/*.json`（加上 `CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`；`cloud-test-output.txt` 放 build 的最後 200 行和三個腳本的輸出）。「修改建議」只寫和 chiseled image 有關、真正值得做的。
 
-之前的結果在這個分支的歷史裡：第 1–7 輪 `a3611109df`、`ed51bd3f4f`、`8e930e5a00`、`ea0fc2c737`、`ea5bed8301`、`6bfd75f067`、`f72e861960`（`CLOUD_TEST_RESULT.md`）。
+之前的結果在這個分支的歷史裡：第 1–8 輪 `a3611109df`、`ed51bd3f4f`、`8e930e5a00`、`ea0fc2c737`、`ea5bed8301`、`6bfd75f067`、`f72e861960`、`2e55131084`（`CLOUD_TEST_RESULT.md`）。
 
 ## 步驟
 
