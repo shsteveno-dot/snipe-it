@@ -8,18 +8,24 @@
 
 ## 這次的重點
 
-第 4 輪。基準：上游 develop `f9f3a6067c`；程式碼和 `all-changes` `3820445291` 相同。如果你是接著上一輪的同一個 session，容器裡已經有 `vendor/` 和 MariaDB，`git pull` 後跳過安裝，直接跑測試。
+第 5 輪。基準：上游 develop `f9f3a6067c`；程式碼和 `all-changes` `930b3456cc` 相同。如果你是接著上一輪的同一個 session，容器裡已經有 `vendor/` 和 MariaDB，`git pull` 後跳過安裝，直接跑測試。
 
-- 新改動 `3820445291`（第 3 輪建議 1 的 a 方案，建議 3、4 的小改動）：
-  - `RestoreToRemoteDiskTest` 和 `StagingAssumptionsTest` 改用第二條連線 `s3compat_scratch_admin` 建立、寫入、刪除 scratch 資料庫，不再對測試連線做 DDL，也不再 `DB::purge('mysql')`。測試連線保持在原本的測試資料庫和交易裡，只把 `database.connections.mysql.database` 的設定指到 scratch，restore 命令照設定呼叫 mysql client。
-  - 鎖檔名稱加上 `md5(base_path())`，跳過訊息改成列出全部殘留檔。
+- 新改動 `930b3456cc`（第 4 輪建議 1、2、3）：
+  - 新增 `tests/Support/S3Compatibility/UsesScratchDatabase.php`，`RestoreToRemoteDiskTest` 和 `StagingAssumptionsTest` 共用（`useScratchDatabase()`、`scratchConnection()`、`dropScratchDatabase()`、`mysqlClientDirectory()`）。
+  - 還原資料庫名稱改成用 `setUp` 時記下的值，不再用 `env('DB_DATABASE')`（平行模式下是 `snipeit_test_test_<N>`）。
+  - mysql client 目錄不再寫死 `/usr/bin`：先用 `DB_DUMP_PATH`，再找 `/usr/bin`、`/usr/local/bin`、`/opt/homebrew/bin`、PATH，都沒有就跳過測試。
 - 要確認：
-  1. **`RestoreToRemoteDiskTest` 不再每個測試重跑 migration**：用 `--log-junit` 看每個測試的耗時（上次每個約 3.5–4.3 秒），必要時用 MariaDB general log 確認不再出現 `drop table ... accessories`。S3 目錄平行耗時和上次（84–99 秒）比較。
-  2. restore 測試本身仍然正確：`RestoreToRemoteDiskTest` 和 `StagingAssumptionsTest` 全過，scratch 資料庫（`s3compat_restore_*`、`s3compat_assume_*`）跑完後都已刪除（`SHOW DATABASES LIKE 's3compat%'` 沒有結果），測試資料庫 `snipeit_test*` 的資料沒有被 restore 改掉。
-  3. 平行模式跑 `tests/Feature/S3Compatibility` 至少 5 次，全部 0 失敗、0 略過。
-  4. 平行全套一次：除了已知的環境問題（見「已知狀況」）外 0 失敗，S3 測試 0 略過，上傳目錄沒有殘留。也請確認跑在 `RestoreToRemoteDiskTest` 之後的測試沒有因為資料庫狀態而失敗。
-- 第 3 輪建議 2（`ExternalUrl` 依賴 DNS）是上游程式碼，這次不改，只在「已知狀況」記錄。
-- 之前的結果在這個分支的歷史裡：第 1 輪 `a3611109df`、第 2 輪 `ed51bd3f4f`、第 3 輪 `8e930e5a00`（`CLOUD_TEST_RESULT.md`）。
+  1. 兩個 restore 測試類別在單一 process 和平行模式都全過，0 略過；`RestoreToRemoteDiskTest` 每個測試仍約 0.1 秒（沒有回到每個測試重跑 migration）。
+  2. 平行模式下，`tearDown` 之後 `database.connections.mysql.database` 是 worker 自己的 `snipeit_test_test_<N>`，不是 `snipeit_test`。可以暫時加一行 `fwrite(STDERR, ...)` 觀察後再還原，不要 commit。
+  3. 資料庫檢查（跑完 S3 目錄和全套後各做一次）：
+     - `SHOW DATABASES LIKE 's3compat%'` 沒有結果；
+     - `SELECT table_schema, COUNT(*) FROM information_schema.tables WHERE table_schema LIKE 'snipeit_test%' GROUP BY table_schema` 各資料庫數量一致；
+     - `SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 's3compat_probe'` 是 0。
+  4. `mysqlClientDirectory()`：預設設定（`DB_DUMP_PATH` 未設，`/usr/local/bin` 沒有 mysql）時會找到 `/usr/bin`。再暫時把 PATH 和候選目錄都弄成找不到（例如暫時改名 mysql 執行檔），確認測試是「跳過」而不是失敗，然後還原。
+  5. 平行模式跑 `tests/Feature/S3Compatibility` 10 次（每次約 11 秒），全部 0 失敗、0 略過。
+  6. 平行全套一次：除了已知的 DNS 測試外 0 失敗。DNS 不通時，可以照「已知狀況」先補 `/etc/hosts` 再跑，讓結果是 0 失敗，跑完還原。
+- 如果這輪除了已知狀況外沒有新問題，請在報告開頭明確寫「穩定」，並只列出真正值得做的建議（沒有就寫沒有）。
+- 之前的結果在這個分支的歷史裡：第 1 輪 `a3611109df`、第 2 輪 `ed51bd3f4f`、第 3 輪 `8e930e5a00`、第 4 輪 `ea0fc2c737`（`CLOUD_TEST_RESULT.md`）。
 
 ## 步驟
 
@@ -35,12 +41,12 @@
 2. `cp .env.testing.example .env.testing`，填入資料庫設定（使用者要有 CREATE DATABASE 權限，平行模式會建 `<db>_test_N`）。確認有 `IMPORT_MEMORY_LIMIT=2G`、`LDAP_MEM_LIM=2G`。`cp .env.testing .env`。
 3. 平行全套：`php -d memory_limit=2G artisan test --parallel --display-skipped --colors=never 2>&1 | tee /tmp/branch.txt`
 4. 有失敗或可疑的略過時，到上游 develop 對照（`git fetch https://github.com/grokability/snipe-it.git develop` 後 `git worktree add /tmp/dev FETCH_HEAD`），只需要重跑相關的測試檔；確定是新的問題才跑上游全套。我們新增的測試上游沒有，直接分析即可。
-   平行競爭只跑一次全套不一定抓得到，有改到 S3 測試或上傳目錄時，另外用平行模式重複跑 `tests/Feature/S3Compatibility`（每次不到 2 分鐘）。比較耗時看 `--log-junit` 裡各測試類別的時間，不要只看總耗時。
+   平行競爭只跑一次全套不一定抓得到，有改到 S3 測試或上傳目錄時，另外用平行模式重複跑 `tests/Feature/S3Compatibility`（每次約 10–15 秒，建議 10 次）。比較耗時看 `--log-junit` 裡各測試類別的時間，不要只看總耗時。
 5. 結束後刪掉 `/tmp/dev` 和測試資料庫。
 
 ## 已知狀況
 
-- `Tests\Feature\Livewire\ImporterMutexTest::test_locks_are_scoped_per_file_so_a_second_file_can_still_start`：平行模式下偶發失敗（共用 file cache + 各 process 的 Import ID 重複），上游也有同樣風險。乾淨 cache 單獨跑會過。第 2 輪通過。
+- `Tests\Feature\Livewire\ImporterMutexTest::test_locks_are_scoped_per_file_so_a_second_file_can_still_start`：平行模式下偶發失敗（共用 file cache + 各 process 的 Import ID 重複），上游也有同樣風險。乾淨 cache 單獨跑會過。第 2–4 輪都沒有重現。
 - 程式碼本來就標記跳過的 3 個（上游也有）：`ApiRateLimitTest` 兩個、`DeleteAssetsTest::test_cannot_delete_asset_that_is_checked_out`。
 - 容器沒有 DNS 時（`getent ahosts example.com` 沒有輸出），`ExternalUrl` 相關的 14 個測試會失敗，上游也一樣：`SyncAdapters\GroupCompanyMappingTest`、`Intune\IntuneSettingsPageTest`、`Kandji\KandjiSettingsPageTest`、`AssetTagPatternTest`、`Fleet\FleetLicenseTierTest`、`Fleet\FleetSettingsPageTest`、`CompanyWebhooksTest::test_can_filter_companies_with_webhooks`、`WebhookEndpointSsrfTest::test_api_accepts_a_public_https_webhook_endpoint_from_superuser`。要讓它們通過，跑測試前暫時把 `example.com graph.microsoft.com graph.microsoft.us example.api.kandji.io hooks.slack.com` 加進 `/etc/hosts`（對應任一公開 IP），跑完還原。
 - 本機（非 UTC 時區、不同 intl 版本）才會失敗的 `CustomFieldTest` 和 `ExtraFieldMappingTest`，在 UTC 的雲端環境應該會過。
