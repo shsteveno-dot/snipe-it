@@ -215,11 +215,15 @@ class BackupRemoteOptionTest extends TestCase
         $root = $this->missingRoot = sys_get_temp_dir().'/s3compat-missing-'.bin2hex(random_bytes(4));
         File::ensureDirectoryExists($root.'/uploads');
         file_put_contents($root.'/present.key', 'KEY');
-        $missing = [$root.'/oauth-private.key'];
-        // A key file the Chiseled image links to a volume that does not have it.
-        if (@symlink($root.'/nowhere/oauth-public.key', $root.'/oauth-public.key')) {
-            $missing[] = $root.'/oauth-public.key';
+        // One key file is simply absent; the other is what the Chiseled image has when the volume holds no
+        // keys: a link to a file that does not exist.
+        if (! @symlink($root.'/nowhere/oauth-public.key', $root.'/oauth-public.key')) {
+            if (PHP_OS_FAMILY === 'Windows') {
+                $this->markTestSkipped('Creating symlinks needs extra rights on Windows.');
+            }
+            $this->fail('Could not create the dangling symlink the test relies on.');
         }
+        $missing = [$root.'/oauth-private.key', $root.'/oauth-public.key'];
         $existing = [$root.'/uploads', $root.'/present.key'];
         config(['backup.backup.source.files.include' => array_merge($existing, $missing)]);
 
