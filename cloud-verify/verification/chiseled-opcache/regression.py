@@ -87,7 +87,7 @@ def main(argv=None):
         messages = [{'recipient': 'RCPT TO:<sink@example.invalid>', 'data': 'Subject: other-marker'}]
         hit = delivered(messages, 'never-sent-marker')
         print(json.dumps({'self_test_matches_for_unsent_marker': len(hit)}))
-        assert hit, 'matcher found no message for an unsent marker (expected for RED)'
+        assert not hit, 'matcher matched a message for a marker that was never sent'
         return 0
     checks, details = run(args.image)
     passed = all(checks.values())

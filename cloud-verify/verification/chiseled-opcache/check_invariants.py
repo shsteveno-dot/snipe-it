@@ -25,7 +25,7 @@ def rootfs_names(image):
     try:
         data = docker_bytes('export', container)
     finally:
-        docker('rm', '-f', container, check=False)
+        docker('rm', '-f', '-v', container, check=False)
     with tarfile.open(fileobj=io.BytesIO(data)) as archive:
         return {name.lstrip('./') for name in archive.getnames()}
 

@@ -8,9 +8,32 @@
 
 ## 這次的重點
 
-第 6 輪：**chiseled Docker image 的建置與驗收**（這輪不跑 PHPUnit，第 5 輪已經穩定）。程式碼和 `all-changes` `930b3456cc` 相同，基準上游 develop `f9f3a6067c`。
+第 7 輪：**chiseled image 的「本機檔案不進 image」修正**（這輪不跑 PHPUnit）。程式碼和 `all-changes` `65ecdf0ab4` 相同，基準上游 develop `f9f3a6067c`。上一輪（第 6 輪，`6bfd75f067`）的結果在 `cloud-verify/round6/`。
 
-背景：`Dockerfile.chiseled` 建出一個沒有 shell、沒有套件管理器的 Ubuntu chiseled image（說明在 `docker/chiseled/README.md`）。之前在本機用舊的 develop（`73323cb76d`，分支頭 `330a2a3439`）建過一次，三個驗收腳本都通過，結果在 `cloud-verify/previous-run/*.json`。這輪要用目前的程式碼重建並重跑驗收。
+新改動：
+- `65ecdf0ab4`（第 6 輪建議 1、3）：`.dockerignore` 排除 `.env.testing`、`.phpunit.cache`、`storage/logs/*.log`、編譯過的 view、session、`storage/framework/testing`、`storage/app/backup-temp`、`bootstrap/cache/*.php`。`docker/chiseled/prepare-app.py` 另外刪掉這些檔案，以及 `.ai`、`.claude`、`cloud-verify`、`CLOUD_TEST*.md`；目錄和 `.gitignore` 保留。
+- `cloud-verify/` 的兩個腳本（第 6 輪建議 2、4）：`regression.py --self-test` 的斷言改成 `assert not hit`；`check_invariants.py` 刪容器時加 `-v`。
+
+這輪的做法：**刻意用「髒」的 checkout 建 image**，證明修正有效。
+1. 照第 6 輪的方式啟動 dockerd、`repin_app_inputs.py --check`。
+2. 建一個 worktree 當 build context，在裡面放這些假檔案（內容用無害的假字串，例如 `FAKE-LOCAL-FILE`）：`.env.testing`、`.phpunit.cache/test-results`、`.phpunit.result.cache`、`storage/logs/laravel.log`、`storage/framework/views/0123abcd.php`、`storage/framework/sessions/fakesession`、`storage/framework/testing/disks/x.txt`、`storage/app/backup-temp/x.txt`、`bootstrap/cache/services.php`、`bootstrap/cache/packages.php`。`CLOUD_TEST.md` 和 `cloud-verify/` 本來就在這個分支上。
+3. 照第 6 輪的做法建 image（代理 CA、composer 用 `git archive` 預先放進快取的暫時調整一樣允許，不要 commit），tag 用 `snipeit-chiseled:round7`。
+4. `docker create` → `docker export`，確認：
+   - 上面的假檔案、`.ai/`、`.claude/`、`cloud-verify/`、`CLOUD_TEST.md` **都不在** `/var/www/html` 裡（搜尋 `FAKE-LOCAL-FILE` 應該是 0 筆）；
+   - `storage/logs`、`storage/framework/views`、`storage/framework/sessions`、`storage/framework/cache`、`bootstrap/cache` 這些目錄**還在**；
+   - `bootstrap/cache/packages.php` 是 composer 在 build 時重新產生的（內容不是假字串）。
+5. 跑四個驗收（`check_sapi`、`check_invariants --boot`、`regression --self-test`、`regression`），**全部都要 exit 0**（self-test 這次應該通過）。和 `cloud-verify/round6/*.json` 比較。
+6. 跑完確認沒有留下匿名 volume（`docker volume ls -q` 是空的）。
+7. 清理：image、容器、網路、volume、build cache 都刪掉，停掉 dockerd，刪掉 worktree。
+8. 另外用上游原本的 `Dockerfile`（不是 chiseled）只做到 `COPY . /var/www/html` 這一步就夠，確認 `.dockerignore` 的新規則不會擋掉 build 需要的檔案。如果完整 build 太花時間或空間，可以只用 `docker buildx build --target` 或一個只有 `COPY .` 的暫時 Dockerfile 檢查 context 內容，在報告裡說明。
+
+回報時把驗收 json commit 成 `cloud-verify/round7/*.json`，加上 `CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。
+
+---
+
+以下是第 6 輪的背景說明，做法相同時可以參考：
+
+背景：`Dockerfile.chiseled` 建出一個沒有 shell、沒有套件管理器的 Ubuntu chiseled image（說明在 `docker/chiseled/README.md`）。之前在本機用舊的 develop（`73323cb76d`，分支頭 `330a2a3439`）建過一次，三個驗收腳本都通過，結果在 `cloud-verify/previous-run/*.json`。
 
 驗收腳本在 `cloud-verify/`（從本機的 verification 目錄複製過來，**只拿來執行，不要修改**）：
 - `cloud-verify/verification/chiseled-opcache/check_sapi.py <image> --out <json> --label round6`：CLI 和 Apache 的 OPcache 狀態。
@@ -18,12 +41,12 @@
 - `cloud-verify/verification/chiseled-opcache/regression.py --self-test`，然後 `regression.py <image> --out <json> --label round6`：網頁安裝和登入、`schedule:run`、SMTP 寄信、備份、1536m 記憶體上限下不 OOM、沒有 OPcache 檔案寫進應用目錄。會用到 `mysql:8.4`、`python:3.12-slim` 和 `cloud-verify/s3mock/server.py`、`cloud-verify/verification/compatibility-closure/smtp-fixture.py`。
 - 一律用 `python3 -I` 執行。腳本會自己建立和移除容器、網路和 volume。
 
-步驟：
+第 6 輪步驟（參考用）：
 1. 啟動 dockerd（root，帶代理設定讓 dockerd 能 pull image），跑 `docker run --rm hello-world` 確認可用。磁碟只有約 12 GB：需要的話可以刪掉 `vendor/`、停掉 MariaDB 騰空間，在報告裡說明。
 2. `python3 -I docker/chiseled/repin_app_inputs.py --check`，要回 `locks are up to date`。
 3. 建 image：`docker buildx build -f Dockerfile.chiseled --platform linux/amd64 -t snipeit-chiseled:round6 --load .`（README 的指令加上 `--load`）。build 裡的 `apt-get`、`fetch_inputs.py`、composer 都要連網，這個環境要用 `--network host` 並傳入代理設定和代理的 CA。
    - **允許的暫時調整**：只為了讓 build 能透過代理連網，例如 `--build-arg HTTPS_PROXY=...`、在 `tools` 階段暫時加入代理 CA。不能改到最後 image 的內容（`candidate` 階段從 `scratch` 組出來，代理 CA 不能出現在裡面）。所有調整寫進報告（附 diff），**不要 commit**，做完還原。
-   - `api.github.com` 是 403；composer 在 build 裡下載 dist 失敗時會自動改用 git clone，如果卡住請說明在哪一步。
+   - `api.github.com` 和 `codeload.github.com` 都是 403，composer 不會自動改用 git clone（`Source fallback is disabled`）。第 6 輪的解法：對 `~/.cache/composer/vcs` 的 mirror 用 `git archive --format=zip -o <cache>/files/<name>/$(php -r 'echo sha1("<dist url>");').zip <dist reference>` 產生 dist zip，用 `--build-context composercache=<cache>` 搭配 `application` 階段暫時的 `COPY` 放進 Composer 快取（diff 見第 6 輪報告 1.2）。mirror 不見的話要先在主機跑一次 `composer install --prefer-source`。
    - 記錄 build 耗時、image 大小和 image ID。
 4. 跑三個驗收腳本（順序：`check_sapi`、`check_invariants --boot`、`regression --self-test`、`regression`），每個都要 exit 0、結果 `pass`。把輸出的 json 和 `previous-run/` 比較，列出不同的項目。
 5. 另外確認：最後的 image 裡沒有代理 CA 或代理設定（例如 `docker image inspect` 的 Env、`docker create` 後 `docker export` 搜尋 `/root/.ccr` 或代理 CA 的檔名）。
@@ -31,7 +54,7 @@
 
 回報時把三個驗收 json 一起 commit 成 `cloud-verify/round6/*.json`（加上 `CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`；`cloud-test-output.txt` 放 build 的最後 200 行和三個腳本的輸出）。「修改建議」只寫和 chiseled image 有關、真正值得做的。
 
-之前的結果在這個分支的歷史裡：第 1–5 輪 `a3611109df`、`ed51bd3f4f`、`8e930e5a00`、`ea0fc2c737`、`ea5bed8301`（`CLOUD_TEST_RESULT.md`）。
+之前的結果在這個分支的歷史裡：第 1–6 輪 `a3611109df`、`ed51bd3f4f`、`8e930e5a00`、`ea0fc2c737`、`ea5bed8301`、`6bfd75f067`（`CLOUD_TEST_RESULT.md`）。
 
 ## 步驟
 
