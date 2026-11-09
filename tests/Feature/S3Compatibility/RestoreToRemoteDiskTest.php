@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\S3Compatibility\FakeRemoteAdapter;
 use Tests\Support\S3Compatibility\ProtectsRealUploadDirectories;
 use Tests\Support\S3Compatibility\UsesFakeRemoteDisks;
+use Tests\Support\S3Compatibility\UsesScratchDatabase;
 use Tests\TestCase;
 use ZipArchive;
 
@@ -25,8 +26,7 @@ class RestoreToRemoteDiskTest extends TestCase
 {
     use ProtectsRealUploadDirectories;
     use UsesFakeRemoteDisks;
-
-    private const SCRATCH_CONNECTION = 's3compat_scratch_admin';
+    use UsesScratchDatabase;
 
     private string $scratch = '';
 
@@ -57,22 +57,7 @@ class RestoreToRemoteDiskTest extends TestCase
         $this->work = sys_get_temp_dir().'/s3compat-restore-'.bin2hex(random_bytes(4));
         File::ensureDirectoryExists($this->work);
 
-        // DDL on the test connection would commit the test transaction and make the next test rerun every
-        // migration, so the scratch database is created and changed through a second connection. The test
-        // connection stays open on the test database; only its config points at the scratch database,
-        // which is what the restore command hands to the mysql client.
-        config(['database.connections.'.self::SCRATCH_CONNECTION => config('database.connections.mysql')]);
-        $this->scratch = 's3compat_restore_'.bin2hex(random_bytes(4));
-        $this->scratchConnection()->statement('CREATE DATABASE `'.$this->scratch.'`');
-        config([
-            'database.connections.mysql.database' => $this->scratch,
-            'database.connections.mysql.dump.dump_binary_path' => '/usr/bin',
-        ]);
-    }
-
-    private function scratchConnection(): \Illuminate\Database\Connection
-    {
-        return DB::connection(self::SCRATCH_CONNECTION);
+        $this->scratch = $this->useScratchDatabase('s3compat_restore_');
     }
 
     protected function tearDown(): void
@@ -80,11 +65,7 @@ class RestoreToRemoteDiskTest extends TestCase
         if ($this->startedDown === false && app()->isDownForMaintenance()) {
             Artisan::call('up');
         }
-        if ($this->scratch !== '') {
-            config(['database.connections.mysql.database' => env('DB_DATABASE')]);
-            $this->scratchConnection()->statement('DROP DATABASE IF EXISTS `'.$this->scratch.'`');
-            DB::purge(self::SCRATCH_CONNECTION);
-        }
+        $this->dropScratchDatabase();
         if ($this->work !== '') {
             File::deleteDirectory($this->work);
         }
