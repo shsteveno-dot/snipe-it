@@ -231,7 +231,8 @@ class BackupRemoteOptionTest extends TestCase
         foreach ($missing as $path) {
             $command->expectsOutputToContain("Skipping {$path}: it does not exist.");
         }
-        $command->assertExitCode(0);
+        // A PendingCommand only runs when it is destroyed or run() is called; the calls are read right after.
+        $command->assertExitCode(0)->run();
 
         $include = $this->calls()[0]['include'];
         $this->assertSame($existing, array_slice($include, 0, count($existing)));
