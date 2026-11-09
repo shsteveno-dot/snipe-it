@@ -1,0 +1,39 @@
+{
+  "round6": {
+    "image": "snipeit-chiseled:round6",
+    "checks": {
+      "web_setup_and_dashboard_login": true,
+      "schedule_run_exit_0": true,
+      "smtp_marker_delivered": true,
+      "backup_dump_non_empty": true,
+      "no_opcache_files_written": true,
+      "not_oom_killed_under_1536m": true,
+      "cleanup_complete": true
+    },
+    "details": {
+      "web": {
+        "setup_redirect": "http://opc-fc8876c9-app:8080/",
+        "login_landing": "http://opc-fc8876c9-app:8080/",
+        "dashboard_ok": true
+      },
+      "schedule_run_exit": 0,
+      "mail": {
+        "marker": "opcache-regression-5381bb838574",
+        "send_exit": 0,
+        "matches": 1,
+        "recipient": "RCPT TO:<sink@example.invalid>",
+        "sender": "MAIL FROM:<test@example.invalid>"
+      },
+      "backup": {
+        "exit": 0,
+        "zips": {
+          "/var/lib/snipeit/dumps/snipe-it-2026-11-09-08-21-29-without-s3.zip": 26524
+        },
+        "latest_zip_bytes": 26524,
+        "output_tail": "S3 files are not part of this backup. Use --with-remote-files to include them.\nStarting backup...\nDumping database snipeit...\nDetermining files to backup...\nZipping 29 files and directories...\nCreated zip containing 29 files and directories. Size is 25.9 KB\nCopying zip to disk named backup...\nSuccessfully copied zip to disk named backup.\nBackup completed!\n"
+      },
+      "opcache_like_files": 0
+    },
+    "result": "pass"
+  }
+}
