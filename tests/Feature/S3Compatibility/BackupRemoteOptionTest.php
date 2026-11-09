@@ -25,6 +25,8 @@ class BackupRemoteOptionTest extends TestCase
 
     private string $backupRoot = '';
 
+    private string $missingRoot = '';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -46,6 +48,9 @@ class BackupRemoteOptionTest extends TestCase
     {
         if ($this->backupRoot !== '') {
             File::deleteDirectory($this->backupRoot);
+        }
+        if ($this->missingRoot !== '') {
+            File::deleteDirectory($this->missingRoot);
         }
         $this->cleanUpFakeRemoteDisks();
 
@@ -203,11 +208,11 @@ class BackupRemoteOptionTest extends TestCase
     }
 
     /**
-     * @return array{0: array<int, string>, 1: string, 2: array<int, string>} existing paths, the temp root, missing paths
+     * @return array{0: array<int, string>, 1: array<int, string>} existing paths, missing paths
      */
     private function includeWithMissingPaths(): array
     {
-        $root = sys_get_temp_dir().'/s3compat-missing-'.bin2hex(random_bytes(4));
+        $root = $this->missingRoot = sys_get_temp_dir().'/s3compat-missing-'.bin2hex(random_bytes(4));
         File::ensureDirectoryExists($root.'/uploads');
         file_put_contents($root.'/present.key', 'KEY');
         $missing = [$root.'/oauth-private.key'];
@@ -218,13 +223,13 @@ class BackupRemoteOptionTest extends TestCase
         $existing = [$root.'/uploads', $root.'/present.key'];
         config(['backup.backup.source.files.include' => array_merge($existing, $missing)]);
 
-        return [$existing, $root, $missing];
+        return [$existing, $missing];
     }
 
     #[Test]
     public function missing_include_paths_are_left_out_and_named_instead_of_failing_the_backup(): void
     {
-        [$existing, $root, $missing] = $this->includeWithMissingPaths();
+        [$existing, $missing] = $this->includeWithMissingPaths();
         $before = config('backup.backup.source.files.include');
 
         $command = $this->artisan('snipeit:backup', ['--without-remote-files' => true]);
@@ -239,7 +244,6 @@ class BackupRemoteOptionTest extends TestCase
         $this->assertCount(count($existing) + 1, $include, 'only the S3 manifest directory is added');
         $this->assertSame([], array_values(array_intersect($missing, $include)));
         $this->assertSame($before, config('backup.backup.source.files.include'), 'the configured list is put back');
-        File::deleteDirectory($root);
     }
 
     #[Test]
@@ -249,12 +253,11 @@ class BackupRemoteOptionTest extends TestCase
         config(['filesystems.default' => 'local']);
         Storage::forgetDisk('public');
         Storage::forgetDisk('local');
-        [$existing, $root, $missing] = $this->includeWithMissingPaths();
+        [$existing, $missing] = $this->includeWithMissingPaths();
 
         $this->artisan('snipeit:backup')->assertExitCode(0);
 
         $this->assertSame($existing, $this->calls()[0]['include']);
-        File::deleteDirectory($root);
     }
 
     #[Test]
