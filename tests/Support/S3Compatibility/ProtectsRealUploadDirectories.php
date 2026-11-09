@@ -43,7 +43,7 @@ trait ProtectsRealUploadDirectories
         ));
         if ($leftover !== []) {
             $this->releaseRealUploadDirectories();
-            $this->markTestSkipped('This checkout has uploaded files ('.$leftover[0].' and '.(count($leftover) - 1).' more) in the directories the command prunes or moves. Run this test in a clean checkout or CI.');
+            $this->markTestSkipped('This checkout has uploaded files in the directories the command prunes or moves: '.implode(', ', $leftover).'. Run this test in a clean checkout or CI.');
         }
 
         foreach (self::SHIPPED_FILES as $relative) {
@@ -63,7 +63,8 @@ trait ProtectsRealUploadDirectories
             return;
         }
 
-        $lock = fopen(sys_get_temp_dir().'/snipeit-upload-directories.lock', 'c');
+        // One lock per checkout: other checkouts on the same machine protect other directories.
+        $lock = fopen(sys_get_temp_dir().'/snipeit-upload-directories-'.md5(base_path()).'.lock', 'c');
         if ($lock !== false) {
             flock($lock, LOCK_EX);
             $this->uploadDirectoriesLock = $lock;
