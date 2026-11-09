@@ -999,6 +999,11 @@ class SettingsController extends Controller
                     ->with('success', trans('admin/settings/message.backup.generated'));
             }
 
+            // Spatie names the cause on its own line; the split below would show a progress line instead.
+            if (preg_match('/^Backup failed because: .*$/m', $output, $failure)) {
+                return redirect()->route('settings.backups.index')->with('error', trim($failure[0]));
+            }
+
             $formatted_output = str_replace('Backup completed!', '', $output);
             $output_split = explode('...', $formatted_output);
 
