@@ -26,6 +26,8 @@ class StagingAssumptionsTest extends TestCase
     use ProtectsRealUploadDirectories;
     use UsesFakeRemoteDisks;
 
+    private const SCRATCH_CONNECTION = 's3compat_scratch_admin';
+
     private string $work = '';
 
     private string $scratch = '';
@@ -47,9 +49,9 @@ class StagingAssumptionsTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->scratch !== '') {
-            DB::purge('mysql');
             config(['database.connections.mysql.database' => env('DB_DATABASE')]);
-            DB::statement('DROP DATABASE IF EXISTS `'.$this->scratch.'`');
+            DB::connection(self::SCRATCH_CONNECTION)->statement('DROP DATABASE IF EXISTS `'.$this->scratch.'`');
+            DB::purge(self::SCRATCH_CONNECTION);
         }
         if ($this->work !== '') {
             File::deleteDirectory($this->work);
@@ -85,8 +87,11 @@ class StagingAssumptionsTest extends TestCase
         ];
 
         // The restore wipes and rewrites tables of the configured database, so point it at a scratch one.
+        // CREATE DATABASE goes through a second connection: on the test connection it would commit the test
+        // transaction and make the next test rerun every migration.
+        config(['database.connections.'.self::SCRATCH_CONNECTION => config('database.connections.mysql')]);
         $scratch = $this->scratch = 's3compat_assume_'.bin2hex(random_bytes(4));
-        DB::statement("CREATE DATABASE `$scratch`");
+        DB::connection(self::SCRATCH_CONNECTION)->statement("CREATE DATABASE `$scratch`");
         config([
             'database.connections.mysql.database' => $scratch,
             'database.connections.mysql.dump.dump_binary_path' => '/usr/bin',
