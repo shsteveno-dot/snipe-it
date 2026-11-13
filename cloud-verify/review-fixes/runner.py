@@ -2,6 +2,7 @@
 """Cloud-only review-fixes runner. Results contain no command output or env."""
 import base64
 import datetime
+import fcntl
 import hashlib
 import json
 import os
@@ -416,6 +417,14 @@ def main():
     data['commit'] = call(['git', '-C', str(ROOT), 'rev-parse', 'HEAD']).stdout.strip()
     if call(['git', '-C', str(ROOT), 'status', '--porcelain', '--untracked-files=no']).stdout.strip():
         raise RuntimeError('checkout must be clean before starting')
+    # Never remove another live invocation's labelled resources.
+    CACHE_ROOT.mkdir(parents=True, exist_ok=True)
+    global RUN_LOCK
+    RUN_LOCK = (CACHE_ROOT / 'runner.lock').open('a')
+    try:
+        fcntl.flock(RUN_LOCK, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        raise RuntimeError('another review-fixes runner holds the cloud lock')
     cleanup_previous_runs()
     context = TMP / 'context'
     make_context(context)
