@@ -21,9 +21,12 @@ for relative, target in links.items():
     path.parent.mkdir(parents=True, exist_ok=True)
     path.symlink_to(target)
 for name in ('docker', '.git', '.github', '.agents', '.codex', '.spec', 'tests', '.ai', '.claude', 'cloud-verify',
-             '.phpunit.cache', 'storage/framework/testing', 'storage/app/backup-temp'):
+             '.phpunit.cache', 'storage/framework/testing', 'storage/app/backup-temp',
+             'storage/framework/backup-staging'):
     path = app / name
-    if path.is_dir():
+    if path.is_symlink() or path.is_file():
+        path.unlink()
+    elif path.is_dir():
         shutil.rmtree(path)
 for pattern in ('Dockerfile*', 'docker-compose*', '.dockerignore', '.env.testing', '.env.dusk.local',
                 '.phpunit.result.cache', 'CLOUD_TEST*.md', 'cloud-test-output.txt'):
