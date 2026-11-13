@@ -602,41 +602,54 @@ class RestoreToRemoteDiskTest extends TestCase
         $this->assertSame('LOCAL-COPY', file_get_contents($this->publicRoot.'/avatars/'.$this->tag.'.png'));
     }
 
-    /** Finding 3: a stale entry before the manifest copy must not change its precedence. */
-    #[Test]
-    public function finding3_stale_first_local_and_remote_destinations_restore_staged_and_unrelated_files(): void
+    public static function finding3ArchiveOrders(): array
     {
-        foreach ([false, true] as $remote) {
-            if ($remote) {
-                $this->useRemoteDisks();
-            }
-            $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
-            $extra = 'storage/private_uploads/imports/'.$this->tag.'.csv';
-            if (! $remote) {
-                $this->track($path);
-                $this->track($extra);
-            }
-            $old = $this->backupZip([$path => 'STAGED', $extra => 'OTHER']);
-            $src = new ZipArchive;
-            $this->assertTrue($src->open($old));
-            $reordered = $this->work.'/reordered-'.bin2hex(random_bytes(4)).'.zip';
-            $dst = new ZipArchive;
-            $this->assertTrue($dst->open($reordered, ZipArchive::CREATE));
-            $dst->addFromString($path, 'STALE!');
-            for ($i = 0; $i < $src->numFiles; $i++) {
-                $dst->addFromString($src->getNameIndex($i), $src->getFromIndex($i));
-            }
-            $dst->close();
-            $src->close();
-
-            [$exit, $output] = $this->restore($reordered);
-            $this->assertSame(0, $exit, $output);
-            $this->assertSame('STAGED', $remote ? Storage::disk('custom_private')->get(substr($path, 8)) : file_get_contents(base_path($path)));
-            $this->assertSame('OTHER', $remote ? Storage::disk('custom_private')->get(substr($extra, 8)) : file_get_contents(base_path($extra)));
-        }
+        return [
+            'local stale last' => [false, false],
+            'remote stale last control' => [true, false],
+            'local stale first control' => [false, true],
+            'remote stale first control' => [true, true],
+        ];
     }
 
-    /** Finding 4: the central directory must be structurally checked. */
+    /** Finding 3: local stale-last is RED; other orders and remote are controls. */
+    #[Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('finding3ArchiveOrders')]
+    public function finding3_restore_destination_prefers_staged_for_either_archive_order(bool $remote, bool $staleFirst): void
+    {
+        if ($remote) {
+            $this->useRemoteDisks();
+        }
+        $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        $extra = 'storage/private_uploads/imports/'.$this->tag.'.csv';
+        if (! $remote) {
+            $this->track($path);
+            $this->track($extra);
+        }
+        $old = $this->backupZip([$path => 'STAGED', $extra => 'OTHER']);
+        $src = new ZipArchive;
+        $this->assertTrue($src->open($old));
+        $reordered = $this->work.'/reordered-'.bin2hex(random_bytes(4)).'.zip';
+        $dst = new ZipArchive;
+        $this->assertTrue($dst->open($reordered, ZipArchive::CREATE));
+        if ($staleFirst) {
+            $dst->addFromString($path, 'STALE!');
+        }
+        for ($i = 0; $i < $src->numFiles; $i++) {
+            $dst->addFromString($src->getNameIndex($i), $src->getFromIndex($i));
+        }
+        if (! $staleFirst) {
+            $dst->addFromString($path, 'STALE!');
+        }
+        $dst->close();
+        $src->close();
+
+        [$exit, $output] = $this->restore($reordered);
+        $this->assertSame(0, $exit, $output);
+        $this->assertSame('STAGED', $remote ? Storage::disk('custom_private')->get(substr($path, 8)) : file_get_contents(base_path($path)));
+        $this->assertSame('OTHER', $remote ? Storage::disk('custom_private')->get(substr($extra, 8)) : file_get_contents(base_path($extra)));
+    }
+    /** Finding 4 control: broken central directories are already rejected. */
     #[Test]
     public function finding4_validate_only_rejects_a_broken_central_directory(): void
     {
@@ -654,7 +667,7 @@ class RestoreToRemoteDiskTest extends TestCase
     }
 
     #[Test]
-    /** Finding 4: validate-only checks both size and SHA-256 from the manifest. */
+    /** Finding 4 control: existing manifest size and SHA-256 checks must remain. */
     public function finding4_validate_only_checks_manifest_size_and_sha256(): void
     {
         $this->useRemoteDisks();
