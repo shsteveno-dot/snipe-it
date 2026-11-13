@@ -770,7 +770,9 @@ class Ldap extends Model
             $errmsg = null;
             $referrals = null;
             $controls = [];
-            ldap_parse_result($connection, $search_results, $errcode, $matcheddn, $errmsg, $referrals, $controls);
+            if (! ldap_parse_result($connection, $search_results, $errcode, $matcheddn, $errmsg, $referrals, $controls) || $errcode !== 0) {
+                throw new Exception('LDAP search returned an incomplete or unsuccessful result.');
+            }
             $cookie = $controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'] ?? '';
 
             $entries = ldap_get_entries($connection, $search_results);
