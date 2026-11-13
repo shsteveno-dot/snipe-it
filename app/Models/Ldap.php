@@ -835,7 +835,24 @@ class Ldap extends Model
 
     private static function normalizeDn(string $dn): string
     {
-        return mb_strtolower(preg_replace('/\s*([,=])\s*/', '$1', trim($dn)));
+        $parts = self::splitDn($dn);
+        foreach ($parts as &$part) {
+            $part = ltrim($part);
+            while ($part !== '' && ctype_space($part[strlen($part) - 1])) {
+                $slashes = 0;
+                for ($i = strlen($part) - 2; $i >= 0 && $part[$i] === '\\'; $i--) {
+                    $slashes++;
+                }
+                if ($slashes % 2 !== 0) {
+                    break;
+                }
+                $part = substr($part, 0, -1);
+            }
+            $part = preg_replace('/^([^=]+?)\s*=\s*/', '$1=', $part);
+        }
+        unset($part);
+
+        return mb_strtolower(implode(',', $parts));
     }
 
     /**
