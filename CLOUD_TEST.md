@@ -8,6 +8,27 @@
 
 ## 這次的重點
 
+第 10 輪：**review-fixes 第 A 輪（只寫測試，還沒修）**。分支 `review-fixes`（從 `all-changes` `04a07b3584` 開出）只加了測試和 `cloud-verify/review-fixes/` 測試工具，**沒有任何修正程式碼**，所以新測試照理應該**失敗**（RED）。第 9 輪結果在 `984a0f7347`。
+
+背景：程式碼審查找到 9 個問題（LDAP OU 排除可被本機密碼繞過、`backup-staging` 可能進 image、還原時舊的本機副本蓋掉暫存副本、`--validate-only` 沒檢查整個 zip、DN 拆分不符 RFC 4514、LDAP 搜尋不完整被當完整、遠端 CSV 被截斷照樣匯入、chiseled 不支援 `REMOTE_LOGIN_FORWARDED_HEADER`、還原安全備份的測試只是對原始碼做 regex）。規定：**所有測試都要在 chiseled image 裡跑**（從 chiseled image 的 digest 衍生出只多了測試檔和 dev 套件的測試 image，用同一個 `/usr/bin/php`）。
+
+要做的：
+1. 啟動 dockerd（同第 6 輪：root、代理設定、`docker run --rm hello-world` 確認），用當下的 `$HTTPS_PROXY`。
+2. 讀 `cloud-verify/review-fixes/README.md` 和 `runner.py`，然後執行：
+   `bash cloud-verify/review-fixes/run.sh "$PWD" A`
+   它會建 chiseled candidate、測試 image、MySQL 8.4，跑測試、FR-2（staging marker）和 FR-8（Apache header）探測、FR-9 突變測試，結果寫到 `cloud-verify/review-fixes/results-A.json`。**這是第一次跑這個工具，很可能有設定上的錯誤。** 遇到工具本身的錯（composer 快取路徑、build 參數、代理 CA、Dockerfile.test、MySQL 連線、權限等），可以在本機暫時修改工具讓它跑下去（**不要 commit 工具的修改**），把每個修改的 diff 和原因寫進報告的「修改建議」，我會轉給作者修正。不准改 `app/`、`docker/`、Dockerfile 或測試的判斷邏輯來讓測試通過或失敗。
+3. 逐一判斷每個新測試和探測：是否**失敗**、失敗的**原因是否就是它要抓的問題**（而不是設定錯誤、fixture 錯、mock 錯）。預期：
+   - 問題 1、3、4（CRC 損壞的舊副本）、5、6、7 的新測試失敗；FR-4 的對照組（正常 zip 通過、截斷 zip 被拒）可能本來就會通過或失敗，照實寫。
+   - FR-2 三個探測（chiseled、regular、prepare-app fixture）都看到 marker（失敗）。
+   - FR-8 valid header 的探測失敗；unset、empty 的探測應該通過；invalid 的情況照實記錄。
+   - FR-9：原本的端點測試通過，突變版（拿掉 `--with-remote-files`）失敗。
+   - 既有測試（`LdapTest`、`S3Compatibility`、`LdapWizardTest` 全套）除了新測試以外不應該失敗；有失敗就列出來分析。
+4. 也確認：測試 image 和 candidate 的 `php -v`、`php -m`、`/usr/bin/php` sha256 相同；沒有任何容器掛 docker socket；跑完後這輪建立的容器、volume、網路、image 都清掉（`docker buildx prune -af`），停掉 dockerd。
+
+回報：把 `cloud-verify/review-fixes/results-A.json` 一起 commit，加上 `CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`（runner 的錯誤訊息、每個失敗測試的訊息、對工具做的暫時修改的 diff）。「修改建議」分成兩類：測試工具（cloud-verify/review-fixes）和測試本身（哪個測試失敗原因不對、該怎麼改）。
+
+---
+
 第 9 輪：**只驗證第 8 輪新測試的修正**（短的一輪，不重建 chiseled、不跑全套）。程式碼和 `all-changes` `04a07b3584` 相同。第 8 輪結果在 `cloud-verify/round8/`（commit `2e55131084`），以下第 8 輪的說明保留作參考。
 
 新改動（第 8 輪建議 1）：
