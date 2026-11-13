@@ -534,6 +534,25 @@ class LdapTest extends TestCase
         $this->assertSame(1, Ldap::findLdapUsers()['count']);
     }
 
+    public function test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection(): void
+    {
+        $this->settings->enableLdap()->set([
+            'ldap_pw_sync' => 1,
+            'ldap_selected_ous' => json_encode(['OU=G1,DC=gogoro,DC=com']),
+        ]);
+        $user = \App\Models\User::factory()->create([
+            'username' => 'ldap-scope-regression',
+            'password' => bcrypt('synthetic-password'),
+            'ldap_import' => 1,
+            'activated' => 1,
+        ]);
+        $this->mockLdapLoginFoundAt('CN=Someone,OU=IT,DC=gogoro,DC=com');
+
+        $this->post(route('login'), ['username' => $user->username, 'password' => 'synthetic-password']);
+
+        $this->assertGuest();
+    }
+
     public function test_login_is_refused_for_a_user_outside_the_selected_ous()
     {
         $this->settings->enableLdap()->set(['ldap_selected_ous' => json_encode(['OU=G1,DC=gogoro,DC=com'])]);
