@@ -69,17 +69,19 @@ trait UsesScratchDatabase
             '/usr/local/bin',
             '/opt/homebrew/bin',
         ];
-        foreach ($candidates as $directory) {
-            if ($directory !== '' && is_executable(rtrim($directory, '/').'/mysql')) {
-                return rtrim($directory, '/');
+        $candidates = array_merge($candidates, explode(PATH_SEPARATOR, (string) getenv('PATH')));
+        foreach (array_unique($candidates) as $directory) {
+            if ($directory === '') {
+                continue;
+            }
+            $directory = rtrim($directory, '/');
+            $client = is_executable($directory.'/mysql') || is_executable($directory.'/mariadb');
+            $dump = is_executable($directory.'/mysqldump') || is_executable($directory.'/mariadb-dump');
+            if ($client && $dump) {
+                return $directory;
             }
         }
 
-        $found = trim((string) @shell_exec('command -v mysql 2>/dev/null'));
-        if ($found !== '' && is_executable($found)) {
-            return dirname($found);
-        }
-
-        $this->markTestSkipped('The restore tests need the mysql client.');
+        $this->markTestSkipped('The restore tests need a MySQL/MariaDB client and dump binary.');
     }
 }
