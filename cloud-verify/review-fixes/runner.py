@@ -28,7 +28,7 @@ secret = base64.b64encode(os.urandom(32)).decode()
 appkey = 'base64:' + secret
 dbpass = uuid.uuid4().hex
 data = {'round': ROUND, 'run_id': RUN, 'date_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        'commit': None, 'platform': platform.platform(), 'candidate_image_id': None, 'test_image_id': None,
+        'commit': None, 'platform': platform.platform(), 'target_platform': 'linux/amd64', 'candidate_image_id': None, 'test_image_id': None,
         'php_comparison': {}, 'tests': [], 'counts': {}, 'probes': {}, 'commands': [], 'errors': []}
 
 def call(args, check=True, cwd=None, env=None):
