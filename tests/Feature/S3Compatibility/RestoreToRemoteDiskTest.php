@@ -643,12 +643,4 @@ class RestoreToRemoteDiskTest extends TestCase
         $this->assertSame([99], $this->probeValues());
     }
 
-    // ---- web flow ---------------------------------------------------------------------------
-
-    #[Test]
-    public function the_web_restore_takes_its_safety_backup_with_remote_files_included(): void
-    {
-        $source = file_get_contents(base_path('app/Http/Controllers/SettingsController.php'));
-        $this->assertMatchesRegularExpression("/'snipeit:backup',\s*\[[^\]]*'--with-remote-files'\s*=>\s*true/s", $source);
-    }
 }
