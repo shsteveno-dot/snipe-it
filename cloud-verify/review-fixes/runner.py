@@ -32,9 +32,15 @@ data = {'round': ROUND, 'run_id': RUN, 'date_utc': datetime.datetime.now(datetim
         'php_comparison': {}, 'tests': [], 'counts': {}, 'probes': {}, 'commands': [], 'errors': []}
 
 def call(args, check=True, cwd=None, env=None):
-    # Arguments can contain synthetic credentials: record only the executable and operation.
-    data['commands'].append(' '.join(args[:2]))
+    # Persist commands and exit codes, while removing generated secrets and URL credentials.
+    recorded = []
+    for arg in args:
+        value = str(arg).replace(appkey, '[redacted]').replace(secret, '[redacted]').replace(dbpass, '[redacted]')
+        if '://' in value and ('@' in value or '?' in value):
+            value = '[redacted-url]'
+        recorded.append(value)
     p = subprocess.run(args, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    data['commands'].append({'argv': recorded, 'exit_code': p.returncode})
     if check and p.returncode:
         raise RuntimeError('command failed: ' + ' '.join(args[:2]) + ' (exit ' + str(p.returncode) + ')')
     return p
