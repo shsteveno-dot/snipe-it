@@ -53,7 +53,7 @@ class ImportLocations extends Command
         // (S3) is copied to a temporary file first.
         $path = StorageHelper::readablePath($key, $disk);
         if ($path === null) {
-            $this->error('Could not find the import file "'.$key.'" on the "'.$disk.'" disk.');
+            $this->error('Could not read a complete import file "'.$key.'" on the "'.$disk.'" disk.');
 
             return self::FAILURE;
         }
