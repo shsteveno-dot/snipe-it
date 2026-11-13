@@ -8,6 +8,20 @@
 
 ## 這次的重點
 
+第 12 輪：**再跑一次 review-fixes 第 A 輪**（短的確認，還是只有測試，預期 RED）。第 11 輪結果在 `f53164c595`。第 11 輪的修改建議已改進 `review-fixes`：
+- `6eaa6280ab`（測試）：T1 `LdapWizardTest` 在 `setUpBeforeClass()` 用 `defineFunctionMock()` 預先定義函式；T2 問題 3 remote stale last 不再是對照組。
+- `87fe5250a6`（工具）：W1 local 和 remote 的 stale-last 都算 RED；W2 乾淨檢查排除 `results-*.json`；W3 debug log 移到快取目錄；W4 只遮蔽秘密值，不換掉整行指令。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。
+2. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" A`，不要修改工具。
+3. 確認：runner exit 0、`errors` 是空的；每個預期 RED 的新測試因為它要抓的問題失敗（包括 Wizard 問題 6 跑全套時 time/size 兩個 RED、complete 通過；問題 3 remote stale last 是 RED）；對照組和既有測試 0 失敗、0 略過；FR-2、FR-8、FR-9、`candidate_proxy_ca_absent` 和上一輪一樣。
+4. 清理同上一輪，停掉 dockerd。
+
+回報：commit `results-A.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。全部符合時報告開頭寫「第 A 輪通過，可以進第 B 輪」。不用再做診斷執行，有不符合的地方就寫原因和建議。
+
+---
+
 第 11 輪：**重跑 review-fixes 第 A 輪**（還是只有測試、沒有修正程式碼，預期 RED）。第 10 輪結果在 `f81c371b21`（`CLOUD_TEST_RESULT.md`、`results-A.json`）。第 10 輪的修改建議都已經改進 `review-fixes`：
 - 工具（`1f49cd6e41`、`620b5a6655`）：5.1 的 1–12 項（`.env.testing`、`FROM name:tag@digest`、phpstan 沒有 source、自動偵測 `/root/.ccr/agent-proxy-ca.crt` 並檢查 CA 沒進 candidate、一般 Dockerfile 在暫存 context 裡的 build 調整、依 digest 預先 pull 並重試、round A 遇到 error 或非新測試失敗/略過要記成錯誤、FR-9 先要求原版通過、JUnit 真正的錯誤行和略過摘要、去掉秘密的 debug log、git mirror 快取重用、開始時清掉中斷留下的資源）。
 - 測試（`9eb2d4d6da`、`493616efb4`）：B1 `mysql` 或 `mariadb` 都接受（不用 shell）；B2 php-mock 先 `expects()`；B3 改用有建構子的 `Kernel` partial mock + `Artisan::swap`；B4 問題 3 的舊副本放在後面（local 和 remote 都測），另一個順序當回歸測試；B5/B6 標成對照組。runner 現在會在 `results-A.json` 對每個新測試記錄「預期 RED 或對照組」以及實際結果是否符合。
