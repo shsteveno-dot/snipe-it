@@ -78,18 +78,24 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
     {
         $admin = User::factory()->superuser()->create();
         $filename = $this->plantBackup(hash('sha256', 'AVATAR-BYTES'));
-        $artisan = \Illuminate\Support\Facades\Artisan::partialMock();
-        $artisan->shouldReceive('call')->once()->with('snipeit:backup', \Mockery::on(
-            fn (array $options) => ($options['--with-remote-files'] ?? null) === true
-                && ($options['--force'] ?? null) === true
-                && isset($options['--filename'])
-        ))->andReturn(1);
+        $artisan = \Mockery::mock(\App\Console\Kernel::class, [app(), app('events')])->makePartial();
+        \Illuminate\Support\Facades\Artisan::swap($artisan);
+        $backupOptions = null;
+        $artisan->shouldReceive('call')->once()->with('snipeit:backup', \Mockery::any())
+            ->andReturnUsing(function ($command, $options) use (&$backupOptions) {
+                $backupOptions = $options;
+
+                return 1; // Always stop before wipe, including in the mutation run.
+            });
         $artisan->shouldReceive('call')->never()->with('db:wipe', \Mockery::any());
 
         $this->actingAs($admin)
             ->post(route('settings.backups.restore', $filename))
             ->assertRedirect(route('settings.backups.index'))
             ->assertSessionHas('error');
+        $this->assertTrue($backupOptions['--with-remote-files'] ?? false);
+        $this->assertTrue($backupOptions['--force'] ?? false);
+        $this->assertArrayHasKey('--filename', $backupOptions);
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
     }
 
@@ -110,7 +116,9 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
         $bytes = str_replace('UNIQUE-WEB-CRC-PAYLOAD-A', 'UNIQUE-WEB-CRC-PAYLOAD-B', $bytes, $count);
         $this->assertSame(1, $count);
         file_put_contents($archive, $bytes);
-        \Illuminate\Support\Facades\Artisan::partialMock()->shouldReceive('call')->with('snipeit:backup', \Mockery::any())->andReturn(1);
+        $artisan = \Mockery::mock(\App\Console\Kernel::class, [app(), app('events')])->makePartial();
+        \Illuminate\Support\Facades\Artisan::swap($artisan);
+        $artisan->shouldReceive('call')->with('snipeit:backup', \Mockery::any())->andReturn(1);
 
         $this->actingAs($admin)->post(route('settings.backups.restore', $filename))
             ->assertRedirect(route('settings.backups.index'))
