@@ -45,10 +45,10 @@ and whether the observed result and failure reason matched. All JUnit errors,
 PHPUnit exit 2, skips, unexpected existing/control failures, and missing or
 wrong-reason RED results are errors. The FR-9 unmutated test must pass before
 the mutated test is accepted. A separate, redacted runner-debug-<round>.log
-records command output; review it before sharing. Skipped-test summaries are
+under the review-fixes cache directory records command output; review it before sharing. Skipped-test summaries are
 included in the JSON.
 
-The only persistent result is
+The results file is
 `cloud-verify/review-fixes/results-<round>.json`: image identities,
 runtime comparison, per-test status and first-line failure messages, counts,
 skips, probe outcomes, and setup errors. A failed assertion is recorded as a

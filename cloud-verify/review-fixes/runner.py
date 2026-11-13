@@ -30,7 +30,7 @@ CONTAINERS, VOLUMES, NETWORKS, IMAGES = [], [], [], []
 PINNED = {}
 CACHE_ROOT = Path(os.environ.get('REVIEW_FIXES_CACHE_DIR', str(Path.home() / '.cache' / 'review-fixes'))).expanduser()
 MIRRORS = CACHE_ROOT / 'mirrors'
-DEBUG_LOG = HERE / ('runner-debug-' + ROUND + '.log')
+DEBUG_LOG = CACHE_ROOT / ('runner-debug-' + ROUND + '.log')
 PROXY_CA = Path(os.environ.get('REVIEW_PROXY_CA', '/root/.ccr/agent-proxy-ca.crt')).expanduser()
 PROXY_CONTEXT = TMP / 'proxy-ca'
 GOPEAR_CONTEXT = TMP / 'go-pear'
@@ -58,6 +58,7 @@ def call(args, check=True, cwd=None, env=None):
     recorded = []
     for arg in args:
         value = str(arg).replace(appkey, '[redacted]').replace(secret, '[redacted]').replace(dbpass, '[redacted]')
+        value = re.sub(r'(?i)^([^=]*(?:password|passwd|secret|token|authorization|credential|api.key|access.key)[^=]*=).*$', r'\1[redacted]', value)
         if '://' in value and ('@' in value or '?' in value):
             value = '[redacted-url]'
         recorded.append(value)
@@ -67,7 +68,7 @@ def call(args, check=True, cwd=None, env=None):
     fd = os.open(DEBUG_LOG, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
     os.fchmod(fd, 0o600)
     with os.fdopen(fd, 'a', encoding='utf-8') as log:
-        log.write('\n### exit=' + str(p.returncode) + ' ' + redact_output(' '.join(recorded)) + '\n')
+        log.write('\n### exit=' + str(p.returncode) + ' ' + ' '.join(recorded) + '\n')
         log.write(redact_output(p.stdout or '')[-20000:] + '\n')
     if check and p.returncode:
         raise RuntimeError('command failed: ' + ' '.join(args[:2]) + ' (exit ' + str(p.returncode) + ')')
@@ -345,7 +346,7 @@ def round_a_expectation(name, label):
         return 'red', "matches expected 'error'"
     if 'finding7_remote_copy_and_size_failures' in name and 'unavailable size' in name:
         return 'red', 'Expected status code 1 but received 0'
-    if 'finding3_restore_destination_prefers_staged' in name and 'local stale last' in name and 'control' not in name:
+    if 'finding3_restore_destination_prefers_staged' in name and 'stale last' in name and 'control' not in name:
         return 'red', 'Failed asserting that two strings are identical'
     controls = (
         'test_finding1_local_non_ldap_user_can_still_log_in',
@@ -415,7 +416,7 @@ def probe_status(name, process):
 
 def main():
     data['commit'] = call(['git', '-C', str(ROOT), 'rev-parse', 'HEAD']).stdout.strip()
-    if call(['git', '-C', str(ROOT), 'status', '--porcelain', '--untracked-files=no']).stdout.strip():
+    if call(['git', '-C', str(ROOT), 'status', '--porcelain', '--untracked-files=no', '--', '.', ':(exclude)cloud-verify/review-fixes/results-*.json']).stdout.strip():
         raise RuntimeError('checkout must be clean before starting')
     # Never remove another live invocation's labelled resources.
     CACHE_ROOT.mkdir(parents=True, exist_ok=True)
