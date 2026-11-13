@@ -218,6 +218,15 @@ class StorageHelper
             return Storage::disk($disk)->path($filename);
         }
 
+        try {
+            $expectedSize = Storage::disk($disk)->size($filename);
+        } catch (\Throwable $e) {
+            return null;
+        }
+        if (! is_int($expectedSize) || $expectedSize < 0) {
+            return null;
+        }
+
         // Non-local disk: stream the object into a temp file so callers can treat it
         // like a local path.
         // Preserving the original extension matters for methods like
@@ -238,8 +247,14 @@ class StorageHelper
             $tmp = $tmpWithExt;
         }
 
-        $stream = Storage::disk($disk)->readStream($filename);
-        if ($stream === null) {
+        try {
+            $stream = Storage::disk($disk)->readStream($filename);
+        } catch (\Throwable $e) {
+            @unlink($tmp);
+
+            return null;
+        }
+        if (! is_resource($stream)) {
             @unlink($tmp);
 
             return null;
@@ -251,9 +266,22 @@ class StorageHelper
 
             return null;
         }
-        stream_copy_to_stream($stream, $handle);
-        fclose($handle);
-        fclose($stream);
+        try {
+            $copied = stream_copy_to_stream($stream, $handle);
+            $flushed = fflush($handle);
+        } catch (\Throwable $e) {
+            $copied = false;
+            $flushed = false;
+        } finally {
+            fclose($handle);
+            fclose($stream);
+        }
+        clearstatcache(true, $tmp);
+        if ($copied === false || ! $flushed || $copied !== $expectedSize || filesize($tmp) !== $expectedSize) {
+            @unlink($tmp);
+
+            return null;
+        }
 
         // Auto-clean at request end so the caller doesn't own the
         // lifecycle. Register once per file so many calls in the same
