@@ -456,6 +456,27 @@ class LdapTest extends TestCase
         $this->assertFalse(Ldap::isDnDirectlyInOus($name_with_comma, ['Rosa,OU=G1,DC=gogoro,DC=com']));
     }
 
+    public function test_ou_search_rejects_a_partial_size_limited_result(): void
+    {
+        $this->getFunctionMock('App\\Models', 'ldap_search')->expects($this->once())->willReturn('result');
+        $this->getFunctionMock('App\\Models', 'ldap_parse_result')->expects($this->once())->willReturnCallback(
+            function ($connection, $result, &$code, &$matched, &$message, &$referrals, &$controls) {
+                $code = 4;
+                $message = 'Size limit exceeded';
+                $controls = [];
+
+                return true;
+            }
+        );
+        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->willReturn([
+            'count' => 1,
+            0 => ['dn' => 'OU=Partial,DC=example,DC=com'],
+        ]);
+
+        $this->expectException(\Exception::class);
+        Ldap::findDns('connection', 'DC=example,DC=com', '(objectClass=organizationalUnit)');
+    }
+
     public function test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou(): void
     {
         $dn = 'CN=Alice'.str_repeat(chr(92), 2).',OU=Blocked,DC=example,DC=com';
