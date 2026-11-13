@@ -740,7 +740,9 @@ class Ldap extends Model
      */
     public static function isDnDirectlyInOus(string $dn, array $ous): bool
     {
-        return in_array(self::parentDn($dn), array_map(self::normalizeDn(...), $ous), true);
+        $parent = self::parentDn($dn);
+
+        return $parent !== '' && in_array($parent, array_map(self::normalizeDn(...), $ous), true);
     }
 
     /**
@@ -839,8 +841,26 @@ class Ldap extends Model
      */
     private static function splitDn(string $dn): array
     {
-        // \x5C is a backslash: an escaped comma is part of a value, not a separator.
-        return preg_split('/(?<!\x5C),/', $dn);
+        $parts = [];
+        $start = 0;
+        $backslashes = 0;
+        for ($i = 0, $length = strlen($dn); $i < $length; $i++) {
+            if ($dn[$i] === '\\') {
+                $backslashes++;
+                continue;
+            }
+            if ($dn[$i] === ',' && $backslashes % 2 === 0) {
+                $parts[] = substr($dn, $start, $i - $start);
+                $start = $i + 1;
+            }
+            $backslashes = 0;
+        }
+        if ($backslashes % 2 !== 0) {
+            return [];
+        }
+        $parts[] = substr($dn, $start);
+
+        return $parts;
     }
 
     private static function parentDn(string $dn): string
