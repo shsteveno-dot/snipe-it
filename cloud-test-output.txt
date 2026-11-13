@@ -1,186 +1,506 @@
-===== 1. pint --test tests/Feature/S3Compatibility/BackupRemoteOptionTest.php =====
-{"tool":"pint","result":"passed"}
-===== 2. BackupRemoteOptionTest（單一 process，--testdox --display-skipped） =====
-PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+# Cloud round 10 — review-fixes round A (tests only) — raw output
+commit: e56c46ccc102b2d74165dc949be3f9d85bf9b597   date: 2026-11-13 (UTC)
 
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
+## 1. Runner attempts (scratchpad copy of runner.py, see section 5 for diff)
+03:44:22
+03:48:04
+attempt2 03:49:37
+end2 03:55:18
+attempt3 03:56:34
+end3 04:04:50
+attempt4 04:05:41
+end4 04:10:54
+attempt5 04:12:08
+attempt6 05:59:17
+end6 06:06:46
+attempt1 errors: ['locked package lacks source/reference: phpstan/phpstan', 'FR-9 mutation produced no test result']
+attempt2 errors: ['command failed: docker buildx (exit 1)', 'FR-9 mutation produced no test result']
+attempt2 build error:
+#7 ERROR: unexpected status from HEAD request to https://registry-1.docker.io/v2/library/composer/manifests/sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac: 429 Too Many Requests
+ERROR: failed to build: failed to solve: unexpected status from HEAD request to https://registry-1.docker.io/v2/library/composer/manifests/sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac: 429 Too Many Requests
+attempt3: 216/216 tests 'error': RuntimeException: .env.testing file does not exist. Aborting to avoid wiping your local database. (tests/TestCase.php:203)
+attempt4: complete, errors=[] (same outcomes as attempt6)
+attempt5: interrupted by a worker restart (dockerd killed) during the FR-9 phase; leftovers removed by hand
+attempt6 (final, results-A.json): exit 0, errors=[]
 
-...................                                               19 / 19 (100%)
+## 2. Failed / errored / skipped tests in the final run (JUnit, attempt 6)
 
-Time: 00:04.838, Memory: 85.00 MB
+### junit-fr9_mutation.xml {'tests': '1', 'failures': '1', 'errors': '0', 'skipped': '0'}
+- failure Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest :: web_restore_calls_the_safety_backup_with_remote_files_before_wiping
+     Expected response status code [201, 301, 302, 303, 307, 308] but received 500.
+     Failed asserting that false is true.
+     The following exception occurred during the last request:
+     Error: Call to a member function hasBeenBootstrapped() on null in /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:493
 
-Backup Remote Option (Tests\Feature\S3Compatibility\BackupRemoteOption)
- ✔ By default remote files are neither listed nor read and the manifest says excluded
- ✔ Without remote files flag behaves like the default
- ✔ With remote files flag stages the objects and cleans up
- ✔ The environment setting turns remote files on for scheduled backups
- ✔ The flags override the environment setting
- ✔ The two flags together are rejected
- ✔ A failure while staging stops the backup and leaves nothing behind
- ✔ A failing backup run fails the command and still cleans up
- ✔ With only local disks nothing changes
- ✔ Missing include paths are left out and named instead of failing the backup
- ✔ Missing include paths are left out on an all local install too
- ✔ A scheduled backup gets a dated name with the marker
- ✔ A given filename gets the marker and a wrong marker is replaced
- ✔ Callers are told the name the backup is stored under
- ✔ A failed run removes its incomplete zip from a local backup disk
- ✔ An all local install keeps its filenames
- ✔ The pre restore check finds the marked backup and the restore goes on
- ✔ The pre restore check still works on an all local install
- ✔ Callers that used backup run directly now include remote files
+### junit-ldap_selected.xml {'tests': '7', 'failures': '3', 'errors': '2', 'skipped': '0'}
+- error Tests\Unit\LdapTest :: test_ou_search_rejects_a_partial_limited_result with data set "time limit"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Unit/LdapTest.php:478
+- error Tests\Unit\LdapTest :: test_ou_search_rejects_a_partial_limited_result with data set "size limit"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Unit/LdapTest.php:478
+- failure Tests\Unit\LdapTest :: test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou
+     Failed asserting that true is false.
+     /var/www/html/tests/Unit/LdapTest.php:491
+- failure Tests\Unit\LdapTest :: test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou
+     Failed asserting that false is true.
+     /var/www/html/tests/Unit/LdapTest.php:501
+- failure Tests\Unit\LdapTest :: test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection
+     The user is authenticated
+     Failed asserting that true is false.
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/Concerns/InteractsWithAuthentication.php:77
+     /var/www/html/tests/Unit/LdapTest.php:587
 
-OK (19 tests, 72 assertions)
+### junit-ldap_suite.xml {'tests': '35', 'failures': '3', 'errors': '2', 'skipped': '0'}
+- error Tests\Unit\LdapTest :: test_ou_search_rejects_a_partial_limited_result with data set "time limit"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Unit/LdapTest.php:478
+- error Tests\Unit\LdapTest :: test_ou_search_rejects_a_partial_limited_result with data set "size limit"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Unit/LdapTest.php:478
+- failure Tests\Unit\LdapTest :: test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou
+     Failed asserting that true is false.
+     /var/www/html/tests/Unit/LdapTest.php:491
+- failure Tests\Unit\LdapTest :: test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou
+     Failed asserting that false is true.
+     /var/www/html/tests/Unit/LdapTest.php:501
+- failure Tests\Unit\LdapTest :: test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection
+     The user is authenticated
+     Failed asserting that true is false.
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/Concerns/InteractsWithAuthentication.php:77
+     /var/www/html/tests/Unit/LdapTest.php:587
 
-===== 2. BackupPageTest =====
-PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+### junit-s3_selected.xml {'tests': '13', 'failures': '4', 'errors': '0', 'skipped': '7'}
+- failure Tests\Feature\S3Compatibility\MiscRemediationTest :: import_locations_rejects_a_truncated_remote_csv_before_importing
+     Expected status code 1 but received 0.
+     Failed asserting that 0 matches expected 1.
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:463
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:675
+     /var/www/html/tests/Feature/S3Compatibility/MiscRemediationTest.php:101
+- failure Tests\Feature\S3Compatibility\MiscRemediationTest :: finding7_remote_copy_and_size_failures_abort_location_import with data set "unavailable size"
+     Expected status code 1 but received 0.
+     Failed asserting that 0 matches expected 1.
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:463
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:675
+     /var/www/html/tests/Feature/S3Compatibility/MiscRemediationTest.php:121
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: finding3_stale_first_local_and_remote_destinations_restore_staged_and_unrelated_files
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: finding4_validate_only_rejects_a_broken_central_directory
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: finding4_validate_only_checks_manifest_size_and_sha256
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: validate_only_rejects_a_truncated_zip_without_changing_the_database
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: local_destination_prefers_manifest_staged_copy_when_stale_copy_follows
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
+- failure Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest :: web_restore_calls_the_safety_backup_with_remote_files_before_wiping
+     Expected response status code [201, 301, 302, 303, 307, 308] but received 500.
+     Failed asserting that false is true.
+     The following exception occurred during the last request:
+     Error: Call to a member function hasBeenBootstrapped() on null in /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:493
+- failure Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest :: finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe
+     Expected response status code [201, 301, 302, 303, 307, 308] but received 500.
+     Failed asserting that false is true.
+     The following exception occurred during the last request:
+     Error: Call to a member function hasBeenBootstrapped() on null in /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:493
 
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
+### junit-s3_suite.xml {'tests': '100', 'failures': '4', 'errors': '0', 'skipped': '30'}
+- failure Tests\Feature\S3Compatibility\MiscRemediationTest :: import_locations_rejects_a_truncated_remote_csv_before_importing
+     Expected status code 1 but received 0.
+     Failed asserting that 0 matches expected 1.
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:463
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:675
+     /var/www/html/tests/Feature/S3Compatibility/MiscRemediationTest.php:101
+- failure Tests\Feature\S3Compatibility\MiscRemediationTest :: finding7_remote_copy_and_size_failures_abort_location_import with data set "unavailable size"
+     Expected status code 1 but received 0.
+     Failed asserting that 0 matches expected 1.
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:463
+     /var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:675
+     /var/www/html/tests/Feature/S3Compatibility/MiscRemediationTest.php:121
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: files_are_written_to_the_configured_remote_disks_with_matching_bytes
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: nested_paths_are_preserved_and_do_not_overwrite_each_other
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: objects_on_a_remote_disk_that_are_not_in_the_backup_are_left_alone
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: local_disks_are_pruned_and_written_as_before_with_nested_paths_kept
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: an_invalid_archive_changes_nothing with data set "sha256 differs from the manifest"
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: an_invalid_archive_changes_nothing with data set "manifest lists a file that is not in the archive"
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: an_invalid_archive_changes_nothing with data set "unsafe path inside the archive"
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: an_invalid_archive_changes_nothing with data set "not a manifest-conformant size"
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: an_unreadable_archive_triggers_no_prune_and_a_non_zero_exit
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: an_archive_without_remote_files_leaves_the_remote_disks_untouched_and_warns
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: a_restore_follows_the_manifest_even_when_the_filename_says_otherwise
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: an_archive_without_a_manifest_restores_with_a_warning
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: a_write_failure_after_the_restore_started_is_reported_and_puts_the_app_in_maintenance
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: an_object_that_reads_back_differently_fails_the_restore
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: validate_only_accepts_a_good_archive_and_changes_nothing
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: validate_only_rejects_a_corrupted_database_dump
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: validate_only_rejects_an_archive_whose_checksum_does_not_match
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: local_copies_in_a_backup_do_not_overwrite_objects_on_a_remote_disk
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: validate_only_rejects_an_empty_database_dump
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: a_local_copy_without_an_object_on_the_remote_disk_is_still_restored
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: local_copies_from_a_local_install_backup_are_still_moved_to_the_remote_disk
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: finding3_stale_first_local_and_remote_destinations_restore_staged_and_unrelated_files
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: finding4_validate_only_rejects_a_broken_central_directory
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: finding4_validate_only_checks_manifest_size_and_sha256
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: validate_only_rejects_a_truncated_zip_without_changing_the_database
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: local_destination_prefers_manifest_staged_copy_when_stale_copy_follows
+- skipped Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest :: validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
+- skipped Tests\Feature\S3Compatibility\StagingAssumptionsTest :: restore_recognises_staged_paths_inside_the_archive
+- skipped Tests\Feature\S3Compatibility\StagingAssumptionsTest :: snipeit_backup_with_remote_files_puts_the_staged_copies_into_a_real_archive
+- failure Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest :: web_restore_calls_the_safety_backup_with_remote_files_before_wiping
+     Expected response status code [201, 301, 302, 303, 307, 308] but received 500.
+     Failed asserting that false is true.
+     The following exception occurred during the last request:
+     Error: Call to a member function hasBeenBootstrapped() on null in /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:493
+- failure Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest :: finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe
+     Expected response status code [201, 301, 302, 303, 307, 308] but received 500.
+     Failed asserting that false is true.
+     The following exception occurred during the last request:
+     Error: Call to a member function hasBeenBootstrapped() on null in /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:493
 
-........                                                            8 / 8 (100%)
+### junit-wizard_selected.xml {'tests': '3', 'failures': '0', 'errors': '3', 'skipped': '0'}
+- error Tests\Feature\Settings\LdapWizardTest :: test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Feature/Settings/LdapWizardTest.php:991
+- error Tests\Feature\Settings\LdapWizardTest :: test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Feature/Settings/LdapWizardTest.php:991
+- error Tests\Feature\Settings\LdapWizardTest :: test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "complete paginated"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Feature/Settings/LdapWizardTest.php:991
 
-Time: 00:04.481, Memory: 93.00 MB
+### junit-wizard_suite.xml {'tests': '57', 'failures': '0', 'errors': '3', 'skipped': '0'}
+- error Tests\Feature\Settings\LdapWizardTest :: test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Feature/Settings/LdapWizardTest.php:991
+- error Tests\Feature\Settings\LdapWizardTest :: test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Feature/Settings/LdapWizardTest.php:991
+- error Tests\Feature\Settings\LdapWizardTest :: test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "complete paginated"
+     Error: Call to undefined method phpmock\phpunit\MockObjectProxyReturnTypes100::willReturn()
+     /var/www/html/tests/Feature/Settings/LdapWizardTest.php:991
 
-Backup Page (Tests\Feature\S3Compatibility\BackupPage)
- ✔ Remote disks show both choices with without preselected and the limits
- ✔ All local installs see no new option or notice
- ✔ Marked backups keep their label after uploads move back to local disks
- ✔ The generate button passes the choice on
- ✔ A failed backup shows the reason rather than a progress line
- ✔ Backups on a local backup disk are labelled from the name not the manifest
- ✔ Backups on a remote backup disk are labelled from the name without downloading them
- ✔ An uploaded copy keeps its label
+Skip reason for all 30 S3Compatibility skips (phpunit --display-skipped):
+The restore tests need the mysql client.
 
-OK (8 tests, 39 assertions)
+## 3. Probe evidence (debug log, attempt 4/6)
+FR-8 valid: probe exit 1 'REMOTE_USER did not match the expected value'; direct GET with X-Review-User header -> 'HTTP/1.1 200 OK', Content-Length: 0 (empty REMOTE_USER)
+FR-8 invalid ('Bad Header'): after 20 s State.Running=true, ExitCode=0; container log:
+   INFO  Nothing to migrate.  
+   INFO  Configuration cache cleared successfully.  
+   INFO  Configuration cached successfully.  
+   INFO  Compiled views cleared successfully.  
+AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.18.0.6. Set the 'ServerName' directive globally to suppress this message
+AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.18.0.6. Set the 'ServerName' directive globally to suppress this message
+[Fri Nov 13 06:05:46.471107 2026] [mpm_prefork:notice] [pid 34] AH00163: Apache/2.4.58 (Ubuntu) OpenSSL/3.0.13 configured -- resuming normal operations
+[Fri Nov 13 06:05:46.471160 2026] [core:notice] [pid 34] AH00094: Command line: '/usr/sbin/apache2 -D FOREGROUND'
+   INFO  No scheduled commands are ready to run.  
+FR-2: staging-probe.php -> 'Backup staging exists in the candidate image' (chiseled and regular, exit 1); prepare-app fixture: docker cp of storage/framework/backup-staging succeeded
 
-===== 3. 反證：SystemBackup::handle() 的 $existing 改回 $include（已還原） =====
--                $this->useIncludes(array_merge($existing, [$extra]));
-+                $this->useIncludes(array_merge($include, [$extra])); // TEMPORARY counter-proof
--                $this->useIncludes($existing);
-+                $this->useIncludes($include); // TEMPORARY counter-proof
-
-PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
-
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
-
-FF                                                                  2 / 2 (100%)
-
-Time: 00:03.704, Memory: 76.50 MB
-
-There were 2 failures:
-
-1) Tests\Feature\S3Compatibility\BackupRemoteOptionTest::missing_include_paths_are_left_out_and_named_instead_of_failing_the_backup
-only the S3 manifest directory is added
-Failed asserting that actual size 5 matches expected size 3.
-
-/home/user/snipe-it/tests/Feature/S3Compatibility/BackupRemoteOptionTest.php:248
-
-2) Tests\Feature\S3Compatibility\BackupRemoteOptionTest::missing_include_paths_are_left_out_on_an_all_local_install_too
-Failed asserting that two arrays are identical.
+## 4. Diagnostic run (NOT in results-A.json): minimal test-only patches from section 6 on the same test image
+### fr9mut.txt
+1) Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping
+Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
 @@ @@
- Array &0 [
-     0 => '/tmp/s3compat-missing-ce2ddf20/uploads',
-     1 => '/tmp/s3compat-missing-ce2ddf20/present.key',
-+    2 => '/tmp/s3compat-missing-ce2ddf20/oauth-private.key',
-+    3 => '/tmp/s3compat-missing-ce2ddf20/oauth-public.key',
- ]
+-'http://localhost/admin/backups'
++'http://localhost/login'
 
-/home/user/snipe-it/tests/Feature/S3Compatibility/BackupRemoteOptionTest.php:264
+--
+1) Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping
+* Test code or tested code did not remove its own error handlers
+
+* Test code or tested code did not remove its own exception handlers
+
+/var/www/html/tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php:77
 
 FAILURES!
-Tests: 2, Assertions: 7, Failures: 2.
-失敗後 ls -d /tmp/s3compat-missing-* → 0 個
---- 還原後
-PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+Tests: 1, Assertions: 4, Failures: 1, Risky: 1.
+Tests: 1, Assertions: 4, Failures: 1, Risky: 1.
+### ldap.txt
+1) Tests\Unit\LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "time limit" (3)
+Failed asserting that exception of type "Exception" is thrown.
 
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
+2) Tests\Unit\LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "size limit" (4)
+Failed asserting that exception of type "Exception" is thrown.
 
-..                                                                  2 / 2 (100%)
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 2.
+Tests: 2, Assertions: 2, Failures: 2.
+### s3restore.txt
+1) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'STAGED'
++'STALE!'
 
-Time: 00:03.844, Memory: 76.50 MB
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:709
 
-OK (2 tests, 9 assertions)
+2) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
+The backup file passed validation. Nothing was changed.
 
-===== 4. tests/Feature/S3Compatibility 平行 5 次 =====
-run 1 rc=0 secs=10 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
-run 2 rc=0 secs=10 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
-run 3 rc=0 secs=11 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
-run 4 rc=0 secs=11 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
-run 5 rc=0 secs=10 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
-每次跑完 /tmp/s3compat-missing-* 都是 0 個；上傳目錄和 storage/app/backups 沒有殘留
+Failed asserting that 0 is not identical to 0.
 
---- run 1
-ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:732
 
-Processes:     4
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
+FAILURES!
+Tests: 28, Assertions: 121, Failures: 2.
+Tests: 28, Assertions: 121, Failures: 2.
+### staging.txt
+OK (3 tests, 12 assertions)
+### webrestore.txt
+1) Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest::finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe
+Failed asserting that false is true.
 
-................................................................. 65 / 90 ( 72%)
-.........................                                         90 / 90 (100%)
+/var/www/html/tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php:120
 
-Time: 00:09.620, Memory: 54.50 MB
+FAILURES!
+Tests: 3, Assertions: 15, Failures: 1.
+Tests: 3, Assertions: 15, Failures: 1.
+### wizard.txt
+1) Tests\Feature\Settings\LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit" (3)
+Failed asserting that null matches expected 'error'.
 
-OK (90 tests, 346 assertions)
+/var/www/html/tests/Feature/Settings/LdapWizardTest.php:1017
 
---- run 2
-ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+2) Tests\Feature\Settings\LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit" (4)
+Failed asserting that null matches expected 'error'.
 
-Processes:     4
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
+/var/www/html/tests/Feature/Settings/LdapWizardTest.php:1017
 
-................................................................. 65 / 90 ( 72%)
-.........................                                         90 / 90 (100%)
+FAILURES!
+Tests: 3, Assertions: 12, Failures: 2.
+Tests: 3, Assertions: 12, Failures: 2.
 
-Time: 00:09.880, Memory: 54.50 MB
+## 5. Temporary runner changes (not committed)
+--- a/cloud-verify/review-fixes/runner.py
++++ b/cloud-verify/review-fixes/runner.py (TEMP, scratchpad copy)
+@@ -21,9 +21,12 @@
+ HERE = ROOT / 'cloud-verify' / 'review-fixes'
+ RESULT = HERE / ('results-' + ROUND + '.json')
+ RUN = 'review-' + uuid.uuid4().hex[:12]
++SCRATCH = Path(__file__).resolve().parent  # TEMP(cloud round 10)
++DEBUG_LOG = SCRATCH / 'runner-debug.log'
+ LABEL = 'review-fixes.run=' + RUN
+ TMP = Path(tempfile.mkdtemp(prefix=RUN + '-'))
+ CONTAINERS, VOLUMES, NETWORKS, IMAGES = [], [], [], []
++PINNED = {}  # TEMP(cloud round 10): image ID -> name:tag@digest, since FROM sha256:<id> is resolved as docker.io/library/sha256
+ secret = base64.b64encode(os.urandom(32)).decode()
+ appkey = 'base64:' + secret
+ dbpass = uuid.uuid4().hex
+@@ -41,6 +44,9 @@
+         recorded.append(value)
+     p = subprocess.run(args, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+     data['commands'].append({'argv': recorded, 'exit_code': p.returncode})
++    with open(DEBUG_LOG, 'a') as log:  # TEMP(cloud round 10): local debug log
++        log.write('\n### ' + time.strftime('%H:%M:%S') + ' exit=' + str(p.returncode) + ' ' + ' '.join(recorded) + '\n')
++        log.write((p.stdout or '')[-20000:].replace(dbpass, '[redacted]').replace(secret, '[redacted]'))
+     if check and p.returncode:
+         raise RuntimeError('command failed: ' + ' '.join(args[:2]) + ' (exit ' + str(p.returncode) + ')')
+     return p
+@@ -70,12 +76,16 @@
+         if not (url.startswith('https://api.github.com/') or url.startswith('https://codeload.github.com/')):
+             continue
+         source_url = source.get('url')
++        if not source_url and url.startswith('https://api.github.com/repos/'):
++            # TEMP(cloud round 10): dist-only packages (phpstan/phpstan) have no source entry.
++            owner_repo = url.split('/repos/', 1)[1].split('/')[:2]
++            source_url = 'https://github.com/' + '/'.join(owner_repo) + '.git'
+         ref = dist.get('reference') or source.get('reference')
+         if not source_url or not ref:
+             raise RuntimeError('locked package lacks source/reference: ' + pkg['name'])
+         if source_url.startswith('git@github.com:'):
+             source_url = 'https://github.com/' + source_url.split(':', 1)[1]
+-        mirror = TMP / ('git-' + hashlib.sha256(source_url.encode()).hexdigest())
++        mirror = SCRATCH / 'mirrors' / ('git-' + hashlib.sha256(source_url.encode()).hexdigest())  # TEMP(cloud round 10): reuse across attempts
+         if not mirror.exists():
+             call(['git', 'clone', '--mirror', '--filter=blob:none', source_url, str(mirror)])
+         if call(['git', '--git-dir', str(mirror), 'cat-file', '-e', ref + '^{commit}'], check=False).returncode:
+@@ -94,6 +104,11 @@
+     if needle not in text:
+         raise RuntimeError('candidate composer insertion point not found')
+     text = text.replace(needle, 'COPY --from=composercache --chown=10000:50 / /tmp/composer-cache/\n' + needle, 1)
++    # TEMP(cloud round 10): trust the sandbox HTTPS proxy in build-only stages (as in round 6).
++    ca_needle = 'COPY docker/chiseled/ /chisel-inputs/'
++    if ca_needle not in text:
++        raise RuntimeError('proxy CA insertion point not found')
++    text = text.replace(ca_needle, 'COPY --from=proxyca agent-proxy-ca.crt /usr/local/share/ca-certificates/agent-proxy-ca.crt\nRUN update-ca-certificates\n' + ca_needle, 1)
+     if fixture:
+         needle = 'RUN python3 /chisel-inputs/prepare-app.py'
+         if needle not in text:
+@@ -106,6 +121,10 @@
+             '--label', LABEL, '-t', tag, '-f', str(context / dockerfile)]
+     if dockerfile == 'Dockerfile.chiseled':
+         args += ['--build-context', 'composercache=' + str(cache)]
++    args += ['--build-context', 'proxyca=' + str(SCRATCH / 'proxyca')]  # TEMP(cloud round 10)
++    if dockerfile == 'Dockerfile':  # TEMP(cloud round 10): GitHub raw/dist downloads are 403 here
++        regular_dockerfile(context)
++        args += ['--build-context', 'composercache=' + str(cache), '--build-context', 'gopear=' + str(SCRATCH / 'gopear')]
+     if target:
+         args += ['--target', target]
+     if fixture:
+@@ -116,7 +135,21 @@
+     args += [str(context)]
+     docker(*args)
+     IMAGES.append(tag)
+-    return image_id(tag)
++    built = image_id(tag)
++    PINNED[built] = tag + '@' + built  # TEMP(cloud round 10)
++    return built
++
++def regular_dockerfile(context):
++    # TEMP(cloud round 10): network-only substitutions for the regular Dockerfile.
++    path = context / 'Dockerfile'
++    text = path.read_text()
++    a = 'RUN curl -L -O https://github.com/pear/pearweb_phars/raw/master/go-pear.phar'
++    b = 'RUN COMPOSER_CACHE_DIR=/dev/null composer install --no-dev --working-dir=/var/www/html'
++    if a not in text or b not in text:
++        raise RuntimeError('regular Dockerfile insertion points not found')
++    text = text.replace(a, 'COPY --from=gopear go-pear.phar /go-pear.phar', 1)
++    text = text.replace(b, 'COPY --from=composercache --chown=10000:50 / /tmp/composer-cache/\nRUN COMPOSER_CACHE_DIR=/tmp/composer-cache composer install --no-dev --working-dir=/var/www/html', 1)
++    path.write_text(text)
+ 
+ def make_vendor(context, cache):
+     # Development dependencies are installed in a disposable build helper, not
+@@ -137,8 +170,17 @@
+     return context / 'vendor'
+ 
+ def test_image(context, candidate, vendor, tag):
++    # TEMP(cloud round 10): tests/TestCase.php refuses to run without .env.testing (CI copies .env.testing.example).
++    dockerfile = context / 'cloud-verify/review-fixes/Dockerfile.test'
++    text = dockerfile.read_text()
++    line = 'COPY --chown=10000:50 .env.testing.example /var/www/html/.env.testing\n'
++    if line not in text:
++        anchor = 'COPY --chown=10000:50 phpunit.xml /var/www/html/phpunit.xml\n'
++        if anchor not in text:
++            raise RuntimeError('Dockerfile.test insertion point not found')
++        dockerfile.write_text(text.replace(anchor, anchor + line, 1))
+     docker('buildx', 'build', '--load', '--label', LABEL,
+-           '--build-arg', 'CANDIDATE=' + candidate, '--build-context', 'devvendor=' + str(vendor),
++           '--build-arg', 'CANDIDATE=' + PINNED.get(candidate, candidate), '--build-context', 'devvendor=' + str(vendor),
+            '-f', context / 'cloud-verify/review-fixes/Dockerfile.test', '-t', tag, context)
+     IMAGES.append(tag)
+     return image_id(tag)
+@@ -199,12 +241,15 @@
+     if not path.exists():
+         data['errors'].append(label + ': no JUnit output')
+         return
++    shutil.copy(path, SCRATCH / ('junit-' + label + '.xml'))  # TEMP(cloud round 10)
+     cases = list(ET.parse(path).iter('testcase'))
+     if not cases:
+         data['errors'].append(label + ': JUnit contains no tests')
+     for case in cases:
+         child = next((x for x in case if x.tag in ('failure', 'error', 'skipped')), None)
+         lines = [] if child is None else (child.get('message') or child.text or '').splitlines()
++        # TEMP(cloud round 10): PHPUnit puts the test name on the first line of <failure>/<error> text.
++        lines = [x for x in lines if x.strip() and not x.endswith('::' + case.get('name', ''))]
+         message = lines[0] if lines else ''
+         for value in (secret, appkey, dbpass):
+             message = message.replace(value, '[redacted]')
+@@ -304,6 +349,7 @@
+             time.sleep(20)
+             state = docker('inspect', '-f', '{{.State.Running}}', name).stdout.strip()
+             code = docker('inspect', '-f', '{{.State.ExitCode}}', name).stdout.strip()
++            docker('logs', '--tail', '80', name, check=False)  # TEMP(cloud round 10): debug only
+             data['probes']['fr8_invalid'] = {'passed': state == 'false' and code != '0',
+                                              'running': state == 'true', 'exit_code': int(code)}
+             continue
+@@ -320,6 +366,9 @@
+             probe = run_php(test, '/probe/apache-probe.php', endpoint, expected, header,
+                             extra=common + ['-v', str(HERE / 'apache-probe.php') + ':/probe/apache-probe.php:ro'])
+         probe_status('fr8_' + mode, probe)
++        # TEMP(cloud round 10): debug only, body and container log go to the local debug log.
++        run_php(test, '-r', 'echo var_export(@file_get_contents($argv[1], false, stream_context_create(["http" => ["header" => "X-Review-User: review-user@example.invalid\\r\\n", "ignore_errors" => true]])), true), PHP_EOL, var_export($http_response_header ?? null, true);', endpoint, extra=common)
++        docker('logs', '--tail', '80', name, check=False)
+ 
+     if ROUND == 'A':
+         mutated = TMP / 'mutated'
+@@ -358,7 +407,9 @@
+     for name in reversed(NETWORKS):
+         docker('network', 'rm', name, check=False)
+     for name in reversed(IMAGES):
+-        docker('image', 'rm', name, check=False)
++        if os.environ.get('REVIEW_KEEP_IMAGES') != '1':  # TEMP(cloud round 10): keep images for diagnostics
++            docker('image', 'rm', name, check=False)
++    (SCRATCH / 'kept-images.txt').write_text('\n'.join(IMAGES) + '\n')
+     counts = {}
+     for case in data['tests']:
+         counts[case['status']] = counts.get(case['status'], 0) + 1
 
-OK (90 tests, 346 assertions)
-
---- run 3
-ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
-
-Processes:     4
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
-
-................................................................. 65 / 90 ( 72%)
-.........................                                         90 / 90 (100%)
-
-Time: 00:09.729, Memory: 54.50 MB
-
-OK (90 tests, 346 assertions)
-
---- run 4
-ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
-
-Processes:     4
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
-
-................................................................. 65 / 90 ( 72%)
-.........................                                         90 / 90 (100%)
-
-Time: 00:10.345, Memory: 54.50 MB
-
-OK (90 tests, 346 assertions)
-
---- run 5
-ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
-
-Processes:     4
-Runtime:       PHP 8.3.6
-Configuration: /home/user/snipe-it/phpunit.xml
-
-................................................................. 65 / 90 ( 72%)
-.........................                                         90 / 90 (100%)
-
-Time: 00:09.875, Memory: 54.50 MB
-
-OK (90 tests, 346 assertions)
+## 6. Diagnostic test patches (not committed)
+--- /home/user/snipe-it/tests/Unit/LdapTest.php	2026-11-13 03:42:12.263599486 +0000
++++ tests/Unit/LdapTest.php	2026-11-13 05:59:07.487598698 +0000
+@@ -475,7 +475,7 @@
+                 return true;
+             }
+         );
+-        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->willReturn([
++        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->expects($this->any())->willReturn([
+             'count' => 1,
+             0 => ['dn' => 'OU=Partial,DC=example,DC=com'],
+         ]);
+--- /home/user/snipe-it/tests/Support/S3Compatibility/UsesScratchDatabase.php	2026-11-13 03:42:12.262195004 +0000
++++ tests/Support/S3Compatibility/UsesScratchDatabase.php	2026-11-13 04:12:45.623161589 +0000
+@@ -70,7 +70,7 @@
+             '/opt/homebrew/bin',
+         ];
+         foreach ($candidates as $directory) {
+-            if ($directory !== '' && is_executable(rtrim($directory, '/').'/mysql')) {
++            if ($directory !== '' && (is_executable(rtrim($directory, '/').'/mysql') || is_executable(rtrim($directory, '/').'/mariadb'))) {
+                 return rtrim($directory, '/');
+             }
+         }
+--- /home/user/snipe-it/tests/Feature/Settings/LdapWizardTest.php	2026-11-13 03:42:12.251986849 +0000
++++ tests/Feature/Settings/LdapWizardTest.php	2026-11-13 05:59:07.488054050 +0000
+@@ -988,13 +988,13 @@
+             'ldap_selected_ous' => json_encode($selected),
+         ]);
+         $conn = \ldap_connect('ldap://127.0.0.1');
+-        $this->getFunctionMock('App\\Livewire', 'ldap_connect')->willReturn($conn);
+-        $this->getFunctionMock('App\\Livewire', 'ldap_set_option')->willReturn(true);
+-        $this->getFunctionMock('App\\Livewire', 'ldap_bind')->willReturn(true);
+-        $this->getFunctionMock('App\\Livewire', 'ldap_unbind')->willReturn(true);
+-        $this->getFunctionMock('App\\Models', 'ldap_search')->willReturn('result');
++        $this->getFunctionMock('App\\Livewire', 'ldap_connect')->expects($this->any())->willReturn($conn);
++        $this->getFunctionMock('App\\Livewire', 'ldap_set_option')->expects($this->any())->willReturn(true);
++        $this->getFunctionMock('App\\Livewire', 'ldap_bind')->expects($this->any())->willReturn(true);
++        $this->getFunctionMock('App\\Livewire', 'ldap_unbind')->expects($this->any())->willReturn(true);
++        $this->getFunctionMock('App\\Models', 'ldap_search')->expects($this->any())->willReturn('result');
+         $page = 0;
+-        $this->getFunctionMock('App\\Models', 'ldap_parse_result')->willReturnCallback(
++        $this->getFunctionMock('App\\Models', 'ldap_parse_result')->expects($this->any())->willReturnCallback(
+             function ($connection, $result, &$errcode, &$matched, &$message, &$referrals, &$controls) use ($code, &$page) {
+                 $errcode = $code;
+                 $message = $code ? 'Directory limit reached' : '';
+@@ -1005,7 +1005,7 @@
+             }
+         );
+         $entryPage = 0;
+-        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->willReturnCallback(
++        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->expects($this->any())->willReturnCallback(
+             function () use (&$entryPage) {
+                 return ['count' => 1, 0 => ['dn' => $entryPage++ === 0
+                     ? 'ou=partial,dc=example,dc=com' : 'ou=keep,dc=example,dc=com']];
+--- /home/user/snipe-it/tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php	2026-11-13 03:42:12.249568704 +0000
++++ tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php	2026-11-13 05:59:07.489309673 +0000
+@@ -78,7 +78,8 @@
+     {
+         $admin = User::factory()->superuser()->create();
+         $filename = $this->plantBackup(hash('sha256', 'AVATAR-BYTES'));
+-        $artisan = \Illuminate\Support\Facades\Artisan::partialMock();
++        $artisan = \Mockery::mock(\App\Console\Kernel::class, [app(), app('events')])->makePartial();
++        \Illuminate\Support\Facades\Artisan::swap($artisan);
+         $artisan->shouldReceive('call')->once()->with('snipeit:backup', \Mockery::on(
+             fn (array $options) => ($options['--with-remote-files'] ?? null) === true
+                 && ($options['--force'] ?? null) === true
+@@ -110,7 +111,9 @@
+         $bytes = str_replace('UNIQUE-WEB-CRC-PAYLOAD-A', 'UNIQUE-WEB-CRC-PAYLOAD-B', $bytes, $count);
+         $this->assertSame(1, $count);
+         file_put_contents($archive, $bytes);
+-        \Illuminate\Support\Facades\Artisan::partialMock()->shouldReceive('call')->with('snipeit:backup', \Mockery::any())->andReturn(1);
++        $artisan = \Mockery::mock(\App\Console\Kernel::class, [app(), app('events')])->makePartial();
++        \Illuminate\Support\Facades\Artisan::swap($artisan);
++        $artisan->shouldReceive('call')->with('snipeit:backup', \Mockery::any())->andReturn(1);
+ 
+         $this->actingAs($admin)->post(route('settings.backups.restore', $filename))
+             ->assertRedirect(route('settings.backups.index'))
