@@ -89,6 +89,19 @@ class MiscRemediationTest extends TestCase
     }
 
     #[Test]
+    public function import_locations_rejects_a_truncated_remote_csv_before_importing(): void
+    {
+        $name = 'truncated-locations-'.bin2hex(random_bytes(4)).'.csv';
+        $site = 'Truncated location '.bin2hex(random_bytes(4));
+        $csv = "Name\n".$site."\n".str_repeat("Filler Location\n", 50);
+        Storage::disk('custom_private')->put($this->importsKey($name), $csv);
+        FakeRemoteAdapter::$truncateReads = [$this->importsKey($name)];
+
+        $this->artisan('snipeit:import-locations', ['filename' => $name])->assertExitCode(1);
+        $this->assertFalse(Location::where('name', $site)->exists());
+    }
+
+    #[Test]
     public function import_locations_fails_when_the_file_is_missing(): void
     {
         $this->artisan('snipeit:import-locations', ['filename' => 'does-not-exist-'.bin2hex(random_bytes(3)).'.csv'])
