@@ -757,20 +757,26 @@ class RestoreFromBackup extends Command
     {
         $winners = [];
         foreach ($files as $name => $details) {
-            $remote = $this->remoteTarget($details);
-            $path = $remote === null ? $details['dest'].'/'.$details['rel'] : $remote[1];
-            $parts = array_values(array_filter(explode('/', $path), fn ($part) => $part !== '' && $part !== '.'));
-            $key = ($remote === null ? 'local:' : 'disk:'.$remote[0].':').implode('/', $parts);
-            $preferred = $details['staged'] && isset($expectedSha[$details['index']]);
-            if (! isset($winners[$key])) {
-                $winners[$key] = [$name, $preferred];
-            } elseif ($preferred && ! $winners[$key][1]) {
-                unset($files[$winners[$key][0]]);
-                $winners[$key] = [$name, true];
-            } else {
+            if (! $details['staged'] || ! isset($expectedSha[$details['index']])) {
+                continue;
+            }
+            $winners[$this->destinationKey($details)] = $name;
+        }
+        foreach ($files as $name => $details) {
+            $key = $this->destinationKey($details);
+            if (isset($winners[$key]) && $winners[$key] !== $name) {
                 unset($files[$name]);
             }
         }
+    }
+
+    private function destinationKey(array $details): string
+    {
+        $remote = $this->remoteTarget($details);
+        $path = $remote === null ? $details['dest'].'/'.$details['rel'] : $remote[1];
+        $parts = array_values(array_filter(explode('/', $path), fn ($part) => $part !== '' && $part !== '.'));
+
+        return ($remote === null ? 'local:' : 'disk:'.$remote[0].':').implode('/', $parts);
     }
 
     /**
@@ -995,7 +1001,7 @@ class RestoreFromBackup extends Command
             return;
         }
 
-        $source = $za->getStream($name);
+        $source = $za->getStreamIndex($details['index']);
         $target = $source === false ? false : @fopen($destination, 'w');
         if ($source === false || $target === false) {
             throw new RuntimeException('Could not open '.$destination.' for the restore');
@@ -1025,7 +1031,7 @@ class RestoreFromBackup extends Command
                 $size = strlen($content);
                 $sha = hash('sha256', $content);
             } else {
-                $source = $za->getStream((string) $za->getNameIndex($index));
+                $source = $za->getStreamIndex($index);
                 if ($source === false) {
                     throw new RuntimeException('Could not read '.$key.' from the archive');
                 }
