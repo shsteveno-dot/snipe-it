@@ -17,6 +17,9 @@ func TestForwardedHeaderConfig(t *testing.T) {
 	if config, err := forwardedHeaderConfig(""); err != nil || config != "" {
 		t.Fatal("empty header should disable mapping")
 	}
+	if config, err := forwardedHeaderConfig("X.A+B"); err != nil || !strings.Contains(config, `^X\.A\+B$`) {
+		t.Fatal("header name must be matched literally")
+	}
 	if _, err := forwardedHeaderConfig("Bad Header\nInjected"); err == nil {
 		t.Fatal("invalid header must be rejected")
 	}
