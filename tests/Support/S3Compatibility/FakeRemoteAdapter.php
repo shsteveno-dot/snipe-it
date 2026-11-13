@@ -27,6 +27,9 @@ class FakeRemoteAdapter implements FilesystemAdapter
     /** @var array<int, string> keys whose readStream() yields only the first half of the bytes */
     public static array $truncateReads = [];
 
+    /** @var array<int, string> keys whose size lookup fails */
+    public static array $failSizes = [];
+
     /** @var (\Closure(string): void)|null called with the key after every successful write */
     public static ?\Closure $afterWrite = null;
 
@@ -41,6 +44,7 @@ class FakeRemoteAdapter implements FilesystemAdapter
         self::$corruptWrites = [];
         self::$failReads = [];
         self::$truncateReads = [];
+        self::$failSizes = [];
         self::$afterWrite = null;
         self::$log = [];
     }
@@ -178,6 +182,9 @@ class FakeRemoteAdapter implements FilesystemAdapter
     public function fileSize(string $path): FileAttributes
     {
         $this->record('size', $path);
+        if (self::matches(self::$failSizes, $path)) {
+            throw new \RuntimeException('injected size failure');
+        }
 
         return $this->inner->fileSize($path);
     }
