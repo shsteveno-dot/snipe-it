@@ -462,6 +462,7 @@ class LdapTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('partialLdapResultCodes')]
+    /** Finding 6. */
     public function test_ou_search_rejects_a_partial_limited_result(int $resultCode): void
     {
         $this->getFunctionMock('App\\Models', 'ldap_search')->expects($this->once())->willReturn('result');
@@ -483,11 +484,37 @@ class LdapTest extends TestCase
         Ldap::findDns('connection', 'DC=example,DC=com', '(objectClass=organizationalUnit)');
     }
 
+    /** Finding 5. */
     public function test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou(): void
     {
         $dn = 'CN=Alice'.str_repeat(chr(92), 2).',OU=Blocked,DC=example,DC=com';
         $this->assertFalse(Ldap::isDnDirectlyInOus($dn, ['DC=example,DC=com']));
         $this->assertTrue(Ldap::isDnDirectlyInOus($dn, ['OU=Blocked,DC=example,DC=com']));
+    }
+
+    /** Finding 5: RFC 4514 escaping must not move a user into a selected parent. */
+    public function test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou(): void
+    {
+        $selected = ['OU=Allowed,DC=example,DC=com'];
+        $this->assertTrue(Ldap::isDnDirectlyInOus('CN=Alice'.str_repeat(chr(92), 3).',Smith,OU=Allowed,DC=example,DC=com', $selected));
+        $this->assertTrue(Ldap::isDnDirectlyInOus('CN=Alice'.chr(92).'2CSmith,OU=Allowed,DC=example,DC=com', $selected));
+        $this->assertTrue(Ldap::isDnDirectlyInOus('CN=Alice'.str_repeat(chr(92), 2).',OU=Allowed,DC=example,DC=com', $selected));
+        $this->settings->set(['ldap_selected_ous' => json_encode(['DC=example,DC=com'])]);
+        $this->assertFalse(Ldap::isDnInSelectedOus('CN=Alice'.str_repeat(chr(92), 2).',OU=Blocked,DC=example,DC=com'));
+    }
+
+    /** Finding 1: ordinary local accounts retain their login path. */
+    public function test_finding1_local_non_ldap_user_can_still_log_in(): void
+    {
+        $this->settings->set(['ldap_enabled' => 0]);
+        $user = \App\Models\User::factory()->create([
+            'username' => 'local-scope-regression',
+            'password' => bcrypt('synthetic-password'),
+            'ldap_import' => 0,
+            'activated' => 1,
+        ]);
+        $this->post(route('login'), ['username' => $user->username, 'password' => 'synthetic-password']);
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_ou_tree_is_depth_first_with_the_base_dn_on_top()
@@ -540,6 +567,7 @@ class LdapTest extends TestCase
         $this->assertSame(1, Ldap::findLdapUsers()['count']);
     }
 
+    /** Finding 1. */
     public function test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection(): void
     {
         $this->settings->enableLdap()->set([

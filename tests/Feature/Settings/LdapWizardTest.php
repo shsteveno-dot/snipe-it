@@ -34,6 +34,7 @@ use Tests\TestCase;
  */
 class LdapWizardTest extends TestCase
 {
+    use \phpmock\phpunit\PHPMock;
     private function actAsSuperuser(): User
     {
         $user = User::factory()->superuser()->create();
@@ -964,6 +965,62 @@ class LdapWizardTest extends TestCase
             ->set('ouTree', $this->sampleOuTree())
             ->call('toggleAllOus')
             ->assertSet('ldap_all_ous', true);
+    }
+
+    public static function finding6Results(): array
+    {
+        return ['time limit' => [3], 'size limit' => [4], 'complete paginated' => [0]];
+    }
+
+    /** Finding 6: incomplete LDAP responses must not prune or save away selections. */
+    #[\PHPUnit\Framework\Attributes\DataProvider('finding6Results')]
+    public function test_finding6_ou_search_preserves_selection_and_reports_incomplete_results(int $code): void
+    {
+        $this->actAsSuperuser();
+        $selected = ['ou=keep,dc=example,dc=com'];
+        $setting = $this->ensureSetting([
+            'ldap_server' => 'ldap://127.0.0.1',
+            'ldap_uname' => 'cn=admin,dc=example,dc=com',
+            'ldap_pword' => Crypt::encrypt('synthetic-password'),
+            'ldap_basedn' => 'dc=example,dc=com',
+            'ldap_auth_filter_query' => 'uid=',
+            'ldap_filter' => '(objectClass=*)',
+            'ldap_selected_ous' => json_encode($selected),
+        ]);
+        $conn = \ldap_connect('ldap://127.0.0.1');
+        $this->getFunctionMock('App\\Livewire', 'ldap_connect')->willReturn($conn);
+        $this->getFunctionMock('App\\Livewire', 'ldap_set_option')->willReturn(true);
+        $this->getFunctionMock('App\\Livewire', 'ldap_bind')->willReturn(true);
+        $this->getFunctionMock('App\\Livewire', 'ldap_unbind')->willReturn(true);
+        $this->getFunctionMock('App\\Models', 'ldap_search')->willReturn('result');
+        $page = 0;
+        $this->getFunctionMock('App\\Models', 'ldap_parse_result')->willReturnCallback(
+            function ($connection, $result, &$errcode, &$matched, &$message, &$referrals, &$controls) use ($code, &$page) {
+                $errcode = $code;
+                $message = $code ? 'Directory limit reached' : '';
+                $controls = $code === 0 && $page++ === 0
+                    ? [LDAP_CONTROL_PAGEDRESULTS => ['value' => ['cookie' => 'next']]]
+                    : [];
+                return true;
+            }
+        );
+        $entryPage = 0;
+        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->willReturnCallback(
+            function () use (&$entryPage) {
+                return ['count' => 1, 0 => ['dn' => $entryPage++ === 0
+                    ? 'ou=partial,dc=example,dc=com' : 'ou=keep,dc=example,dc=com']];
+            }
+        );
+        $wizard = Livewire::test(LdapSettings::class)
+            ->set('highestStepReached', 2)->set('currentStep', 2)->call('loadOuTree');
+        if ($code !== 0) {
+            $wizard->assertSet('testStatus', 'error')->assertSet('ldap_selected_ous', $selected)
+                ->set('highestStepReached', 2)->set('currentStep', 2)->call('saveAndAdvance');
+            $this->assertSame($selected, json_decode($setting->fresh()->ldap_selected_ous, true));
+        } else {
+            $wizard->assertSet('ldap_selected_ous', $selected)
+                ->assertSee('partial')->assertSee('keep');
+        }
     }
 
     private function sampleOuTree(): array
