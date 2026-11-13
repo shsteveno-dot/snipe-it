@@ -475,7 +475,7 @@ class LdapTest extends TestCase
                 return true;
             }
         );
-        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->willReturn([
+        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->expects($this->any())->willReturn([
             'count' => 1,
             0 => ['dn' => 'OU=Partial,DC=example,DC=com'],
         ]);

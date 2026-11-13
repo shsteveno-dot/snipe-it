@@ -104,10 +104,10 @@ class MiscRemediationTest extends TestCase
 
     public static function finding7CopyFailures(): array
     {
-        return ['read failure' => ['read'], 'unavailable size' => ['size']];
+        return ['read failure control' => ['read'], 'unavailable size' => ['size']];
     }
 
-    /** Finding 7: failed reads and unavailable size must not import partial data. */
+    /** Finding 7: read failure is an existing control; unavailable size is RED. */
     #[Test]
     #[\PHPUnit\Framework\Attributes\DataProvider('finding7CopyFailures')]
     public function finding7_remote_copy_and_size_failures_abort_location_import(string $failure): void

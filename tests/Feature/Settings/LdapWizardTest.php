@@ -988,13 +988,13 @@ class LdapWizardTest extends TestCase
             'ldap_selected_ous' => json_encode($selected),
         ]);
         $conn = \ldap_connect('ldap://127.0.0.1');
-        $this->getFunctionMock('App\\Livewire', 'ldap_connect')->willReturn($conn);
-        $this->getFunctionMock('App\\Livewire', 'ldap_set_option')->willReturn(true);
-        $this->getFunctionMock('App\\Livewire', 'ldap_bind')->willReturn(true);
-        $this->getFunctionMock('App\\Livewire', 'ldap_unbind')->willReturn(true);
-        $this->getFunctionMock('App\\Models', 'ldap_search')->willReturn('result');
+        $this->getFunctionMock('App\\Livewire', 'ldap_connect')->expects($this->any())->willReturn($conn);
+        $this->getFunctionMock('App\\Livewire', 'ldap_set_option')->expects($this->any())->willReturn(true);
+        $this->getFunctionMock('App\\Livewire', 'ldap_bind')->expects($this->any())->willReturn(true);
+        $this->getFunctionMock('App\\Livewire', 'ldap_unbind')->expects($this->any())->willReturn(true);
+        $this->getFunctionMock('App\\Models', 'ldap_search')->expects($this->any())->willReturn('result');
         $page = 0;
-        $this->getFunctionMock('App\\Models', 'ldap_parse_result')->willReturnCallback(
+        $this->getFunctionMock('App\\Models', 'ldap_parse_result')->expects($this->any())->willReturnCallback(
             function ($connection, $result, &$errcode, &$matched, &$message, &$referrals, &$controls) use ($code, &$page) {
                 $errcode = $code;
                 $message = $code ? 'Directory limit reached' : '';
@@ -1005,7 +1005,7 @@ class LdapWizardTest extends TestCase
             }
         );
         $entryPage = 0;
-        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->willReturnCallback(
+        $this->getFunctionMock('App\\Models', 'ldap_get_entries')->expects($this->any())->willReturnCallback(
             function () use (&$entryPage) {
                 return ['count' => 1, 0 => ['dn' => $entryPage++ === 0
                     ? 'ou=partial,dc=example,dc=com' : 'ou=keep,dc=example,dc=com']];

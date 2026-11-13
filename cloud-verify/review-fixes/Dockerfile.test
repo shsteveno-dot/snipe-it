@@ -1,4 +1,4 @@
-# Build with --build-arg CANDIDATE=<immutable image ID> and
+# Build with --build-arg CANDIDATE=<name:tag@immutable digest> and
 # --build-context devvendor=<directory containing a Composer dev vendor tree>.
 ARG CANDIDATE
 FROM ${CANDIDATE} AS candidate
@@ -11,4 +11,5 @@ FROM candidate
 COPY --from=overlay --chown=10000:50 /overlay/ /var/www/html/vendor/
 COPY --chown=10000:50 tests/ /var/www/html/tests/
 COPY --chown=10000:50 phpunit.xml /var/www/html/phpunit.xml
+COPY --chown=10000:50 .env.testing.example /var/www/html/.env.testing
 ENTRYPOINT ["/usr/bin/php"]

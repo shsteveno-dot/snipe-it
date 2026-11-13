@@ -30,6 +30,24 @@ A it also removes the safety-backup option in a separate temporary snapshot,
 builds a separate image, and records the endpoint test's mutation result. The
 actual checkout and production Dockerfiles are never modified by the runner.
 
+At startup the runner removes resources carrying the review-fixes.run label
+from interrupted runs. Do not run two instances concurrently: they share that
+label. Git mirrors persist under ~/.cache/review-fixes/mirrors; set
+REVIEW_FIXES_CACHE_DIR to change the parent cache directory. The optional
+REVIEW_PROXY_CA points to the proxy CA; otherwise
+/root/.ccr/agent-proxy-ca.crt is used when present. The CA is inserted only
+into the temporary Chiseled build tools stage and the candidate is checked for
+its absence. The runner substitutes the regular Dockerfile network fetches
+only in its temporary context.
+
+The results include a per-test round-A expectation (red, control, or existing)
+and whether the observed result and failure reason matched. All JUnit errors,
+PHPUnit exit 2, skips, unexpected existing/control failures, and missing or
+wrong-reason RED results are errors. The FR-9 unmutated test must pass before
+the mutated test is accepted. A separate, redacted runner-debug-<round>.log
+records command output; review it before sharing. Skipped-test summaries are
+included in the JSON.
+
 The only persistent result is
 `cloud-verify/review-fixes/results-<round>.json`: image identities,
 runtime comparison, per-test status and first-line failure messages, counts,
