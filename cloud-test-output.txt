@@ -1,0 +1,186 @@
+===== 1. pint --test tests/Feature/S3Compatibility/BackupRemoteOptionTest.php =====
+{"tool":"pint","result":"passed"}
+===== 2. BackupRemoteOptionTest（單一 process，--testdox --display-skipped） =====
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+...................                                               19 / 19 (100%)
+
+Time: 00:04.838, Memory: 85.00 MB
+
+Backup Remote Option (Tests\Feature\S3Compatibility\BackupRemoteOption)
+ ✔ By default remote files are neither listed nor read and the manifest says excluded
+ ✔ Without remote files flag behaves like the default
+ ✔ With remote files flag stages the objects and cleans up
+ ✔ The environment setting turns remote files on for scheduled backups
+ ✔ The flags override the environment setting
+ ✔ The two flags together are rejected
+ ✔ A failure while staging stops the backup and leaves nothing behind
+ ✔ A failing backup run fails the command and still cleans up
+ ✔ With only local disks nothing changes
+ ✔ Missing include paths are left out and named instead of failing the backup
+ ✔ Missing include paths are left out on an all local install too
+ ✔ A scheduled backup gets a dated name with the marker
+ ✔ A given filename gets the marker and a wrong marker is replaced
+ ✔ Callers are told the name the backup is stored under
+ ✔ A failed run removes its incomplete zip from a local backup disk
+ ✔ An all local install keeps its filenames
+ ✔ The pre restore check finds the marked backup and the restore goes on
+ ✔ The pre restore check still works on an all local install
+ ✔ Callers that used backup run directly now include remote files
+
+OK (19 tests, 72 assertions)
+
+===== 2. BackupPageTest =====
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+........                                                            8 / 8 (100%)
+
+Time: 00:04.481, Memory: 93.00 MB
+
+Backup Page (Tests\Feature\S3Compatibility\BackupPage)
+ ✔ Remote disks show both choices with without preselected and the limits
+ ✔ All local installs see no new option or notice
+ ✔ Marked backups keep their label after uploads move back to local disks
+ ✔ The generate button passes the choice on
+ ✔ A failed backup shows the reason rather than a progress line
+ ✔ Backups on a local backup disk are labelled from the name not the manifest
+ ✔ Backups on a remote backup disk are labelled from the name without downloading them
+ ✔ An uploaded copy keeps its label
+
+OK (8 tests, 39 assertions)
+
+===== 3. 反證：SystemBackup::handle() 的 $existing 改回 $include（已還原） =====
+-                $this->useIncludes(array_merge($existing, [$extra]));
++                $this->useIncludes(array_merge($include, [$extra])); // TEMPORARY counter-proof
+-                $this->useIncludes($existing);
++                $this->useIncludes($include); // TEMPORARY counter-proof
+
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+FF                                                                  2 / 2 (100%)
+
+Time: 00:03.704, Memory: 76.50 MB
+
+There were 2 failures:
+
+1) Tests\Feature\S3Compatibility\BackupRemoteOptionTest::missing_include_paths_are_left_out_and_named_instead_of_failing_the_backup
+only the S3 manifest directory is added
+Failed asserting that actual size 5 matches expected size 3.
+
+/home/user/snipe-it/tests/Feature/S3Compatibility/BackupRemoteOptionTest.php:248
+
+2) Tests\Feature\S3Compatibility\BackupRemoteOptionTest::missing_include_paths_are_left_out_on_an_all_local_install_too
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 [
+     0 => '/tmp/s3compat-missing-ce2ddf20/uploads',
+     1 => '/tmp/s3compat-missing-ce2ddf20/present.key',
++    2 => '/tmp/s3compat-missing-ce2ddf20/oauth-private.key',
++    3 => '/tmp/s3compat-missing-ce2ddf20/oauth-public.key',
+ ]
+
+/home/user/snipe-it/tests/Feature/S3Compatibility/BackupRemoteOptionTest.php:264
+
+FAILURES!
+Tests: 2, Assertions: 7, Failures: 2.
+失敗後 ls -d /tmp/s3compat-missing-* → 0 個
+--- 還原後
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+..                                                                  2 / 2 (100%)
+
+Time: 00:03.844, Memory: 76.50 MB
+
+OK (2 tests, 9 assertions)
+
+===== 4. tests/Feature/S3Compatibility 平行 5 次 =====
+run 1 rc=0 secs=10 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
+run 2 rc=0 secs=10 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
+run 3 rc=0 secs=11 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
+run 4 rc=0 secs=11 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
+run 5 rc=0 secs=10 :: OK (90 tests, 346 assertions) :: :: s3compat_dbs=0
+每次跑完 /tmp/s3compat-missing-* 都是 0 個；上傳目錄和 storage/app/backups 沒有殘留
+
+--- run 1
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 90 ( 72%)
+.........................                                         90 / 90 (100%)
+
+Time: 00:09.620, Memory: 54.50 MB
+
+OK (90 tests, 346 assertions)
+
+--- run 2
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 90 ( 72%)
+.........................                                         90 / 90 (100%)
+
+Time: 00:09.880, Memory: 54.50 MB
+
+OK (90 tests, 346 assertions)
+
+--- run 3
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 90 ( 72%)
+.........................                                         90 / 90 (100%)
+
+Time: 00:09.729, Memory: 54.50 MB
+
+OK (90 tests, 346 assertions)
+
+--- run 4
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 90 ( 72%)
+.........................                                         90 / 90 (100%)
+
+Time: 00:10.345, Memory: 54.50 MB
+
+OK (90 tests, 346 assertions)
+
+--- run 5
+ParaTest v7.8.5 upon PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Processes:     4
+Runtime:       PHP 8.3.6
+Configuration: /home/user/snipe-it/phpunit.xml
+
+................................................................. 65 / 90 ( 72%)
+.........................                                         90 / 90 (100%)
+
+Time: 00:09.875, Memory: 54.50 MB
+
+OK (90 tests, 346 assertions)
