@@ -353,6 +353,11 @@ class LoginController extends Controller
 
                 // If the user was unable to login via LDAP, log the error and let them fall through to
                 // local authentication.
+            } catch (\App\Exceptions\LdapOuScopeDenied $e) {
+                $this->incrementLoginAttempts($request);
+
+                return redirect()->to(Helper::sameOriginUrl(url()->previous()) ?? route('login'))
+                    ->withInput()->with('error', trans('auth/message.account_not_found'));
             } catch (\Exception $e) {
                 Log::debug('There was an error authenticating the LDAP user: '.$e->getMessage());
             }
