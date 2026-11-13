@@ -603,6 +603,21 @@ class RestoreToRemoteDiskTest extends TestCase
     }
 
     #[Test]
+    public function validate_only_rejects_a_truncated_zip_without_changing_the_database(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $zip = $this->backupZip(['storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf' => 'PDF']);
+        $bytes = file_get_contents($zip);
+        file_put_contents($zip, substr($bytes, 0, -12));
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+
+        $this->assertNotSame(0, $exit, Artisan::output());
+        $this->assertSame([99], $this->probeValues());
+    }
+
+    #[Test]
     public function local_destination_prefers_manifest_staged_copy_when_stale_copy_follows(): void
     {
         $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
