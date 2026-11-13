@@ -1,22 +1,16 @@
-# Cloud round 11: review-fixes round A rerun (unmodified harness)
+== runner (bash cloud-verify/review-fixes/run.sh "$PWD" A) stdout/stderr, 07:05:30–07:21:37 UTC
+EXIT=0
 
-## 1. Runner invocation
-bash cloud-verify/review-fixes/run.sh "$PWD" A   (repo tool as committed, no local modification)
-start 06:32:14Z, end ~06:51Z, exit=1
-commit 82a82e435b03bddd6dd5ef1e2de1023f3e6289fe
-candidate sha256:3bf2a7d425fb12f2ec9cafbaf698f52cc5d4bd30a4a897a728c39d1d85799284
-test sha256:18b80252baa4f84b985d267ff28671534fdcee463bb245de87f6520a2552dcce
+== php_comparison / images
+commit "b0dede21e23355c8994c87205d28a868ee2eaf86"
+candidate_image_id "sha256:020db144eef9039cd45db6da98154aa6a5af0436ffa7bb070062eea795ef51c8"
+test_image_id "sha256:ce8eb4f7fe00c6ea1e45fffe48babfbcf46544659ed817488c3bd362c3067192"
 php_comparison {"version": {"equal": true}, "modules": {"equal": true}, "sha256": {"equal": true, "sha256": "7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7"}}
-counts {"passed": 195, "failure": 28}
+counts {"passed": 194, "failure": 29}
+errors []
+skipped_summary {"ldap_selected": "", "ldap_suite": "", "s3_selected": "", "s3_suite": "", "wizard_selected": "", "wizard_suite": "", "fr9_original": "", "fr9_mutation": ""}
 
-errors:
-  - s3_selected: unexpected result in finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last control"
-  - s3_suite: unexpected result in finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last control"
-  - wizard_suite: unexpected result in test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit"
-  - wizard_suite: unexpected result in test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit"
-  - wizard_suite: unexpected result in test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "complete paginated"
-
-probes:
+== probes
 {
  "candidate_proxy_ca_absent": {
   "exit_code": 0,
@@ -81,360 +75,48 @@ probes:
  }
 }
 
-Notable non-zero command exits (from local debug log, not committed):
-  docker pull --platform linux/amd64 ubuntu:24.04 -> 429 Too Many Requests (Docker Hub), retried by pull_with_backoff and succeeded
-  docker image inspect <base> -> exit 1 before pulls (expected: not present yet)
-  mysqladmin ping x3 -> exit 1 while MySQL starting (expected)
-  apache-probe exit 2 x3 -> Apache starting, retried (expected)
-
-## 2. Per-test results for new tests (results-A.json)
-ldap_selected    failure  exp=red      match=True  test_ou_search_rejects_a_partial_limited_result with data set "time limit"
-     Failed asserting that exception of type "Exception" is thrown.
-ldap_selected    failure  exp=red      match=True  test_ou_search_rejects_a_partial_limited_result with data set "size limit"
-     Failed asserting that exception of type "Exception" is thrown.
-ldap_selected    failure  exp=red      match=True  test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou
-     Failed asserting that true is false.
-ldap_selected    failure  exp=red      match=True  test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou
-     Failed asserting that false is true.
-ldap_selected    passed   exp=control  match=True  test_finding1_local_non_ldap_user_can_still_log_in
-ldap_selected    failure  exp=red      match=True  test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection
-     The user is authenticated
-ldap_suite       failure  exp=red      match=True  test_ou_search_rejects_a_partial_limited_result with data set "time limit"
-     Failed asserting that exception of type "Exception" is thrown.
-ldap_suite       failure  exp=red      match=True  test_ou_search_rejects_a_partial_limited_result with data set "size limit"
-     Failed asserting that exception of type "Exception" is thrown.
-ldap_suite       failure  exp=red      match=True  test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou
-     Failed asserting that true is false.
-ldap_suite       failure  exp=red      match=True  test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou
-     Failed asserting that false is true.
-ldap_suite       passed   exp=control  match=True  test_finding1_local_non_ldap_user_can_still_log_in
-ldap_suite       failure  exp=red      match=True  test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection
-     The user is authenticated
-s3_selected      failure  exp=red      match=True  import_locations_rejects_a_truncated_remote_csv_before_importing
-     Expected status code 1 but received 0.
-s3_selected      passed   exp=control  match=True  finding7_remote_copy_and_size_failures_abort_location_import with data set "read failure control"
-s3_selected      failure  exp=red      match=True  finding7_remote_copy_and_size_failures_abort_location_import with data set "unavailable size"
-     Expected status code 1 but received 0.
-s3_selected      failure  exp=red      match=True  finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale last"
-     Failed asserting that two strings are identical.
-s3_selected      failure  exp=control  match=False finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last control"
-     Failed asserting that two strings are identical.
-s3_selected      passed   exp=control  match=True  finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale first control"
-s3_selected      passed   exp=control  match=True  finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale first control"
-s3_selected      passed   exp=control  match=True  finding4_validate_only_rejects_a_broken_central_directory
-s3_selected      passed   exp=control  match=True  finding4_validate_only_checks_manifest_size_and_sha256
-s3_selected      passed   exp=control  match=True  validate_only_rejects_a_truncated_zip_without_changing_the_database
-s3_selected      failure  exp=red      match=True  local_destination_prefers_manifest_staged_copy_when_stale_copy_follows
-     Failed asserting that two strings are identical.
-s3_selected      failure  exp=red      match=True  validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
-     The backup file passed validation. Nothing was changed.
-s3_selected      passed   exp=control  match=True  web_restore_calls_the_safety_backup_with_remote_files_before_wiping
-s3_selected      failure  exp=red      match=True  finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe
-     Finding 4: CRC entry was not reported before wipe.
-s3_suite         failure  exp=red      match=True  import_locations_rejects_a_truncated_remote_csv_before_importing
-     Expected status code 1 but received 0.
-s3_suite         passed   exp=control  match=True  finding7_remote_copy_and_size_failures_abort_location_import with data set "read failure control"
-s3_suite         failure  exp=red      match=True  finding7_remote_copy_and_size_failures_abort_location_import with data set "unavailable size"
-     Expected status code 1 but received 0.
-s3_suite         failure  exp=red      match=True  finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale last"
-     Failed asserting that two strings are identical.
-s3_suite         failure  exp=control  match=False finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last control"
-     Failed asserting that two strings are identical.
-s3_suite         passed   exp=control  match=True  finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale first control"
-s3_suite         passed   exp=control  match=True  finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale first control"
-s3_suite         passed   exp=control  match=True  finding4_validate_only_rejects_a_broken_central_directory
-s3_suite         passed   exp=control  match=True  finding4_validate_only_checks_manifest_size_and_sha256
-s3_suite         passed   exp=control  match=True  validate_only_rejects_a_truncated_zip_without_changing_the_database
-s3_suite         failure  exp=red      match=True  local_destination_prefers_manifest_staged_copy_when_stale_copy_follows
-     Failed asserting that two strings are identical.
-s3_suite         failure  exp=red      match=True  validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
-     The backup file passed validation. Nothing was changed.
-s3_suite         passed   exp=control  match=True  web_restore_calls_the_safety_backup_with_remote_files_before_wiping
-s3_suite         failure  exp=red      match=True  finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe
-     Finding 4: CRC entry was not reported before wipe.
-wizard_selected  failure  exp=red      match=True  test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit"
-     Failed asserting that null matches expected 'error'.
-wizard_selected  failure  exp=red      match=True  test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit"
-     Failed asserting that null matches expected 'error'.
-wizard_selected  passed   exp=control  match=True  test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "complete paginated"
-wizard_suite     passed   exp=red      match=False test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit"
-wizard_suite     passed   exp=red      match=False test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit"
-wizard_suite     failure  exp=control  match=False test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "complete paginated"
-     Failed asserting that '"hqh5JrEORSjRxNWRKID6" wire:name="ldap-settings" class="ldap-wizard">\n
-fr9_original     passed   exp=control  match=True  web_restore_calls_the_safety_backup_with_remote_files_before_wiping
-fr9_mutation     failure  exp=red      match=True  web_restore_calls_the_safety_backup_with_remote_files_before_wiping
-     Finding 9: safety backup omitted remote files.
-
-## 3. PHPUnit failure blocks (from runner debug log; long Livewire HTML truncated)
-------------------------------------------------------------
-There were 5 failures:
-
-1) Tests\Unit\LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "time limit" (3)
-Failed asserting that exception of type "Exception" is thrown.
-
-2) Tests\Unit\LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "size limit" (4)
-Failed asserting that exception of type "Exception" is thrown.
-
-3) Tests\Unit\LdapTest::test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou
-Failed asserting that true is false.
-
-/var/www/html/tests/Unit/LdapTest.php:491
-
-4) Tests\Unit\LdapTest::test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou
-Failed asserting that false is true.
-
-/var/www/html/tests/Unit/LdapTest.php:501
-
-[redacted sensitive line]
-The user is authenticated
-Failed asserting that true is false.
-
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/Concerns/InteractsWithAuthentication.php:77
-/var/www/html/tests/Unit/LdapTest.php:587
-
-FAILURES!
-Tests: 7, Assertions: 12, Failures: 5.
-------------------------------------------------------------
-There were 5 failures:
-
-1) Tests\Unit\LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "time limit" (3)
-Failed asserting that exception of type "Exception" is thrown.
-
-2) Tests\Unit\LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "size limit" (4)
-Failed asserting that exception of type "Exception" is thrown.
-
-3) Tests\Unit\LdapTest::test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou
-Failed asserting that true is false.
-
-/var/www/html/tests/Unit/LdapTest.php:491
-
-4) Tests\Unit\LdapTest::test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou
-Failed asserting that false is true.
-
-/var/www/html/tests/Unit/LdapTest.php:501
-
-[redacted sensitive line]
-The user is authenticated
-Failed asserting that true is false.
-
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/Concerns/InteractsWithAuthentication.php:77
-/var/www/html/tests/Unit/LdapTest.php:587
-
-FAILURES!
-Tests: 35, Assertions: 158, Failures: 5.
-------------------------------------------------------------
-There were 7 failures:
-
-1) Tests\Feature\S3Compatibility\MiscRemediationTest::import_locations_rejects_a_truncated_remote_csv_before_importing
-Expected status code 1 but received 0.
-Failed asserting that 0 matches expected 1.
-
-/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:463
-/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:675
-/var/www/html/tests/Feature/S3Compatibility/MiscRemediationTest.php:101
-
-2) Tests\Feature\S3Compatibility\MiscRemediationTest::finding7_remote_copy_and_size_failures_abort_location_import with data set "unavailable size" ('size')
-Expected status code 1 but received 0.
-Failed asserting that 0 matches expected 1.
-
-/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:463
-/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:675
-/var/www/html/tests/Feature/S3Compatibility/MiscRemediationTest.php:121
-
-3) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale last" (false, false)
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'STAGED'
-+'STALE!'
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:649
-
-4) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last control" (true, false)
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'STAGED'
-+'STALE!'
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:649
-
-5) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'STAGED'
-+'STALE!'
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:722
-
-6) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
-The backup file passed validation. Nothing was changed.
-
-Failed asserting that 0 is not identical to 0.
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:745
-
-7) Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest::finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe
-Finding 4: CRC entry was not reported before wipe.
-Failed asserting that 'Could not create a pre-restore safety backup. Restore aborted so that the existing database is not destroyed without a recovery path.' [ASCII](length: 133) contains "public/uploads/avatars/stale.png" [ASCII](length: 32).
-
-/var/www/html/tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php:126
-
-FAILURES!
-Tests: 16, Assertions: 62, Failures: 7.
-------------------------------------------------------------
-There were 7 failures:
-
-1) Tests\Feature\S3Compatibility\MiscRemediationTest::import_locations_rejects_a_truncated_remote_csv_before_importing
-Expected status code 1 but received 0.
-Failed asserting that 0 matches expected 1.
-
-/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:463
-/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:675
-/var/www/html/tests/Feature/S3Compatibility/MiscRemediationTest.php:101
-
-2) Tests\Feature\S3Compatibility\MiscRemediationTest::finding7_remote_copy_and_size_failures_abort_location_import with data set "unavailable size" ('size')
-Expected status code 1 but received 0.
-Failed asserting that 0 matches expected 1.
-
-/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:463
-/var/www/html/vendor/laravel/framework/src/Illuminate/Testing/PendingCommand.php:675
-/var/www/html/tests/Feature/S3Compatibility/MiscRemediationTest.php:121
-
-3) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale last" (false, false)
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'STAGED'
-+'STALE!'
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:649
-
-4) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last control" (true, false)
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'STAGED'
-+'STALE!'
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:649
-
-5) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'STAGED'
-+'STALE!'
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:722
-
-6) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
-The backup file passed validation. Nothing was changed.
-
-Failed asserting that 0 is not identical to 0.
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:745
-
-7) Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest::finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe
-Finding 4: CRC entry was not reported before wipe.
-Failed asserting that 'Could not create a pre-restore safety backup. Restore aborted so that the existing database is not destroyed without a recovery path.' [ASCII](length: 133) contains "public/uploads/avatars/stale.png" [ASCII](length: 32).
-
-/var/www/html/tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php:126
-
-FAILURES!
-Tests: 103, Assertions: 398, Failures: 7.
-------------------------------------------------------------
-There were 2 failures:
-
-1) Tests\Feature\Settings\LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit" (3)
-Failed asserting that null matches expected 'error'.
-
-/var/www/html/vendor/livewire/livewire/src/Features/SupportTesting/MakesAssertions.php:164
-/var/www/html/tests/Feature/Settings/LdapWizardTest.php:1017
-
-2) Tests\Feature\Settings\LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit" (4)
-Failed asserting that null matches expected 'error'.
-
-/var/www/html/vendor/livewire/livewire/src/Features/SupportTesting/MakesAssertions.php:164
-/var/www/html/tests/Feature/Settings/LdapWizardTest.php:1017
-
-FAILURES!
-Tests: 3, Assertions: 12, Failures: 2.
-------------------------------------------------------------
-There was 1 failure:
-
-1) Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping
-Finding 9: safety backup omitted remote files.
-Failed asserting that false is true.
-
-/var/www/html/tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php:96
-
-FAILURES!
-Tests: 1, Assertions: 6, Failures: 1.
-
-## 4. Diagnostic run (NOT in results-A.json)
-Scratch copy of runner.py with these changes only; ROOT = clean git worktree of 82a82e4 (the checkout was dirty because the tracked results-A.json had just been rewritten):
-25c25
-< RESULT = HERE / ('results-' + ROUND + '.json')
----
-> RESULT = Path('/tmp/claude-0/-home-user-snipe-it/552c96b9-e57e-534b-8e94-15f7fffc95e4/scratchpad/diag/results-diag.json')
-33c33
-< DEBUG_LOG = HERE / ('runner-debug-' + ROUND + '.log')
----
-> DEBUG_LOG = Path('/tmp/claude-0/-home-user-snipe-it/552c96b9-e57e-534b-8e94-15f7fffc95e4/scratchpad/diag/runner-debug-diag.log')
-466a467,474
->     W = 'tests/Feature/Settings/LdapWizardTest.php'
->     patched = ['-v', '/tmp/claude-0/-home-user-snipe-it/552c96b9-e57e-534b-8e94-15f7fffc95e4/scratchpad/diag/LdapWizardTest.patched.php:/var/www/html/' + W + ':ro']
->     phpunit(test, ['--filter', 'finding6', W], common, 'd1.xml', 'diag_alone')
->     phpunit(test, ['--filter', 'test_step1|finding6', W], common, 'd2.xml', 'diag_step1_then_finding6')
->     phpunit(test, ['--filter', 'test_step2|finding6', W], common, 'd3.xml', 'diag_step2_then_finding6')
->     phpunit(test, [W], common + patched, 'd4.xml', 'diag_patched_suite')
->     phpunit(test, ['--filter', 'finding6', W], common + patched, 'd5.xml', 'diag_patched_alone')
->     raise RuntimeError('diagnostic stop')
-
-diag_alone                 failure   "time limit"          Failed asserting that null matches expected 'error'.
-diag_alone                 failure   "size limit"          Failed asserting that null matches expected 'error'.
-diag_alone                 passed    "complete paginated"  
-diag_step1_then_finding6   failure   "time limit"          Failed asserting that null matches expected 'error'.
-diag_step1_then_finding6   failure   "size limit"          Failed asserting that null matches expected 'error'.
-diag_step1_then_finding6   passed    "complete paginated"  
-diag_step2_then_finding6   passed    "time limit"          
-diag_step2_then_finding6   passed    "size limit"          
-diag_step2_then_finding6   failure   "complete paginated"  Failed asserting that '"wrAy6H5yzbVBUIYXTapO" wire:name="ldap-settings" class="ldap-wizard
-diag_patched_suite         failure   "time limit"          Failed asserting that null matches expected 'error'.
-diag_patched_suite         failure   "size limit"          Failed asserting that null matches expected 'error'.
-diag_patched_suite         passed    "complete paginated"  
-diag_patched_alone         failure   "time limit"          Failed asserting that null matches expected 'error'.
-diag_patched_alone         failure   "size limit"          Failed asserting that null matches expected 'error'.
-diag_patched_alone         passed    "complete paginated"  
-diag_patched_suite: 57 tests, only the 2 finding6 limit cases fail; all 55 others pass.
-
-Patched LdapWizardTest.php used for diag_patched_*:
---- tests/Feature/Settings/LdapWizardTest.php	2026-11-13 06:31:34.776837181 +0000
-+++ LdapWizardTest.patched.php	2026-11-13 06:52:46.051697588 +0000
-@@ -967,6 +967,17 @@
-             ->assertSet('ldap_all_ous', true);
-     }
- 
-+    public static function setUpBeforeClass(): void
-+    {
-+        parent::setUpBeforeClass();
-+        foreach (['ldap_connect', 'ldap_set_option', 'ldap_bind', 'ldap_unbind'] as $function) {
-+            self::defineFunctionMock('App\\Livewire', $function);
-+        }
-+        foreach (['ldap_search', 'ldap_parse_result', 'ldap_get_entries'] as $function) {
-+            self::defineFunctionMock('App\\Models', $function);
-+        }
-+    }
-+
-     public static function finding6Results(): array
-     {
-         return ['time limit' => [3], 'size limit' => [4], 'complete paginated' => [0]];
-
+== 非 passed 的測試（run / 預期 / 符合 / 名稱 / 訊息）
+ldap_selected | red | True | Tests.Unit.LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "time limit" | Failed asserting that exception of type "Exception" is thrown.
+ldap_selected | red | True | Tests.Unit.LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "size limit" | Failed asserting that exception of type "Exception" is thrown.
+ldap_selected | red | True | Tests.Unit.LdapTest::test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou | Failed asserting that true is false.
+ldap_selected | red | True | Tests.Unit.LdapTest::test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou | Failed asserting that false is true.
+ldap_selected | red | True | Tests.Unit.LdapTest::test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection | The user is authenticated
+ldap_suite | red | True | Tests.Unit.LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "time limit" | Failed asserting that exception of type "Exception" is thrown.
+ldap_suite | red | True | Tests.Unit.LdapTest::test_ou_search_rejects_a_partial_limited_result with data set "size limit" | Failed asserting that exception of type "Exception" is thrown.
+ldap_suite | red | True | Tests.Unit.LdapTest::test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou | Failed asserting that true is false.
+ldap_suite | red | True | Tests.Unit.LdapTest::test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou | Failed asserting that false is true.
+ldap_suite | red | True | Tests.Unit.LdapTest::test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection | The user is authenticated
+s3_selected | red | True | Tests.Feature.S3Compatibility.MiscRemediationTest::import_locations_rejects_a_truncated_remote_csv_before_importing | Expected status code 1 but received 0.
+s3_selected | red | True | Tests.Feature.S3Compatibility.MiscRemediationTest::finding7_remote_copy_and_size_failures_abort_location_import with data set "unavailable size" | Expected status code 1 but received 0.
+s3_selected | red | True | Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale last" | Failed asserting that two strings are identical.
+s3_selected | red | True | Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last" | Failed asserting that two strings are identical.
+s3_selected | red | True | Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows | Failed asserting that two strings are identical.
+s3_selected | red | True | Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped | The backup file passed validation. Nothing was changed.
+s3_selected | red | True | Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe | Finding 4: CRC entry was not reported before wipe.
+s3_suite | red | True | Tests.Feature.S3Compatibility.MiscRemediationTest::import_locations_rejects_a_truncated_remote_csv_before_importing | Expected status code 1 but received 0.
+s3_suite | red | True | Tests.Feature.S3Compatibility.MiscRemediationTest::finding7_remote_copy_and_size_failures_abort_location_import with data set "unavailable size" | Expected status code 1 but received 0.
+s3_suite | red | True | Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale last" | Failed asserting that two strings are identical.
+s3_suite | red | True | Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last" | Failed asserting that two strings are identical.
+s3_suite | red | True | Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows | Failed asserting that two strings are identical.
+s3_suite | red | True | Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped | The backup file passed validation. Nothing was changed.
+s3_suite | red | True | Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe | Finding 4: CRC entry was not reported before wipe.
+wizard_selected | red | True | Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit" | Failed asserting that null matches expected 'error'.
+wizard_selected | red | True | Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit" | Failed asserting that null matches expected 'error'.
+wizard_suite | red | True | Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit" | Failed asserting that null matches expected 'error'.
+wizard_suite | red | True | Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "size limit" | Failed asserting that null matches expected 'error'.
+fr9_mutation | red | True | Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping | Finding 9: safety backup omitted remote files.
+
+== docker images after run (before cleanup)
+composer:latest ca11f643d779 316MB
+ubuntu:24.04 2198e4c65076 119MB
+mysql:8.4 a81d043930e5 1.12GB
+composer:2.10.3 2cf275428757 316MB
+golang:<none> 672c944cfd07 1.29GB
+docker/dockerfile:<none> 4edf897a3ffa 43.2MB
+composer:<none> af98f42dfff7 315MB
+ubuntu:<none> 534baea6a22c 119MB
+hello-world:latest cf1b20a0c89a 25.9kB
+containers: 0, volumes: 0, docker.sock in results/debug log: 0
+
+== cleanup
+docker rmi all, docker buildx prune -af, docker system prune -af --volumes; docker system df all 0; dockerd stopped
