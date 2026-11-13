@@ -592,7 +592,8 @@ class LdapTest extends TestCase
         $this->settings->enableLdap()->set(['ldap_selected_ous' => json_encode(['OU=G1,DC=gogoro,DC=com'])]);
         $this->mockLdapLoginFoundAt('CN=Someone,OU=IT,DC=gogoro,DC=com');
 
-        $this->assertFalse(Ldap::findAndBindUserLdap('username', 'password'));
+        $this->expectException(\App\Exceptions\LdapOuScopeDenied::class);
+        Ldap::findAndBindUserLdap('username', 'password');
     }
 
     public function test_login_is_refused_for_a_user_outside_the_selected_ous_on_the_legacy_path()
@@ -601,7 +602,8 @@ class LdapTest extends TestCase
         $this->settings->enableAnonymousLdap()->set(['ldap_selected_ous' => json_encode(['OU=G1,DC=gogoro,DC=com'])]);
         $this->mockLdapLoginFoundAt('CN=Someone,OU=IT,DC=gogoro,DC=com');
 
-        $this->assertFalse(Ldap::findAndBindUserLdap('username', 'password'));
+        $this->expectException(\App\Exceptions\LdapOuScopeDenied::class);
+        Ldap::findAndBindUserLdap('username', 'password');
     }
 
     public function test_login_works_for_a_user_in_a_selected_ou()
