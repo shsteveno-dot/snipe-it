@@ -287,7 +287,7 @@ class RestoreFromBackup extends Command
 
         $za = new ZipArchive;
 
-        $errcode = $za->open($filename/* , ZipArchive::RDONLY */); // that constant only exists in PHP 7.4 and higher
+        $errcode = $za->open($filename, ZipArchive::CHECKCONS);
         if ($errcode !== true) {
             $error_msg = match ($errcode) {
                 ZipArchive::ER_EXISTS => 'File already exists.',
@@ -305,6 +305,36 @@ class RestoreFromBackup extends Command
             $this->error('Could not access file: '.$filename.' - '.$error_msg);
 
             return self::FAILURE;
+        }
+
+        for ($i = 0; $i < $za->numFiles; $i++) {
+            $stat = $za->statIndex($i);
+            $name = $stat['name'] ?? ('entry #'.$i);
+            $stream = $za->getStreamIndex($i);
+            if ($stat === false || $stream === false) {
+                $this->error('Could not read archive entry: '.$name);
+                return self::FAILURE;
+            }
+            $crc = hash_init('crc32b');
+            $length = 0;
+            $failed = false;
+            while (! feof($stream)) {
+                $chunk = @fread($stream, 65536);
+                if ($chunk === false || ($chunk === '' && ! feof($stream))) {
+                    $failed = true;
+                    break;
+                }
+                $length += strlen($chunk);
+                hash_update($crc, $chunk);
+            }
+            if (! fclose($stream)) {
+                $failed = true;
+            }
+            if ($failed || $length !== ($stat['size'] ?? null)
+                || hash_final($crc) !== sprintf('%08x', $stat['crc'] ?? -1)) {
+                $this->error('Archive integrity check failed for entry: '.$name);
+                return self::FAILURE;
+            }
         }
 
         // Upload directory enumeration lives in App\Enums\FileStorage
@@ -888,7 +918,7 @@ class RestoreFromBackup extends Command
 
     private function entrySha256(ZipArchive $za, int $index): ?string
     {
-        $stream = $za->getStream((string) $za->getNameIndex($index));
+        $stream = $za->getStreamIndex($index);
         if ($stream === false) {
             return null;
         }
