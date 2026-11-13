@@ -578,6 +578,7 @@ class RestoreFromBackup extends Command
             return self::SUCCESS;
         }
 
+        $this->deduplicateDestinations($interesting_files, $expected_sha);
         $this->skipStaleLocalCopies($interesting_files, $manifest);
 
         // how to invoke the restore?
@@ -749,6 +750,27 @@ class RestoreFromBackup extends Command
     private function diskIsRemote(string $disk): bool
     {
         return config("filesystems.disks.$disk.driver") !== 'local';
+    }
+
+    /** Prefer verified manifest entries over other entries for the same destination. */
+    private function deduplicateDestinations(array &$files, array $expectedSha): void
+    {
+        $winners = [];
+        foreach ($files as $name => $details) {
+            $remote = $this->remoteTarget($details);
+            $path = $remote === null ? $details['dest'].'/'.$details['rel'] : $remote[1];
+            $parts = array_values(array_filter(explode('/', $path), fn ($part) => $part !== '' && $part !== '.'));
+            $key = ($remote === null ? 'local:' : 'disk:'.$remote[0].':').implode('/', $parts);
+            $preferred = $details['staged'] && isset($expectedSha[$details['index']]);
+            if (! isset($winners[$key])) {
+                $winners[$key] = [$name, $preferred];
+            } elseif ($preferred && ! $winners[$key][1]) {
+                unset($files[$winners[$key][0]]);
+                $winners[$key] = [$name, true];
+            } else {
+                unset($files[$name]);
+            }
+        }
     }
 
     /**
