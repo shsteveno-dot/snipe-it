@@ -602,6 +602,47 @@ class RestoreToRemoteDiskTest extends TestCase
         $this->assertSame('LOCAL-COPY', file_get_contents($this->publicRoot.'/avatars/'.$this->tag.'.png'));
     }
 
+    #[Test]
+    public function local_destination_prefers_manifest_staged_copy_when_stale_copy_follows(): void
+    {
+        $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        $this->track($path);
+        $zip = $this->backupZip([$path => 'STAGED']);
+        $za = new ZipArchive;
+        $this->assertTrue($za->open($zip));
+        $za->addFromString($path, 'STALE!');
+        $za->close();
+
+        [$exit, $output] = $this->restore($zip);
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertSame('STAGED', file_get_contents(base_path($path)));
+    }
+
+    #[Test]
+    public function validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        $zip = $this->backupZip([$path => 'STAGED']);
+        $za = new ZipArchive;
+        $this->assertTrue($za->open($zip));
+        $za->addFromString($path, 'UNIQUE-STALE-PAYLOAD-12345');
+        $za->setCompressionName($path, ZipArchive::CM_STORE);
+        $za->close();
+        $bytes = file_get_contents($zip);
+        $corrupt = str_replace('UNIQUE-STALE-PAYLOAD-12345', 'UNIQUE-STALE-PAYLOAD-12346', $bytes, $count);
+        $this->assertSame(1, $count);
+        file_put_contents($zip, $corrupt);
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+
+        $this->assertNotSame(0, $exit, Artisan::output());
+        $this->assertStringContainsString($path, Artisan::output());
+        $this->assertSame([99], $this->probeValues());
+    }
+
     // ---- web flow ---------------------------------------------------------------------------
 
     #[Test]
