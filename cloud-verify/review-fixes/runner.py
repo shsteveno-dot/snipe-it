@@ -62,7 +62,8 @@ def call(args, check=True, cwd=None, env=None):
         if '://' in value and ('@' in value or '?' in value):
             value = '[redacted-url]'
         recorded.append(value)
-    p = subprocess.run(args, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.run(args, cwd=cwd, env=env, text=True, errors='replace',
+                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     data['commands'].append({'argv': recorded, 'exit_code': p.returncode})
     DEBUG_LOG.parent.mkdir(parents=True, exist_ok=True)
     fd = os.open(DEBUG_LOG, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
@@ -393,7 +394,7 @@ def parse_junit(path, label):
             data['errors'].append(label + ': unexpected result in ' + name)
 
 def phpunit(test, args, extra, file, label):
-    p = run_php(test, '/var/www/html/vendor/bin/phpunit', '--colors=never', '--display-skipped',
+    p = run_php(test, '/var/www/html/vendor/bin/phpunit', '--colors=never', '--display-skipped', '--display-incomplete',
                 '--log-junit', '/results/' + file, *args, extra=extra)
     data['probes'][label + '_exit'] = p.returncode
     if p.returncode == 2 or p.returncode > 2:
