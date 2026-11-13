@@ -93,7 +93,7 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
             ->post(route('settings.backups.restore', $filename))
             ->assertRedirect(route('settings.backups.index'))
             ->assertSessionHas('error');
-        $this->assertTrue($backupOptions['--with-remote-files'] ?? false);
+        $this->assertTrue($backupOptions['--with-remote-files'] ?? false, 'Finding 9: safety backup omitted remote files.');
         $this->assertTrue($backupOptions['--force'] ?? false);
         $this->assertArrayHasKey('--filename', $backupOptions);
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
@@ -122,7 +122,8 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
 
         $this->actingAs($admin)->post(route('settings.backups.restore', $filename))
             ->assertRedirect(route('settings.backups.index'))
-            ->assertSessionHas('error', fn ($message) => str_contains($message, $entry));
+            ->assertSessionHas('error');
+        $this->assertStringContainsString($entry, (string) session('error'), 'Finding 4: CRC entry was not reported before wipe.');
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
     }
 
