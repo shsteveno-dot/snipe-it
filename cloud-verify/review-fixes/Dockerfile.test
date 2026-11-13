@@ -1,0 +1,14 @@
+# Build with --build-arg CANDIDATE=<immutable image ID> and
+# --build-context devvendor=<directory containing a Composer dev vendor tree>.
+ARG CANDIDATE
+FROM ${CANDIDATE} AS candidate
+FROM composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac AS overlay
+COPY --from=candidate /var/www/html/vendor /candidate-vendor
+COPY --from=devvendor / /dev-vendor
+COPY cloud-verify/review-fixes/overlay.php /overlay.php
+RUN php /overlay.php
+FROM candidate
+COPY --from=overlay --chown=10000:50 /overlay/ /var/www/html/vendor/
+COPY --chown=10000:50 tests/ /var/www/html/tests/
+COPY --chown=10000:50 phpunit.xml /var/www/html/phpunit.xml
+ENTRYPOINT ["/usr/bin/php"]
