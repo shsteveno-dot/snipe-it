@@ -150,7 +150,7 @@ class Ldap extends Model
                 throw new Exception('No user DN found');
             }
             if (! self::isDnInSelectedOus($userDn)) {
-                throw new Exception('User DN is outside the selected OUs');
+                throw new \App\Exceptions\LdapOuScopeDenied('User DN is outside the selected OUs');
             }
             \Log::channel('ldap')->debug("FOUND DN IS: $userDn");
             // The temptation now is to do ldap_unbind on the $admin_conn, but that gets handled in the 'finally' below.
@@ -166,6 +166,8 @@ class Ldap extends Model
             }
 
             return array_change_key_case($user);
+        } catch (\App\Exceptions\LdapOuScopeDenied $e) {
+            throw $e;
         } catch (Exception $e) {
             \Log::channel('ldap')->debug('Exception on fast find-and-bind: '.$e->getMessage());
             if ($slow_failure) {
@@ -258,7 +260,7 @@ class Ldap extends Model
 
         // The fast path above also refuses unselected OUs, but its failure falls through to here.
         if (self::selectedOus() !== null && ! self::isDnInSelectedOus((string) ldap_get_dn($connection, $entry))) {
-            return false;
+            throw new \App\Exceptions\LdapOuScopeDenied('User DN is outside the selected OUs');
         }
 
         if (! $user = ldap_get_attributes($connection, $entry)) {
