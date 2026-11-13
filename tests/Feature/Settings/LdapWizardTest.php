@@ -967,6 +967,17 @@ class LdapWizardTest extends TestCase
             ->assertSet('ldap_all_ous', true);
     }
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        foreach (['ldap_connect', 'ldap_set_option', 'ldap_bind', 'ldap_unbind'] as $function) {
+            self::defineFunctionMock('App\\Livewire', $function);
+        }
+        foreach (['ldap_search', 'ldap_parse_result', 'ldap_get_entries'] as $function) {
+            self::defineFunctionMock('App\\Models', $function);
+        }
+    }
+
     public static function finding6Results(): array
     {
         return ['time limit' => [3], 'size limit' => [4], 'complete paginated' => [0]];

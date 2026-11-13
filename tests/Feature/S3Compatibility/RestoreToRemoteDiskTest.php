@@ -606,7 +606,7 @@ class RestoreToRemoteDiskTest extends TestCase
     {
         return [
             'local stale last' => [false, false],
-            'remote stale last control' => [true, false],
+            'remote stale last' => [true, false],
             'local stale first control' => [false, true],
             'remote stale first control' => [true, true],
         ];
