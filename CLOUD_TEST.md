@@ -8,6 +8,21 @@
 
 ## 這次的重點
 
+第 14 輪：**review-fixes 第 B 輪最終確認**（短的一輪）。第 13 輪結果在 `4b45667`：除了 `RestoreToRemoteDiskTest` 兩個測試本身的錯以外全部符合。已改進 `review-fixes`：
+- `d0a80b2ce3`：`validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped` 只讀一次 `Artisan::output()`；`validate_only_rejects_a_corrupted_database_dump` 改成只檢查訊息裡有 `db-dumps/mysql-test.sql`（照你的建議）。
+- `6b68a6f131`（工具）：`call()` 加 `errors='replace'`，phpunit 加 `--display-incomplete`。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。
+2. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`。
+3. 確認 runner exit 0、`errors` 是空的，0 失敗、0 略過；FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都和第 13 輪一樣。
+4. 不用重跑第 13 輪第 5 步的額外測試（intl 那 8 個是已知的環境差異，另外處理）。
+5. 清理（含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
+
+回報：commit `results-B.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。全部符合時報告開頭寫「第 B 輪通過」。
+
+---
+
 第 13 輪：**review-fixes 第 B 輪（修正程式碼，預期全部 GREEN）**。第 12 輪結果在 `9a3f271`（第 A 輪通過）。`review-fixes` 新增九個問題的修正（每個問題一到兩個 commit，見 `git log 87fe5250a6..review-fixes`），沒有改 `docker/startup.sh`、`docker/000-default.conf`、`docker/001-default-ssl.conf` 和一般的 `Dockerfile`。工具（`13adf454b7`、`b423b10178`）新增：記錄 `repin_app_inputs.py --check` 的結果、round B 的 FR-9 突變仍要失敗、在 candidate 衍生的 image 裡跑 Go startup 的回歸測試。
 
 要做的：
