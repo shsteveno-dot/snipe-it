@@ -1,19 +1,22 @@
 <?php
-/* Run inside the candidate-derived test image, with the diagnostic endpoint
- * mounted only into the separate production candidate container. */
-$url = getenv('REVIEW_APACHE_URL');
-if (! $url) {
-    fwrite(STDERR, "REVIEW_APACHE_URL is required\n");
+/* Execute in the candidate-derived image against the disposable candidate. */
+if ($argc !== 4) {
+    fwrite(STDERR, "usage: apache-probe.php URL EXPECTED HEADER_VALUE\n");
     exit(2);
 }
+[, $url, $expected, $header] = $argv;
 $context = stream_context_create(['http' => [
-    'header' => "X-Review-User: review-user@example.invalid\r\n",
+    'header' => "X-Review-User: ".$header."\r\n",
     'timeout' => 10,
     'ignore_errors' => true,
 ]]);
 $body = @file_get_contents($url, false, $context);
-if ($body === false || trim($body) !== 'review-user@example.invalid') {
-    fwrite(STDERR, "Forwarded header was not promoted to REMOTE_USER\n");
+if ($body === false) {
+    fwrite(STDERR, "Apache endpoint is unavailable\n");
+    exit(2);
+}
+if (trim($body) !== $expected) {
+    fwrite(STDERR, "REMOTE_USER did not match the expected value\n");
     exit(1);
 }
-echo "Forwarded header promoted to REMOTE_USER\n";
+echo "REMOTE_USER matched\n";

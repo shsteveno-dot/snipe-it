@@ -26,6 +26,13 @@ foreach ($iterator as $item) {
     }
     if (file_exists($existing.'/'.$relative) || is_link($existing.'/'.$relative)) {
         if (! in_array($relative, $metadata, true)) {
+            $original = $existing.'/'.$relative;
+            $same = $item->isLink()
+                ? is_link($original) && readlink($item->getPathname()) === readlink($original)
+                : is_file($original) && hash_file('sha256', $item->getPathname()) === hash_file('sha256', $original);
+            if (! $same) {
+                throw new RuntimeException('Production file differs: '.$relative);
+            }
             continue;
         }
     }
