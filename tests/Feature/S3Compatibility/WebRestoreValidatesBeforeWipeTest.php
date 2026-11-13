@@ -70,6 +70,10 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
     }
 
     #[Test]
+    /**
+     * Finding 9: the cloud runner removes --with-remote-files only from the
+     * safety backup call in a throwaway source copy and records this test's RED.
+     */
     public function web_restore_calls_the_safety_backup_with_remote_files_before_wiping(): void
     {
         $admin = User::factory()->superuser()->create();
@@ -86,6 +90,31 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
             ->post(route('settings.backups.restore', $filename))
             ->assertRedirect(route('settings.backups.index'))
             ->assertSessionHas('error');
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
+
+    #[Test]
+    /** Finding 4: CRC damage in an unmanifested entry must abort before wipe. */
+    public function finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe(): void
+    {
+        $admin = User::factory()->superuser()->create();
+        $filename = $this->plantBackup(hash('sha256', 'AVATAR-BYTES'));
+        $archive = $this->workDir.'/backup-disk/'.config('backup.backup.name', 'backups').'/'.$filename;
+        $entry = 'public/uploads/avatars/stale.png';
+        $zip = new ZipArchive;
+        $this->assertTrue($zip->open($archive));
+        $zip->addFromString($entry, 'UNIQUE-WEB-CRC-PAYLOAD-A');
+        $zip->setCompressionName($entry, ZipArchive::CM_STORE);
+        $zip->close();
+        $bytes = file_get_contents($archive);
+        $bytes = str_replace('UNIQUE-WEB-CRC-PAYLOAD-A', 'UNIQUE-WEB-CRC-PAYLOAD-B', $bytes, $count);
+        $this->assertSame(1, $count);
+        file_put_contents($archive, $bytes);
+        \Illuminate\Support\Facades\Artisan::partialMock()->shouldReceive('call')->with('snipeit:backup', \Mockery::any())->andReturn(1);
+
+        $this->actingAs($admin)->post(route('settings.backups.restore', $filename))
+            ->assertRedirect(route('settings.backups.index'))
+            ->assertSessionHas('error', fn ($message) => str_contains($message, $entry));
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
     }
 

@@ -89,6 +89,7 @@ class MiscRemediationTest extends TestCase
     }
 
     #[Test]
+    /** Finding 7. */
     public function import_locations_rejects_a_truncated_remote_csv_before_importing(): void
     {
         $name = 'truncated-locations-'.bin2hex(random_bytes(4)).'.csv';
@@ -97,6 +98,26 @@ class MiscRemediationTest extends TestCase
         Storage::disk('custom_private')->put($this->importsKey($name), $csv);
         FakeRemoteAdapter::$truncateReads = [$this->importsKey($name)];
 
+        $this->artisan('snipeit:import-locations', ['filename' => $name])->assertExitCode(1);
+        $this->assertFalse(Location::where('name', $site)->exists());
+    }
+
+    public static function finding7CopyFailures(): array
+    {
+        return ['read failure' => ['read'], 'unavailable size' => ['size']];
+    }
+
+    /** Finding 7: failed reads and unavailable size must not import partial data. */
+    #[Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('finding7CopyFailures')]
+    public function finding7_remote_copy_and_size_failures_abort_location_import(string $failure): void
+    {
+        $name = 'copy-failure-'.bin2hex(random_bytes(4)).'.csv';
+        $site = 'Copy failure '.bin2hex(random_bytes(4));
+        $key = $this->importsKey($name);
+        Storage::disk('custom_private')->put($key, "Name\n".$site."\n");
+        FakeRemoteAdapter::$failReads = $failure === 'read' ? [$key] : [];
+        FakeRemoteAdapter::$failSizes = $failure === 'size' ? [$key] : [];
         $this->artisan('snipeit:import-locations', ['filename' => $name])->assertExitCode(1);
         $this->assertFalse(Location::where('name', $site)->exists());
     }
