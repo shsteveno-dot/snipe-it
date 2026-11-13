@@ -48,6 +48,11 @@ the mutated test is accepted. A separate, redacted runner-debug-<round>.log
 under the review-fixes cache directory records command output; review it before sharing. Skipped-test summaries are
 included in the JSON.
 
+Each run records `python3 -I docker/chiseled/repin_app_inputs.py --check` on the
+cloud host before building and stops on lock drift. Round B and final require
+all unmutated tests and probes to pass with no skips; the FR-9 mutation must
+still fail for its specific assertion.
+
 The results file is
 `cloud-verify/review-fixes/results-<round>.json`: image identities,
 runtime comparison, per-test status and first-line failure messages, counts,
