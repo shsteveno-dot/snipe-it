@@ -287,7 +287,7 @@ class RestoreFromBackup extends Command
 
         $za = new ZipArchive;
 
-        $errcode = $za->open($filename/* , ZipArchive::RDONLY */); // that constant only exists in PHP 7.4 and higher
+        $errcode = $za->open($filename, ZipArchive::CHECKCONS);
         if ($errcode !== true) {
             $error_msg = match ($errcode) {
                 ZipArchive::ER_EXISTS => 'File already exists.',
@@ -305,6 +305,36 @@ class RestoreFromBackup extends Command
             $this->error('Could not access file: '.$filename.' - '.$error_msg);
 
             return self::FAILURE;
+        }
+
+        for ($i = 0; $i < $za->numFiles; $i++) {
+            $stat = $za->statIndex($i);
+            $name = $stat['name'] ?? ('entry #'.$i);
+            $stream = $za->getStreamIndex($i);
+            if ($stat === false || $stream === false) {
+                $this->error('Could not read archive entry: '.$name);
+                return self::FAILURE;
+            }
+            $crc = hash_init('crc32b');
+            $length = 0;
+            $failed = false;
+            while (! feof($stream)) {
+                $chunk = @fread($stream, 65536);
+                if ($chunk === false || ($chunk === '' && ! feof($stream))) {
+                    $failed = true;
+                    break;
+                }
+                $length += strlen($chunk);
+                hash_update($crc, $chunk);
+            }
+            if (! fclose($stream)) {
+                $failed = true;
+            }
+            if ($failed || $length !== ($stat['size'] ?? null)
+                || hash_final($crc) !== sprintf('%08x', $stat['crc'] ?? -1)) {
+                $this->error('Archive integrity check failed for entry: '.$name);
+                return self::FAILURE;
+            }
         }
 
         // Upload directory enumeration lives in App\Enums\FileStorage
@@ -548,6 +578,7 @@ class RestoreFromBackup extends Command
             return self::SUCCESS;
         }
 
+        $this->deduplicateDestinations($interesting_files, $expected_sha);
         $this->skipStaleLocalCopies($interesting_files, $manifest);
 
         // how to invoke the restore?
@@ -721,6 +752,33 @@ class RestoreFromBackup extends Command
         return config("filesystems.disks.$disk.driver") !== 'local';
     }
 
+    /** Prefer verified manifest entries over other entries for the same destination. */
+    private function deduplicateDestinations(array &$files, array $expectedSha): void
+    {
+        $winners = [];
+        foreach ($files as $name => $details) {
+            if (! $details['staged'] || ! isset($expectedSha[$details['index']])) {
+                continue;
+            }
+            $winners[$this->destinationKey($details)] = $name;
+        }
+        foreach ($files as $name => $details) {
+            $key = $this->destinationKey($details);
+            if (isset($winners[$key]) && $winners[$key] !== $name) {
+                unset($files[$name]);
+            }
+        }
+    }
+
+    private function destinationKey(array $details): string
+    {
+        $remote = $this->remoteTarget($details);
+        $path = $remote === null ? $details['dest'].'/'.$details['rel'] : $remote[1];
+        $parts = array_values(array_filter(explode('/', $path), fn ($part) => $part !== '' && $part !== '.'));
+
+        return ($remote === null ? 'local:' : 'disk:'.$remote[0].':').implode('/', $parts);
+    }
+
     /**
      * A backup taken while a role was on S3 still carries the local upload directory of that role (the
      * backup includes both). Those files are leftovers, for example copies kept after moving the uploads to
@@ -888,7 +946,7 @@ class RestoreFromBackup extends Command
 
     private function entrySha256(ZipArchive $za, int $index): ?string
     {
-        $stream = $za->getStream((string) $za->getNameIndex($index));
+        $stream = $za->getStreamIndex($index);
         if ($stream === false) {
             return null;
         }
@@ -943,7 +1001,7 @@ class RestoreFromBackup extends Command
             return;
         }
 
-        $source = $za->getStream($name);
+        $source = $za->getStreamIndex($details['index']);
         $target = $source === false ? false : @fopen($destination, 'w');
         if ($source === false || $target === false) {
             throw new RuntimeException('Could not open '.$destination.' for the restore');
@@ -973,7 +1031,7 @@ class RestoreFromBackup extends Command
                 $size = strlen($content);
                 $sha = hash('sha256', $content);
             } else {
-                $source = $za->getStream((string) $za->getNameIndex($index));
+                $source = $za->getStreamIndex($index);
                 if ($source === false) {
                     throw new RuntimeException('Could not read '.$key.' from the archive');
                 }

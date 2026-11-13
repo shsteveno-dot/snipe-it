@@ -379,9 +379,9 @@ def parse_junit(path, label):
             message = message.replace(value, '[redacted]')
         status = 'passed' if child is None else child.tag
         expectation, reason = round_a_expectation(name, label)
-        expected_status = 'failure' if ROUND == 'A' and expectation == 'red' else 'passed'
+        expected_status = 'failure' if label == 'fr9_mutation' or (ROUND == 'A' and expectation == 'red') else 'passed'
         matched = status == expected_status
-        if matched and ROUND == 'A' and expectation == 'red' and reason:
+        if matched and expectation == 'red' and (ROUND == 'A' or label == 'fr9_mutation') and reason:
             matched = reason.lower() in message.lower()
         data['tests'].append({'run': label, 'name': case.get('classname', '') + '::' + name,
                               'status': status, 'message': message[:500],
@@ -418,6 +418,10 @@ def main():
     data['commit'] = call(['git', '-C', str(ROOT), 'rev-parse', 'HEAD']).stdout.strip()
     if call(['git', '-C', str(ROOT), 'status', '--porcelain', '--untracked-files=no', '--', '.', ':(exclude)cloud-verify/review-fixes/results-*.json']).stdout.strip():
         raise RuntimeError('checkout must be clean before starting')
+    lock_check = call(['python3', '-I', 'docker/chiseled/repin_app_inputs.py', '--check'], cwd=ROOT, check=False)
+    data['probes']['chiseled_input_locks'] = {'passed': lock_check.returncode == 0, 'exit_code': lock_check.returncode}
+    if lock_check.returncode:
+        raise RuntimeError('Chiseled input lock check failed; see debug log')
     # Never remove another live invocation's labelled resources.
     CACHE_ROOT.mkdir(parents=True, exist_ok=True)
     global RUN_LOCK
@@ -453,6 +457,22 @@ def main():
     test = test_image(context, candidate, vendor, RUN + ':test')
     data['test_image_id'] = test
     php_identity(candidate, test)
+    if ROUND != 'A':
+        # Build the test executable with the same pinned Go toolchain as the
+        # candidate, then execute the assertion inside its Chiseled descendant.
+        go_output = TMP / 'go-test'
+        go_output.mkdir(mode=0o777)
+        go_output.chmod(0o777)
+        go_image = 'docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82'
+        docker('run', '--rm', '--label', LABEL, '--network', 'none',
+               '-v', str(context / 'docker/snipeit-runtime') + ':/src:ro',
+               '-v', str(go_output) + ':/out', '-w', '/src', '-e', 'CGO_ENABLED=0',
+               go_image, 'go', 'test', '-c', '-o', '/out/startup.test', './internal/startup')
+        go_test = docker('run', '--rm', '--label', LABEL, '--network', 'none',
+                         '-v', str(go_output / 'startup.test') + ':/probe/startup.test:ro',
+                         '--entrypoint', '/probe/startup.test', test,
+                         '-test.run=^TestForwardedHeaderConfig$', '-test.v', check=False)
+        probe_status('fr8_go_unit', go_test)
     net, vol = network(), volume('data')
     db = db_start(net)
     results = TMP / 'results'
@@ -549,7 +569,7 @@ def main():
                             extra=common + ['-v', str(HERE / 'apache-probe.php') + ':/probe/apache-probe.php:ro'])
         probe_status('fr8_' + mode, probe)
 
-    if ROUND == 'A':
+    if ROUND in ('A', 'B', 'final'):
         fr9_filter = 'web_restore_calls_the_safety_backup_with_remote_files_before_wiping'
         baseline_exit = phpunit(test, ['--filter', fr9_filter,
                                       'tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php'],
@@ -598,7 +618,7 @@ finally:
     for case in data['tests']:
         counts[case['status']] = counts.get(case['status'], 0) + 1
     data['counts'] = counts
-    if ROUND == 'A':
+    if ROUND in ('A', 'B', 'final'):
         mutations = [case for case in data['tests'] if case['run'] == 'fr9_mutation']
         data['probes']['fr9_mutation_red'] = {
             'passed': len(mutations) == 1 and mutations[0]['matches_expectation'],
@@ -608,7 +628,7 @@ finally:
             data['errors'].append('FR-9 mutation produced no test result')
         elif not data['probes']['fr9_mutation_red']['passed']:
             data['errors'].append('FR-9 mutation did not fail for the expected assertion')
-    elif counts.get('failure', 0) or counts.get('error', 0) or counts.get('skipped', 0):
+    if ROUND != 'A' and any(case['status'] != 'passed' for case in data['tests'] if case['run'] != 'fr9_mutation'):
         data['errors'].append('required tests failed or were skipped')
     if ROUND != 'A':
         for key, result in data['probes'].items():
