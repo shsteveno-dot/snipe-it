@@ -456,6 +456,13 @@ class LdapTest extends TestCase
         $this->assertFalse(Ldap::isDnDirectlyInOus($name_with_comma, ['Rosa,OU=G1,DC=gogoro,DC=com']));
     }
 
+    public function test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou(): void
+    {
+        $dn = 'CN=Alice'.str_repeat(chr(92), 2).',OU=Blocked,DC=example,DC=com';
+        $this->assertFalse(Ldap::isDnDirectlyInOus($dn, ['DC=example,DC=com']));
+        $this->assertTrue(Ldap::isDnDirectlyInOus($dn, ['OU=Blocked,DC=example,DC=com']));
+    }
+
     public function test_ou_tree_is_depth_first_with_the_base_dn_on_top()
     {
         $tree = Ldap::buildOuTree('OU=GogoroUsers,DC=gogoro,DC=com', [
