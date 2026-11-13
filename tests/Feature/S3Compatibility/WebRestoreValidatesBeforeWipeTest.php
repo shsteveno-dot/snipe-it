@@ -70,6 +70,26 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
     }
 
     #[Test]
+    public function web_restore_calls_the_safety_backup_with_remote_files_before_wiping(): void
+    {
+        $admin = User::factory()->superuser()->create();
+        $filename = $this->plantBackup(hash('sha256', 'AVATAR-BYTES'));
+        $artisan = \Illuminate\Support\Facades\Artisan::partialMock();
+        $artisan->shouldReceive('call')->once()->with('snipeit:backup', \Mockery::on(
+            fn (array $options) => ($options['--with-remote-files'] ?? null) === true
+                && ($options['--force'] ?? null) === true
+                && isset($options['--filename'])
+        ))->andReturn(1);
+        $artisan->shouldReceive('call')->never()->with('db:wipe', \Mockery::any());
+
+        $this->actingAs($admin)
+            ->post(route('settings.backups.restore', $filename))
+            ->assertRedirect(route('settings.backups.index'))
+            ->assertSessionHas('error');
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
+
+    #[Test]
     public function an_archive_whose_manifest_does_not_match_is_refused_before_the_database_is_touched(): void
     {
         $admin = User::factory()->superuser()->create();
