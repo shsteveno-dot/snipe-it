@@ -456,12 +456,18 @@ class LdapTest extends TestCase
         $this->assertFalse(Ldap::isDnDirectlyInOus($name_with_comma, ['Rosa,OU=G1,DC=gogoro,DC=com']));
     }
 
-    public function test_ou_search_rejects_a_partial_size_limited_result(): void
+    public static function partialLdapResultCodes(): array
+    {
+        return ['time limit' => [3], 'size limit' => [4]];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('partialLdapResultCodes')]
+    public function test_ou_search_rejects_a_partial_limited_result(int $resultCode): void
     {
         $this->getFunctionMock('App\\Models', 'ldap_search')->expects($this->once())->willReturn('result');
         $this->getFunctionMock('App\\Models', 'ldap_parse_result')->expects($this->once())->willReturnCallback(
-            function ($connection, $result, &$code, &$matched, &$message, &$referrals, &$controls) {
-                $code = 4;
+            function ($connection, $result, &$code, &$matched, &$message, &$referrals, &$controls) use ($resultCode) {
+                $code = $resultCode;
                 $message = 'Size limit exceeded';
                 $controls = [];
 
