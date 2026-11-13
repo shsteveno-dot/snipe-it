@@ -8,6 +8,20 @@
 
 ## 這次的重點
 
+第 13 輪：**review-fixes 第 B 輪（修正程式碼，預期全部 GREEN）**。第 12 輪結果在 `9a3f271`（第 A 輪通過）。`review-fixes` 新增九個問題的修正（每個問題一到兩個 commit，見 `git log 87fe5250a6..review-fixes`），沒有改 `docker/startup.sh`、`docker/000-default.conf`、`docker/001-default-ssl.conf` 和一般的 `Dockerfile`。工具（`13adf454b7`、`b423b10178`）新增：記錄 `repin_app_inputs.py --check` 的結果、round B 的 FR-9 突變仍要失敗、在 candidate 衍生的 image 裡跑 Go startup 的回歸測試。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。
+2. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`，不要修改工具或程式碼。
+3. 確認：runner exit 0、`errors` 是空的；所有新測試（原本預期 RED 的和對照組）、既有的 `LdapTest`、`S3Compatibility`、`LdapWizardTest` 全部通過，0 失敗、0 略過；FR-2 三個探測都**看不到** marker；FR-8 valid 時 `REMOTE_USER` 正確、empty 和 unset 沒有對應、invalid 名稱的容器啟動失敗；FR-9 原版通過、突變版失敗；`candidate_proxy_ca_absent` 通過；input lock 檢查的結果（如果說 lock 過期，列出差異，不要自己重新產生）。
+4. 有任何失敗：寫出失敗訊息、你判斷是修正程式碼的問題還是測試/工具的問題、建議的改法（可附 diff，不要 commit）。
+5. 另外跑一次 `tests/Feature/S3Compatibility` 和 `tests/Unit/LdapTest.php` 以外的相關既有測試，確認修正沒有影響別的地方：在同一個測試 image 裡跑 `tests/Feature/Settings`、`tests/Feature/Importing`（如果存在）和 `tests/Unit` 全部，記錄失敗和略過（`ExternalUrl`／DNS 相關的已知失敗照「已知狀況」判斷）。
+6. 清理（包含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
+
+回報：commit `results-B.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。全部符合時報告開頭寫「第 B 輪通過」。
+
+---
+
 第 12 輪：**再跑一次 review-fixes 第 A 輪**（短的確認，還是只有測試，預期 RED）。第 11 輪結果在 `f53164c595`。第 11 輪的修改建議已改進 `review-fixes`：
 - `6eaa6280ab`（測試）：T1 `LdapWizardTest` 在 `setUpBeforeClass()` 用 `defineFunctionMock()` 預先定義函式；T2 問題 3 remote stale last 不再是對照組。
 - `87fe5250a6`（工具）：W1 local 和 remote 的 stale-last 都算 RED；W2 乾淨檢查排除 `results-*.json`；W3 debug log 移到快取目錄；W4 只遮蔽秘密值，不換掉整行指令。
