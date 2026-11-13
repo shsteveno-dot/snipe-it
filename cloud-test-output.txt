@@ -1,18 +1,17 @@
-# 第 13 輪 cloud-test-output（review-fixes 第 B 輪）
-commit: bfa60db91d99f91547e57489e765259b38509c54
+# 第 14 輪 cloud-test-output（review-fixes 第 B 輪最終確認）
+commit: cd8b1a6197d2c138cf64879b468ae5432a90fd29
 
 ## runner stdout/stderr + exit
-EXIT=1
-Fri Nov 13 08:37:33 UTC 2026
+EXIT=0
+Fri Nov 13 09:23:20 UTC 2026
 
-## results-B.json errors
-[
- "s3_selected: unexpected result in validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
- "s3_suite: unexpected result in validate_only_rejects_a_corrupted_database_dump",
- "s3_suite: unexpected result in validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
- "required tests failed or were skipped"
-]
-counts {'passed': 219, 'failure': 4}
+## results-B.json 摘要
+errors []
+counts {'passed': 222, 'failure': 1}
+candidate_image_id sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7
+test_image_id sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd
+php_comparison {"version": {"equal": true}, "modules": {"equal": true}, "sha256": {"equal": true, "sha256": "7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7"}}
+skipped_summary {"ldap_selected": "", "ldap_suite": "", "s3_selected": "", "s3_suite": "", "wizard_selected": "", "wizard_suite": "", "fr9_original": "", "fr9_mutation": ""}
 {
  "chiseled_input_locks": {
   "passed": true,
@@ -32,8 +31,8 @@ counts {'passed': 219, 'failure': 4}
  },
  "ldap_selected_exit": 0,
  "ldap_suite_exit": 0,
- "s3_selected_exit": 1,
- "s3_suite_exit": 1,
+ "s3_selected_exit": 0,
+ "s3_suite_exit": 0,
  "wizard_selected_exit": 0,
  "wizard_suite_exit": 0,
  "fr2_chiseled": {
@@ -86,497 +85,642 @@ counts {'passed': 219, 'failure': 4}
   "tests_found": 1
  }
 }
+NON-PASS {"run": "fr9_mutation", "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping", "status": "failure", "message": "Finding 9: safety backup omitted remote files.", "round_a_expectation": "red", "expected_status": "failure", "matches_expectation": true}
 
-## phpunit 摘要（runner debug log，已由 runner 遮蔽）
+## phpunit 摘要（runner-debug-B.log）
 OK (7 tests, 29 assertions)
 OK (35 tests, 175 assertions)
-FAILURES!
-Tests: 16, Assertions: 68, Failures: 1.
-FAILURES!
-Tests: 103, Assertions: 403, Failures: 2.
+OK (16 tests, 69 assertions)
+OK (103 tests, 405 assertions)
 OK (3 tests, 30 assertions)
 OK (57 tests, 185 assertions)
 OK (1 test, 9 assertions)
 FAILURES!
 Tests: 1, Assertions: 6, Failures: 1.
 
-## S3 失敗訊息（s3_selected、s3_suite）
-There was 1 failure:
+## 指令與 exit code（runner-debug-B.log，前 200 字元）
+### exit=0 git -C /home/user/snipe-it rev-parse HEAD
+### exit=0 git -C /home/user/snipe-it status --porcelain --untracked-files=no -- . :(exclude)cloud-verify/review-fixes/results-*.json
+### exit=0 python3 -I docker/chiseled/repin_app_inputs.py --check
+### exit=0 docker ps -aq --filter label=review-fixes.run
+### exit=0 docker volume ls -q --filter label=review-fixes.run
+### exit=0 docker network ls -q --filter label=review-fixes.run
+### exit=0 docker image ls --filter label=review-fixes.run --format {{.Repository}}:{{.Tag}} {{.ID}}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/pear/pearweb_phars.git /root/.cache/review-fixes/mirrors/pearweb_phars.git
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/pearweb_phars.git cat-file -e 72aa5f771f^{commit}
+### exit=1 docker image inspect composer:2.10.3
+### exit=0 docker pull --platform linux/amd64 composer:2.10.3
+### exit=0 docker image inspect --format {{index .RepoDigests 0}} composer:2.10.3
+### exit=0 docker image inspect composer@sha256:2cf275428757e5435a667bfc0d038b14520ca02be2b1b70d44a05c8c19e2de48
+### exit=1 docker image inspect composer:latest
+### exit=0 docker pull --platform linux/amd64 composer:latest
+### exit=0 docker image inspect --format {{index .RepoDigests 0}} composer:latest
+### exit=0 docker image inspect composer@sha256:ca11f643d7791ebdd90a34fc20caf11380d434007ae539a9ea75cd9212e13dca
+### exit=1 docker image inspect docker.io/library/composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac
+### exit=0 docker pull --platform linux/amd64 docker.io/library/composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac
+### exit=1 docker image inspect docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82
+### exit=0 docker pull --platform linux/amd64 docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82
+### exit=1 docker image inspect docker.io/library/ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+### exit=0 docker pull --platform linux/amd64 docker.io/library/ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+### exit=1 docker image inspect docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+### exit=0 docker pull --platform linux/amd64 docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+### exit=1 docker image inspect mysql:8.4
+### exit=0 docker pull --platform linux/amd64 mysql:8.4
+### exit=0 docker image inspect --format {{index .RepoDigests 0}} mysql:8.4
+### exit=0 docker image inspect mysql@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902
+### exit=1 docker image inspect ubuntu:24.04
+### exit=0 docker pull --platform linux/amd64 ubuntu:24.04
+### exit=0 docker image inspect --format {{index .RepoDigests 0}} ubuntu:24.04
+### exit=0 docker image inspect ubuntu@sha256:2198e4c65076e9cb0b3d695219df667c0e3b0072da64ca3c2648aca17dcecaf5
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-slack/slack.git /root/.cache/review-fixes/mirrors/git-460dfbda32f55053def60e27ff4a66989b2bb4bb673d191027503455888383d4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-460dfbda32f55053def60e27ff4a66989b2bb4bb673d191027503455888383d4 cat-file -e 9b50bae7a8149a3afb96cb11674972e3adcdf103^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/grokability/laravel-scim-server.git /root/.cache/review-fixes/mirrors/git-4ace2278d6c1f1ea206887dfbecc5b5b80de472901647e415df6064f90
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4ace2278d6c1f1ea206887dfbecc5b5b80de472901647e415df6064f90613ee1 cat-file -e 00504681bfd2a3041c277348925e6ce2d9ed7d62^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/awslabs/aws-crt-php.git /root/.cache/review-fixes/mirrors/git-ed4d842d437cd59e1368b2bfb9e96fee38b6206b7102dbf86545f34f1bedada7
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ed4d842d437cd59e1368b2bfb9e96fee38b6206b7102dbf86545f34f1bedada7 cat-file -e d71d9906c7bb63a28295447ba12e74723bd3730e^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/aws/aws-sdk-php.git /root/.cache/review-fixes/mirrors/git-ef56b9cfc8215cd8d3b37bc155462e5b87d4f5f12f85d1e5a1976077a1b1f482
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ef56b9cfc8215cd8d3b37bc155462e5b87d4f5f12f85d1e5a1976077a1b1f482 cat-file -e ffa8a93faafea878155853ae2caf61871363869d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/Bacon/BaconQrCode.git /root/.cache/review-fixes/mirrors/git-6f49ae13d840e53debac3f9474e2b12c4eb1254bee5134e837635f97a4e222b0
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6f49ae13d840e53debac3f9474e2b12c4eb1254bee5134e837635f97a4e222b0 cat-file -e 8674e51bb65af933a5ffaf1c308a660387c35c22^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/brick/math.git /root/.cache/review-fixes/mirrors/git-ffb66b2ded06a3b530fad3a09d5ee98c294878c0f04e510cc86593f38e83767d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ffb66b2ded06a3b530fad3a09d5ee98c294878c0f04e510cc86593f38e83767d cat-file -e 63422359a44b7f06cae63c3b429b59e8efcc0629^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/CarbonPHP/carbon-doctrine-types.git /root/.cache/review-fixes/mirrors/git-bb97cc325f49d0c1c6ea1bc95b1ac7a7b19e2dffb0d09661abb8f94e41
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-bb97cc325f49d0c1c6ea1bc95b1ac7a7b19e2dffb0d09661abb8f94e41144c6f cat-file -e 99f76ffa36cce3b70a4a6abce41dba15ca2e84cb^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/DASPRiD/Enum.git /root/.cache/review-fixes/mirrors/git-00fa56978b68ced77988774817d0f364c8bf1d22d69a32d47d9c81fc1b228e37
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-00fa56978b68ced77988774817d0f364c8bf1d22d69a32d47d9c81fc1b228e37 cat-file -e b5874fa9ed0043116c72162ec7f4fb50e02e7cce^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/defuse/php-encryption.git /root/.cache/review-fixes/mirrors/git-955873bba6579ed7d0d22010fbcb6fe4095ec147e8ee452eb8e06eeb1a45de07
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-955873bba6579ed7d0d22010fbcb6fe4095ec147e8ee452eb8e06eeb1a45de07 cat-file -e f53396c2d34225064647a05ca76c1da9d99e5828^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/dflydev/dflydev-dot-access-data.git /root/.cache/review-fixes/mirrors/git-e0e20ac588d7d595054f470211907b1f4f6efa9bfcb39e92321ae66319
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e0e20ac588d7d595054f470211907b1f4f6efa9bfcb39e92321ae66319d1a139 cat-file -e a23a2bf4f31d3518f3ecb38660c95715dfead60f^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/doctrine/cache.git /root/.cache/review-fixes/mirrors/git-37beac7f0911f1cba55c64c0081c869b821c9995b6d1a494a782ce30e1145932
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-37beac7f0911f1cba55c64c0081c869b821c9995b6d1a494a782ce30e1145932 cat-file -e 56cd022adb5514472cb144c087393c1821911d09^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/doctrine/dbal.git /root/.cache/review-fixes/mirrors/git-a4fa72410e6a560ef59d2c62163cd6015fd2cbcc30c403b41d32eaebb92493f4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a4fa72410e6a560ef59d2c62163cd6015fd2cbcc30c403b41d32eaebb92493f4 cat-file -e 95d84866bf3c04b2ddca1df7c049714660959aef^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/doctrine/deprecations.git /root/.cache/review-fixes/mirrors/git-a76f44cd358e1a8cd613b9e02d552db57a4486ccbc38c7237a747ce44c4f769f
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a76f44cd358e1a8cd613b9e02d552db57a4486ccbc38c7237a747ce44c4f769f cat-file -e d4fe3e6fd9bb9e72557a19674f44d8ac7db4c6ca^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/doctrine/event-manager.git /root/.cache/review-fixes/mirrors/git-76b52745fa8dafd98ce65337e7ca628883cb8cffbeb0de23b5068540a2fe2935
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-76b52745fa8dafd98ce65337e7ca628883cb8cffbeb0de23b5068540a2fe2935 cat-file -e dda33921b198841ca8dbad2eaa5d4d34769d18cf^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/doctrine/inflector.git /root/.cache/review-fixes/mirrors/git-36e98e62b87cdb935965f7f158391c880523e9bb9d119970f4eae954bae9bdbf
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-36e98e62b87cdb935965f7f158391c880523e9bb9d119970f4eae954bae9bdbf cat-file -e 6d6c96277ea252fc1304627204c3d5e6e15faa3b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/doctrine/instantiator.git /root/.cache/review-fixes/mirrors/git-921356ef6bb56aceec4bc8fdf586646f971613b6e157267c9c591447f350c0c5
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-921356ef6bb56aceec4bc8fdf586646f971613b6e157267c9c591447f350c0c5 cat-file -e 0a0fa9780f5d4e507415a065172d26a98d02047b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/doctrine/lexer.git /root/.cache/review-fixes/mirrors/git-cad78324437b9b3cfcffd23823d2f829c7df0f3ba03bd90f7d534d56cd596012
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-cad78324437b9b3cfcffd23823d2f829c7df0f3ba03bd90f7d534d56cd596012 cat-file -e 31ad66abc0fc9e1a1f2d9bc6a42668d2fbbcd6dd^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/dragonmantank/cron-expression.git /root/.cache/review-fixes/mirrors/git-71e904e94e74838568603e8441af90a476fb01ee8980bfb5158a7d9b8da4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-71e904e94e74838568603e8441af90a476fb01ee8980bfb5158a7d9b8da46ca2 cat-file -e d61a8a9604ec1f8c3d150d09db6ce98b32675013^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/eduardokum/laravel-mail-auto-embed.git /root/.cache/review-fixes/mirrors/git-fd02a0b661bb9f50c13b46712fa170842af768762003d9438c17486
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-fd02a0b661bb9f50c13b46712fa170842af768762003d9438c17486b7668e61c cat-file -e eab2c5ef2f0ab7c4f1f8c1eb9666ed813e7c5368^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/egulias/EmailValidator.git /root/.cache/review-fixes/mirrors/git-2e1289a687c360819d0bce9664c5fa07559e8bc58215bb147c1771c9c6605373
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-2e1289a687c360819d0bce9664c5fa07559e8bc58215bb147c1771c9c6605373 cat-file -e d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/darylldoyle/svg-sanitizer.git /root/.cache/review-fixes/mirrors/git-c8b0dcb0f572ee844fa09e232ab024125bb823f80dbd63982844214e8cfcf193
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c8b0dcb0f572ee844fa09e232ab024125bb823f80dbd63982844214e8cfcf193 cat-file -e f3300fcd1bbf67d205b52217c75d0f7d6a8c47ff^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/erusev/parsedown.git /root/.cache/review-fixes/mirrors/git-c3c2efa40a6760d06046f7c3b8f45b4983cafbfa70b2e2dba1d3948c8fb49fd1
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c3c2efa40a6760d06046f7c3b8f45b4983cafbfa70b2e2dba1d3948c8fb49fd1 cat-file -e 96baaad00f71ba04d76e45b4620f54d3beabd6f7^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/FakerPHP/Faker.git /root/.cache/review-fixes/mirrors/git-3d6d9dff622a38b9eba71d99f67bb119f1dc279062defe10c0472f5eea7da449
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-3d6d9dff622a38b9eba71d99f67bb119f1dc279062defe10c0472f5eea7da449 cat-file -e e0ee18eb1e6dc3cda3ce9fd97e5a0689a88a64b5^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/filp/whoops.git /root/.cache/review-fixes/mirrors/git-f2a0b60f29dd61b5a30232583c1c08136f917b9ce77615eeba590ab6bffe0f7c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f2a0b60f29dd61b5a30232583c1c08136f917b9ce77615eeba590ab6bffe0f7c cat-file -e d2102955e48b9fd9ab24280a7ad12ed552752c4d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/googleapis/php-jwt.git /root/.cache/review-fixes/mirrors/git-3da981f5e196c8a192b8c3d53560ad5c8b485ea240a09882d023828859df3f09
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-3da981f5e196c8a192b8c3d53560ad5c8b485ea240a09882d023828859df3f09 cat-file -e 47ad26bab5e7c70ae8a6f08ed25ff83631121380^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/fruitcake/php-cors.git /root/.cache/review-fixes/mirrors/git-91317c733b02f8326b8d6785ff8f6806b25f0771036054860ccff9fc26db8160
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-91317c733b02f8326b8d6785ff8f6806b25f0771036054860ccff9fc26db8160 cat-file -e 38aaa6c3fd4c157ffe2a4d10aa8b9b16ba8de379^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/GrahamCampbell/Result-Type.git /root/.cache/review-fixes/mirrors/git-c92cba213820a212f2221bbd3392fc6902a518f8287ef523a52804b81142012
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c92cba213820a212f2221bbd3392fc6902a518f8287ef523a52804b81142012d cat-file -e adccca3324eece92ca35463648c12b9e6293c05b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/guzzle/guzzle.git /root/.cache/review-fixes/mirrors/git-9591797aa79be81be25b78201975cd4687066ba61677ff2fd7086907be8eb11e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-9591797aa79be81be25b78201975cd4687066ba61677ff2fd7086907be8eb11e cat-file -e ee80339fd9177ba44c49cdb653ff02a4d1106b9a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/guzzle/promises.git /root/.cache/review-fixes/mirrors/git-7ae5f51350696058e89020ef2819a7e4db8a62dff9b46885ea5db2e1be41afa5
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-7ae5f51350696058e89020ef2819a7e4db8a62dff9b46885ea5db2e1be41afa5 cat-file -e cde49999552d185d64715fe9c1f77a2aadd2f9f1^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/guzzle/psr7.git /root/.cache/review-fixes/mirrors/git-f8d31b17069fea0e2f8b91d7adc26e3128d5b9f281e98c3333dbfef2a289f883
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f8d31b17069fea0e2f8b91d7adc26e3128d5b9f281e98c3333dbfef2a289f883 cat-file -e 95e7828100de18b4e269fb1703be530082d5166d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/guzzle/uri-template.git /root/.cache/review-fixes/mirrors/git-be267af3dcae87af21280fbc6ce7ca3cd45ca0a41327c653704bf064e7ff7833
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-be267af3dcae87af21280fbc6ce7ca3cd45ca0a41327c653704bf064e7ff7833 cat-file -e d0058dccf4299d70c3d9da3378b8908b32780368^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/InnoGE/laravel-msgraph-mail.git /root/.cache/review-fixes/mirrors/git-803a005bb4b47fa5cee6f6497a522246bfb8826efe743b393ff65d5384fc57
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-803a005bb4b47fa5cee6f6497a522246bfb8826efe743b393ff65d5384fc5714 cat-file -e 0d1ab4d7752ca3e86fcd5af76a66f45c9e37c1ca^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/Intervention/image.git /root/.cache/review-fixes/mirrors/git-9091027d6a6fd1011c51dde3c243e1a8460cf8c8f4cd2dc597afe6b81d21bd1e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-9091027d6a6fd1011c51dde3c243e1a8460cf8c8f4cd2dc597afe6b81d21bd1e cat-file -e 04be355f8d6734c826045d02a1079ad658322dad^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/javiereguiluz/EasySlugger.git /root/.cache/review-fixes/mirrors/git-6d28ab5121a0df2ea8e2a6e1a79dba30b05784bc2c2fbc167218a307743106b5
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6d28ab5121a0df2ea8e2a6e1a79dba30b05784bc2c2fbc167218a307743106b5 cat-file -e 11524a3fd70e3f0c98043755a0ffa228f2529211^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel-notification-channels/google-chat.git /root/.cache/review-fixes/mirrors/git-6b266f9a15f85e87370bc546c03748f1a4cadea01bcc8790
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6b266f9a15f85e87370bc546c03748f1a4cadea01bcc8790981f042b17b43ea6 cat-file -e 425714f90750a10c400bee72ecc406c6c7f05056^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel-notification-channels/microsoft-teams.git /root/.cache/review-fixes/mirrors/git-2d6ee805248473be9da210b33662b50ee6e17fa49afb
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-2d6ee805248473be9da210b33662b50ee6e17fa49afbb76e616ec6b07c877ff4 cat-file -e e19c029525b54728fe978afa6bead6c8f33a842f^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/framework.git /root/.cache/review-fixes/mirrors/git-40fdeba5e98b9298d834d38b1a879aa669287aa859336ff3606482115aaf1829
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-40fdeba5e98b9298d834d38b1a879aa669287aa859336ff3606482115aaf1829 cat-file -e e09fc54263d1a56cfe1709958fcbb22a4159b1e3^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/helpers.git /root/.cache/review-fixes/mirrors/git-5d0b1ff25127ba612455da4eff9ebaf898684084d9221d8451a6860b75f3ab04
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-5d0b1ff25127ba612455da4eff9ebaf898684084d9221d8451a6860b75f3ab04 cat-file -e 5915be977c7cc05fe2498d561b8c026ee56567dd^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/passport.git /root/.cache/review-fixes/mirrors/git-b9d077429b2e802185ecc4ebbbb45021a6495e01a42e670ae721d5868dc4eaf2
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b9d077429b2e802185ecc4ebbbb45021a6495e01a42e670ae721d5868dc4eaf2 cat-file -e 1d2e0170a52f150d5c35c9a6fc1f7ccebcde7626^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/prompts.git /root/.cache/review-fixes/mirrors/git-b02ae2e12e229bbdf9ffa259f32652c18fc07c28b46248bcac2ea520ef026856
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b02ae2e12e229bbdf9ffa259f32652c18fc07c28b46248bcac2ea520ef026856 cat-file -e 5d3cdef29e93ca3b62b1871359db3078cd99908b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/serializable-closure.git /root/.cache/review-fixes/mirrors/git-487aeddd46b3f3622fc585607c2b1d9df34bc3c49f08dc03311fa141b041b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-487aeddd46b3f3622fc585607c2b1d9df34bc3c49f08dc03311fa141b041bbb4 cat-file -e 7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/slack-notification-channel.git /root/.cache/review-fixes/mirrors/git-fdb3aa16554fc69ccab29ce33e3e5ec7210ba2bc25ab1634fd4af02
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-fdb3aa16554fc69ccab29ce33e3e5ec7210ba2bc25ab1634fd4af02f8e3c026d cat-file -e 3c27f6e851570274255809f4d3939ff5c2ace82b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/socialite.git /root/.cache/review-fixes/mirrors/git-f5fc3f1bc1e89c83db663babed8223d97c8220ed1bac608699878c39f4a73b41
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f5fc3f1bc1e89c83db663babed8223d97c8220ed1bac608699878c39f4a73b41 cat-file -e 40e0757a75637c7b2dff05d3286b0d8fc25e5c0e^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/tinker.git /root/.cache/review-fixes/mirrors/git-55aaf033cbd717b827580eb77168c63e8c5bbb5e29de6b19bd1a5dae459f5f7e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-55aaf033cbd717b827580eb77168c63e8c5bbb5e29de6b19bd1a5dae459f5f7e cat-file -e c9f80cc835649b5c1842898fb043f8cc098dd741^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/ui.git /root/.cache/review-fixes/mirrors/git-ad8a2e1d6cffdb9ea011229f022b61d2aa25e2fe902250df3c75fad04bcf9de9
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ad8a2e1d6cffdb9ea011229f022b61d2aa25e2fe902250df3c75fad04bcf9de9 cat-file -e ff27db15416c1ed8ad9848f5692e47595dd5de27^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/lcobucci/jwt.git /root/.cache/review-fixes/mirrors/git-4c0110c72514794790308527fa787f0a91731670866331253f577f6eae584c8c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4c0110c72514794790308527fa787f0a91731670866331253f577f6eae584c8c cat-file -e bb3e9f21e4196e8afc41def81ef649c164bca25e^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/commonmark.git /root/.cache/review-fixes/mirrors/git-d3d647b3b3d0d3ec0302bee6e15db5d76f14af497de696bb901b6e7b10cd4abe
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d3d647b3b3d0d3ec0302bee6e15db5d76f14af497de696bb901b6e7b10cd4abe cat-file -e 6efbd9c472b91db0a3350fcd601c8332c2382e1f^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/config.git /root/.cache/review-fixes/mirrors/git-67ea8dc710b1ee20af0380a0e5aa374e80aea9ab2748788ef3ecf0c07335f9fc
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-67ea8dc710b1ee20af0380a0e5aa374e80aea9ab2748788ef3ecf0c07335f9fc cat-file -e 754b3604fb2984c71f4af4a9cbe7b57f346ec1f3^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/csv.git /root/.cache/review-fixes/mirrors/git-7bd283ae607d37e183fb1cb53453a2d6a0d8be39d8a9114f398ee79aa1d1cea9
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-7bd283ae607d37e183fb1cb53453a2d6a0d8be39d8a9114f398ee79aa1d1cea9 cat-file -e 6582ace29ae09ba5b07049d40ea13eb19c8b5073^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/event.git /root/.cache/review-fixes/mirrors/git-73e5fe1820c309fae6c7653a488400523eb306017211fc2a7fb8e327676de1b9
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-73e5fe1820c309fae6c7653a488400523eb306017211fc2a7fb8e327676de1b9 cat-file -e 062ebb450efbe9a09bc2478e89b7c933875b0935^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/flysystem.git /root/.cache/review-fixes/mirrors/git-787ab2dfa5785d631d2d8ad761b8ff2af645d5e7d44cb73834cf9ecb93ae51d4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-787ab2dfa5785d631d2d8ad761b8ff2af645d5e7d44cb73834cf9ecb93ae51d4 cat-file -e 5fc8404762179ae514678487b23494fd69b2309c^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/flysystem-aws-s3-v3.git /root/.cache/review-fixes/mirrors/git-66be852000fa2c6b27e9e65e61906ec5743fb4f0e491447b46602ea7b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-66be852000fa2c6b27e9e65e61906ec5743fb4f0e491447b46602ea7b6f6dfc8 cat-file -e 0c62fdac907791d8649ad3c61cb7a77628344fb8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/flysystem-local.git /root/.cache/review-fixes/mirrors/git-5139a549aea0fb9ef70e260a95edd1550a2a79b46ea1c2f913b2b78b57653
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-5139a549aea0fb9ef70e260a95edd1550a2a79b46ea1c2f913b2b78b57653387 cat-file -e a099b24dce160f3b2239043d13d47c4a1a214ea4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/mime-type-detection.git /root/.cache/review-fixes/mirrors/git-58d9aa41b75703da60083d0f02d950402509663462ef3dd041417a297
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-58d9aa41b75703da60083d0f02d950402509663462ef3dd041417a297e3a4039 cat-file -e f5f47eff7c48ed1003069a2ca67f316fb4021c76^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/oauth1-client.git /root/.cache/review-fixes/mirrors/git-f8d95782d7a3040df846f383b6c83c95ba5bbfa51970ba39d44a4564a750394
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f8d95782d7a3040df846f383b6c83c95ba5bbfa51970ba39d44a4564a7503941 cat-file -e f9c94b088837eb1aae1ad7c4f23eb65cc6993055^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/oauth2-server.git /root/.cache/review-fixes/mirrors/git-a8337f88747724f8c34fd0e119b926e2971b2f0dc7812f5dc80e79bb15542ba
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a8337f88747724f8c34fd0e119b926e2971b2f0dc7812f5dc80e79bb15542bac cat-file -e cc8778350f905667e796b3c2364a9d3bd7a73518^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/uri.git /root/.cache/review-fixes/mirrors/git-d0b5d13994e9f5a20da2d67cdfc665cc81b3438b05da3384384e08fde0a7ff11
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d0b5d13994e9f5a20da2d67cdfc665cc81b3438b05da3384384e08fde0a7ff11 cat-file -e 08cf38e3924d4f56238125547b5720496fac8fd4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/uri-interfaces.git /root/.cache/review-fixes/mirrors/git-55c8c24ace503af4f748a863374e92bd49068b2d15925c24f69d3d70f095e9
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-55c8c24ace503af4f748a863374e92bd49068b2d15925c24f69d3d70f095e9bb cat-file -e 85d5c77c5d6d3af6c54db4a78246364908f3c928^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/livewire/livewire.git /root/.cache/review-fixes/mirrors/git-583dce53aced497dbc658cc6c9285fbffced0663d55bee9f0412b2ae0d358c30
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-583dce53aced497dbc658cc6c9285fbffced0663d55bee9f0412b2ae0d358c30 cat-file -e 5976d18b1c808287017a17337d9e68dc1ca64ca2^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/Masterminds/html5-php.git /root/.cache/review-fixes/mirrors/git-1c40f188654e11d1330755dda9b0f61c2224052361bb5d9404826760b8f27054
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-1c40f188654e11d1330755dda9b0f61c2224052361bb5d9404826760b8f27054 cat-file -e fcf91eb64359852f00d921887b219479b4f21251^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/Seldaek/monolog.git /root/.cache/review-fixes/mirrors/git-ba34522c87910ff2421b20c92336182e5b669d57e3659fd40d4e791ddd1833ca
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ba34522c87910ff2421b20c92336182e5b669d57e3659fd40d4e791ddd1833ca cat-file -e b321dd6749f0bf7189444158a3ce785cc16d69b0^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/jmespath/jmespath.php.git /root/.cache/review-fixes/mirrors/git-ad6318eb75aa6013f5cd6273048444d80c8d584cb9772ddcd62c52ece6a123a0
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ad6318eb75aa6013f5cd6273048444d80c8d584cb9772ddcd62c52ece6a123a0 cat-file -e 2157c5e50e813ec6a96c1eed3be7f64a20fb32a8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/neitanod/forceutf8.git /root/.cache/review-fixes/mirrors/git-2793099ea5e8f6c2b408883a5fcb29bd994337ba17caa096a4d5ffe0c03ac510
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-2793099ea5e8f6c2b408883a5fcb29bd994337ba17caa096a4d5ffe0c03ac510 cat-file -e c1fbe70bfb5ad41b8ec5785056b0e308b40d4831^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/CarbonPHP/carbon.git /root/.cache/review-fixes/mirrors/git-ada4d7f870590b95aff0f9ac2f0cb7b54bc28c4c7f2fa0f20eace3a242f49e60
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ada4d7f870590b95aff0f9ac2f0cb7b54bc28c4c7f2fa0f20eace3a242f49e60 cat-file -e a1c54919f5fff9800cd03c32bd01defd5a4061cb^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/nette/schema.git /root/.cache/review-fixes/mirrors/git-070ec76fa446f31b270084eba01eabdefecfe9e5b2a076e1018e1236efa87447
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-070ec76fa446f31b270084eba01eabdefecfe9e5b2a076e1018e1236efa87447 cat-file -e c54350438cd6914616f790a49cb424605f421562^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/nette/utils.git /root/.cache/review-fixes/mirrors/git-b17d9aad4bad1ffdfaa79620b3376ac4f01fe9049757d9f14687f5781b640664
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b17d9aad4bad1ffdfaa79620b3376ac4f01fe9049757d9f14687f5781b640664 cat-file -e b043439dbdf954e6c28b5ea7e34b0100f83165e0^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/nikic/PHP-Parser.git /root/.cache/review-fixes/mirrors/git-b8cc46ccd53b700b456589d5d0b9c07de1930ddac37c21505810d10567c89d56
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b8cc46ccd53b700b456589d5d0b9c07de1930ddac37c21505810d10567c89d56 cat-file -e dca41cd15c2ac9d055ad70dbfd011130757d1f82^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/nunomaduro/collision.git /root/.cache/review-fixes/mirrors/git-a2d598ad54b9270a111e050498923e17ebdc91fc5a0de672634bdc977a49abeb
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a2d598ad54b9270a111e050498923e17ebdc91fc5a0de672634bdc977a49abeb cat-file -e 716af8f95a470e9094cfca09ed897b023be191a5^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/nunomaduro/termwind.git /root/.cache/review-fixes/mirrors/git-07179fbe8f5895082d1c28b08efef0715bb9f56e16422408875df9a701f9c273
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-07179fbe8f5895082d1c28b08efef0715bb9f56e16422408875df9a701f9c273 cat-file -e 712a31b768f5daea284c2169a7d227031001b9a8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/Nyholm/psr7.git /root/.cache/review-fixes/mirrors/git-299f7cb99ded7331616af1bea15743a6ee0a1fc0e6fa983e01a4e936940e0ec1
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-299f7cb99ded7331616af1bea15743a6ee0a1fc0e6fa983e01a4e936940e0ec1 cat-file -e a71f2b11690f4b24d099d6b16690a90ae14fc6f3^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/okvpn/clock-lts.git /root/.cache/review-fixes/mirrors/git-7c028a70fb58f8c814c715b741c51139a11fc3edae514a1e205445d1cca38e9d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-7c028a70fb58f8c814c715b741c51139a11fc3edae514a1e205445d1cca38e9d cat-file -e 5e7dc00d23a7d65e8ed2b0ff7a4dcf7860c05a14^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/SAML-Toolkits/php-saml.git /root/.cache/review-fixes/mirrors/git-6315f1855939e0de3d166afac315d87235d7373fa6db943a15cc7443913267d8
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6315f1855939e0de3d166afac315d87235d7373fa6db943a15cc7443913267d8 cat-file -e 8732729ea91d1764a8d39062647845bba4bb3c29^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/onnov/detect-encoding.git /root/.cache/review-fixes/mirrors/git-26df5ea2d5a7f63a59f91bfc357a6e7481ada16c56f83e79119c94c9fbb12625
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-26df5ea2d5a7f63a59f91bfc357a6e7481ada16c56f83e79119c94c9fbb12625 cat-file -e 6a8159ac3e6178ae043244b9d66a9b2701121e07^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/osa-eg/laravel-teams-notification.git /root/.cache/review-fixes/mirrors/git-cd4cba72976ec2f4eba6815b333e29a6dc8ff37299f1b52bb68a11e0
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-cd4cba72976ec2f4eba6815b333e29a6dc8ff37299f1b52bb68a11e03ca4311a cat-file -e 1b36cdfe422881b810f31eba4acf61f72080124e^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/paragonie/constant_time_encoding.git /root/.cache/review-fixes/mirrors/git-e5528185313751424144185bae4422d75c03cc8da3db7540c184ddd73
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e5528185313751424144185bae4422d75c03cc8da3db7540c184ddd734969292 cat-file -e e30811f7bc69e4b5b6d5783e712c06c8eabf0226^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/paragonie/random_compat.git /root/.cache/review-fixes/mirrors/git-b8cac299146b1e5933d6c59c76e68b82190158568fb35c0ce43883f4a0c4d5d7
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b8cac299146b1e5933d6c59c76e68b82190158568fb35c0ce43883f4a0c4d5d7 cat-file -e 996434e5492cb4c3edcb9168db6fbb1359ef965a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/paragonie/sodium_compat.git /root/.cache/review-fixes/mirrors/git-066c9a377c1bec3cb83813261bbc20d8a717fde2361b6b4d6370cd62d6c206e2
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-066c9a377c1bec3cb83813261bbc20d8a717fde2361b6b4d6370cd62d6c206e2 cat-file -e 4524c98a826776c9a32d6ce06932563cb10f3995^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phpDocumentor/ReflectionCommon.git /root/.cache/review-fixes/mirrors/git-b1e647520cf9d7a5ba5ea21789c915c59538c542a78b592047cea5efb70
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b1e647520cf9d7a5ba5ea21789c915c59538c542a78b592047cea5efb70cca89 cat-file -e 1d01c49d4ed62f25aa84a747ad35d5a16924662b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phpDocumentor/ReflectionDocBlock.git /root/.cache/review-fixes/mirrors/git-eafe4aa9aa30336bb4d9edbf7414f3569d7d06bec03729b9d6905a94d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-eafe4aa9aa30336bb4d9edbf7414f3569d7d06bec03729b9d6905a94de911ef5 cat-file -e 31a105931bc8ffa3a123383829772e832fd8d903^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phpDocumentor/TypeResolver.git /root/.cache/review-fixes/mirrors/git-a4645d4d906f94ebd1635fed9d2eb2bc76598fcc64e3381b215e606aa8065cf
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a4645d4d906f94ebd1635fed9d2eb2bc76598fcc64e3381b215e606aa8065cfa cat-file -e 92a98ada2b93d9b201a613cb5a33584dde25f195^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/schmittjoh/php-option.git /root/.cache/review-fixes/mirrors/git-7665a28c41f51cc759f60d83245e91f08c0df85b7440ddf9894e753f9e41c6d4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-7665a28c41f51cc759f60d83245e91f08c0df85b7440ddf9894e753f9e41c6d4 cat-file -e 67b192b6a42ec03944b972d6e633ddec78ad2c6d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phpseclib/phpseclib.git /root/.cache/review-fixes/mirrors/git-a921a3fcdd8cbb560a757439916fed66868264271b3d8903af69cc5d85255027
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a921a3fcdd8cbb560a757439916fed66868264271b3d8903af69cc5d85255027 cat-file -e d17e0ddaeaf6f22f7e007cbb437d78792fe2a0e4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phpspec/prophecy.git /root/.cache/review-fixes/mirrors/git-446c651c86e57d1a7c8fb4c64aecbfff3f9bfe0caa739d0e6d96ea0ff8f7f6db
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-446c651c86e57d1a7c8fb4c64aecbfff3f9bfe0caa739d0e6d96ea0ff8f7f6db cat-file -e 09c2e5949d676286358a62af818f8407167a9dd6^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phpstan/phpdoc-parser.git /root/.cache/review-fixes/mirrors/git-4125fcbd04523e3ce85d73b43e5b39826a28adb907ddafdcf4a36522310e2313
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4125fcbd04523e3ce85d73b43e5b39826a28adb907ddafdcf4a36522310e2313 cat-file -e a004701b11273a26cd7955a61d67a7f1e525a45a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/antonioribeiro/google2fa.git /root/.cache/review-fixes/mirrors/git-0c5be5593ac7c21901c77532782cc8e204d7e2c26df54ac6e0add576c3800bcf
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0c5be5593ac7c21901c77532782cc8e204d7e2c26df54ac6e0add576c3800bcf cat-file -e e6bc62dd6ae83acc475f57912e27466019a1f2cf^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/antonioribeiro/google2fa-laravel.git /root/.cache/review-fixes/mirrors/git-11afd95e698d4ef53e0c4ffaa79218b20208fcfe0e90dcb9d33bc7e92
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-11afd95e698d4ef53e0c4ffaa79218b20208fcfe0e90dcb9d33bc7e9273bb9ae cat-file -e f9014fd7ea36a1f7fffa233109cf59b209469647^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/antonioribeiro/google2fa-qrcode.git /root/.cache/review-fixes/mirrors/git-325c07b17ef775373fbf05723416a49d539edf77255544e08bbd1ba7d5
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-325c07b17ef775373fbf05723416a49d539edf77255544e08bbd1ba7d57755f8 cat-file -e fd5ff0531a48b193a659309cc5fb882c14dbd03f^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/cache.git /root/.cache/review-fixes/mirrors/git-44a408d8644a81d9284164b04f861f7042c7a8cfba665ee99839d18d6a40d82c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-44a408d8644a81d9284164b04f861f7042c7a8cfba665ee99839d18d6a40d82c cat-file -e aa5030cfa5405eccfdcb1083ce040c2cb8d253bf^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/clock.git /root/.cache/review-fixes/mirrors/git-7ba6d1072ab55ff76ff9b1e702d6c6c46aa0a78ac3c087b817d49ded6f66a014
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-7ba6d1072ab55ff76ff9b1e702d6c6c46aa0a78ac3c087b817d49ded6f66a014 cat-file -e e41a24703d4560fd0acb709162f73b8adfc3aa0d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/container.git /root/.cache/review-fixes/mirrors/git-ead6fd668b4be125d63206c5c091c9a2c09811b2fadaa68da2eac61898f96237
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ead6fd668b4be125d63206c5c091c9a2c09811b2fadaa68da2eac61898f96237 cat-file -e c71ecc56dfe541dbd90c5360474fbc405f8d5963^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/event-dispatcher.git /root/.cache/review-fixes/mirrors/git-d7b0d997819e1c964bdd07230d0765f2a7c85d418e43c6290850349bee01ba0b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d7b0d997819e1c964bdd07230d0765f2a7c85d418e43c6290850349bee01ba0b cat-file -e dbefd12671e8a14ec7f180cab83036ed26714bb0^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/http-client.git /root/.cache/review-fixes/mirrors/git-0938e5400febae45ad8caed33df67f662f53276749ebb91ad2076f5c317ec831
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0938e5400febae45ad8caed33df67f662f53276749ebb91ad2076f5c317ec831 cat-file -e bb5906edc1c324c9a05aa0873d40117941e5fa90^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/http-factory.git /root/.cache/review-fixes/mirrors/git-2d33fe6f9cd258445ab55100c726a2caaa36499b16a585ff105c1e807afab25e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-2d33fe6f9cd258445ab55100c726a2caaa36499b16a585ff105c1e807afab25e cat-file -e 2b4765fddfe3b508ac62f829e852b1501d3f6e8a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/http-message.git /root/.cache/review-fixes/mirrors/git-8c55248fa2812d6c78ff5912c73d7614b2577cd703f1bb5b230eda8dc87ac858
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-8c55248fa2812d6c78ff5912c73d7614b2577cd703f1bb5b230eda8dc87ac858 cat-file -e 402d35bcb92c70c026d1a6a9883f06b2ead23d71^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/log.git /root/.cache/review-fixes/mirrors/git-92975f8996aeea0253e65fefed465166201ade251331b061db55a085845b6166
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-92975f8996aeea0253e65fefed465166201ade251331b061db55a085845b6166 cat-file -e f16e1d5863e37f8d8c2a01719f5b34baa2b714d3^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-fig/simple-cache.git /root/.cache/review-fixes/mirrors/git-9baa99f0a7b49a95acde005c399a84bf662334babf941edbe32db832d97e1941
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-9baa99f0a7b49a95acde005c399a84bf662334babf941edbe32db832d97e1941 cat-file -e 764e0b3939f5ca87cb904f570ef9be2d78a07865^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/bobthecow/psysh.git /root/.cache/review-fixes/mirrors/git-28065b45aa10d563afc0c2354534aa18cf5e06f9772d3ea561e9cf2bc18dc603
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-28065b45aa10d563afc0c2354534aa18cf5e06f9772d3ea561e9cf2bc18dc603 cat-file -e 3be75d5b9244936dd4ac62ade2bfb004d13acf0f^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/ralouphie/getallheaders.git /root/.cache/review-fixes/mirrors/git-df208cedc0a4c7b7b5288ec35985fa7993dff0f2f10c1c8d2d7bd23a23b5ffb7
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-df208cedc0a4c7b7b5288ec35985fa7993dff0f2f10c1c8d2d7bd23a23b5ffb7 cat-file -e 120b605dfeb996808c31b6477290a714d356e822^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/ramsey/collection.git /root/.cache/review-fixes/mirrors/git-b1648c34d4948f1d870d1e02c0bd07284d910c4e00c85a13a701b9e69e59756e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b1648c34d4948f1d870d1e02c0bd07284d910c4e00c85a13a701b9e69e59756e cat-file -e 344572933ad0181accbf4ba763e85a0306a8c5e2^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/ramsey/uuid.git /root/.cache/review-fixes/mirrors/git-2cbb5ba4228fe9ac7ad23b360047db39cfaebe951498bbac4352a37a15c794cd
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-2cbb5ba4228fe9ac7ad23b360047db39cfaebe951498bbac4352a37a15c794cd cat-file -e 1df15849d00943a67d677dc9cfd80795f038c9f8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/robrichards/xmlseclibs.git /root/.cache/review-fixes/mirrors/git-7b6d3f030658a100c737f33b49371c48a780907e2033ab06f61600320c68a7dd
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-7b6d3f030658a100c737f33b49371c48a780907e2033ab06f61600320c68a7dd cat-file -e 03062be78178cbb5e8f605cd255dc32a14981f92^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/rollbar/rollbar-php.git /root/.cache/review-fixes/mirrors/git-6e9c99437c97659d87f06344b50272a5366166a558ff955123d8362ee70f8e42
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6e9c99437c97659d87f06344b50272a5366166a558ff955123d8362ee70f8e42 cat-file -e 98982f49b2ad1cc6469cad7a870ac9361a238a4c^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/rollbar/rollbar-php-laravel.git /root/.cache/review-fixes/mirrors/git-5d66ef0d385268d4f752fa001ba125445102f62e048214e9ab9cd8ca00bc3e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-5d66ef0d385268d4f752fa001ba125445102f62e048214e9ab9cd8ca00bc3e11 cat-file -e 6154e845fe14261b86f048388d3271b75e95a113^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/comparator.git /root/.cache/review-fixes/mirrors/git-cbe1ec14f108acc4603b61ab4b111c8efda3222b791e2f4ce073a3e194ab4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-cbe1ec14f108acc4603b61ab4b111c8efda3222b791e2f4ce073a3e194ab48b4 cat-file -e 2c95e1e86cb8dd41beb8d502057d1081ccc8eca9^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/diff.git /root/.cache/review-fixes/mirrors/git-bf55b476d0988b7259dd4c957d7b4e910cb0585994c7c475a4d35fe7a4ed4e19
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-bf55b476d0988b7259dd4c957d7b4e910cb0585994c7c475a4d35fe7a4ed4e19 cat-file -e b4ccd857127db5d41a5b676f24b51371d76d8544^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/exporter.git /root/.cache/review-fixes/mirrors/git-740b8c6f15276a2822ed02e16ed441761ecc0d21cf05ba5384a597eb5976e57
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-740b8c6f15276a2822ed02e16ed441761ecc0d21cf05ba5384a597eb5976e578 cat-file -e 70a298763b40b213ec087c51c739efcaa90bcd74^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/recursion-context.git /root/.cache/review-fixes/mirrors/git-affeec958061e3201b11d95c909b2b17c2104e7bb333a36e8767d7
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-affeec958061e3201b11d95c909b2b17c2104e7bb333a36e8767d7c24a9f8530 cat-file -e f6458abbf32a6c8174f8f26261475dc133b3d9dc^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/backtrace.git /root/.cache/review-fixes/mirrors/git-1f1b8f1b25427e9674bcc595728762564e6ed1b44660504247b8ca377fa8ae09
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-1f1b8f1b25427e9674bcc595728762564e6ed1b44660504247b8ca377fa8ae09 cat-file -e 8ffe78be5ed355b5009e3dd989d183433e9a5adc^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/db-dumper.git /root/.cache/review-fixes/mirrors/git-c0187797bf770237189c6fe255c957f345ef20f640aafd34e9803b10aa2f54ad
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c0187797bf770237189c6fe255c957f345ef20f640aafd34e9803b10aa2f54ad cat-file -e eac3221fbe27fac51f388600d27b67b1b079406e^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/error-solutions.git /root/.cache/review-fixes/mirrors/git-e1639fdd4722408d6ba22f4213a23e24c4773a401931e60f2435ba48b2b92ffa
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e1639fdd4722408d6ba22f4213a23e24c4773a401931e60f2435ba48b2b92ffa cat-file -e e495d7178ca524f2dd0fe6a1d99a1e608e1c9936^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/flare-client-php.git /root/.cache/review-fixes/mirrors/git-24483ef642c68e411f4a7a1e30d6483845cd198f73af48d09e440d098a56193c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-24483ef642c68e411f4a7a1e30d6483845cd198f73af48d09e440d098a56193c cat-file -e 53f41b08a27cc039e1a8ed2be9a202e924f31bad^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/ignition.git /root/.cache/review-fixes/mirrors/git-679ee51278f1be78ac5b78e728efd4b49d8714856f3847cf53708c3e815cffa6
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-679ee51278f1be78ac5b78e728efd4b49d8714856f3847cf53708c3e815cffa6 cat-file -e b59385bb7aa24dae81bcc15850ebecfda7b40838^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/laravel-backup.git /root/.cache/review-fixes/mirrors/git-c12b7c3ea9b013095beee9d69956bfbc6147471dd0eb7d13a3e1f4aba4eeb408
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c12b7c3ea9b013095beee9d69956bfbc6147471dd0eb7d13a3e1f4aba4eeb408 cat-file -e d378a07b580aa8bf440b50decdbab7b5d6f63c46^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/laravel-ignition.git /root/.cache/review-fixes/mirrors/git-161716068f7b5da8a15a46789336a7e9fdab9af61e42b94adbfe1adda1830928
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-161716068f7b5da8a15a46789336a7e9fdab9af61e42b94adbfe1adda1830928 cat-file -e 45b3b6e1e73fc161cba2149972698644b99594ee^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/laravel-package-tools.git /root/.cache/review-fixes/mirrors/git-0877c0263831c42d65f35e08b559e7c0a5a0017a3e3ecb58b42f56c5c37e4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0877c0263831c42d65f35e08b559e7c0a5a0017a3e3ecb58b42f56c5c37e4ca1 cat-file -e e927d5b5b05e9fecae098e559e51918aa608ad02^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/laravel-signal-aware-command.git /root/.cache/review-fixes/mirrors/git-e441732ae98def0668892e69a078598f0a0914fcca4b50a16c4831
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e441732ae98def0668892e69a078598f0a0914fcca4b50a16c4831131058f013 cat-file -e 54dcc1efd152bfb3eb0faf56a5fc28569b864b5d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/spatie/temporary-directory.git /root/.cache/review-fixes/mirrors/git-caf0abb2ea6abb83cd6edd75fea9e0dba44365d4988c22c0eb40434a2852c1d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-caf0abb2ea6abb83cd6edd75fea9e0dba44365d4988c22c0eb40434a2852c1d5 cat-file -e 662e481d6ec07ef29fd05010433428851a42cd07^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/clock.git /root/.cache/review-fixes/mirrors/git-f35f519f0ebd76c6f61313dfe7adaa6af5b90d53faa3f54b870ff69dca4ee2dc
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f35f519f0ebd76c6f61313dfe7adaa6af5b90d53faa3f54b870ff69dca4ee2dc cat-file -e 674fa3b98e21531dd040e613479f5f6fa8f32111^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/console.git /root/.cache/review-fixes/mirrors/git-fdc4ef189b15c350ec2075b647576efb76900c2999a601b7a43beb5431575a00
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-fdc4ef189b15c350ec2075b647576efb76900c2999a601b7a43beb5431575a00 cat-file -e 962e18f09ebe68a49039b4c82fc0ea4871824fca^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/css-selector.git /root/.cache/review-fixes/mirrors/git-d7ec57e1320be3f8fa0da06aaa08d3f18eaec39d570bc5ba8f38f9dc7b5eda2d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d7ec57e1320be3f8fa0da06aaa08d3f18eaec39d570bc5ba8f38f9dc7b5eda2d cat-file -e e3822e1cb7013a0a99b3c578130458927ec4eb89^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/deprecation-contracts.git /root/.cache/review-fixes/mirrors/git-8e81d6c0dca06ee0681fea1e13ef6d69ac849018d1a49e841098b286652d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-8e81d6c0dca06ee0681fea1e13ef6d69ac849018d1a49e841098b286652d3790 cat-file -e feb1edf4e546af3b85c5caebe8359a20db230ca3^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/error-handler.git /root/.cache/review-fixes/mirrors/git-026793bfccc06930c2552cb02907aba7dd63fdc7c2f73271f6960ca3fbc19760
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-026793bfccc06930c2552cb02907aba7dd63fdc7c2f73271f6960ca3fbc19760 cat-file -e 545852cfe9c4979c82389155b4d8d05f8864e4f1^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/event-dispatcher.git /root/.cache/review-fixes/mirrors/git-e7a2207307b905000c743cc85e1e2a71b2ac902ac02d0a2e77f6b4031f2afa87
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e7a2207307b905000c743cc85e1e2a71b2ac902ac02d0a2e77f6b4031f2afa87 cat-file -e d269974ee93c61d03620ffee358355bfdb471d66^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/event-dispatcher-contracts.git /root/.cache/review-fixes/mirrors/git-791d7c470e9e1311f16d7110f1b72570fc5761d07354dacac81773f
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-791d7c470e9e1311f16d7110f1b72570fc5761d07354dacac81773f7f4caa902 cat-file -e 658e29751424da3ef4758c60f769e59d1b2981eb^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/filesystem.git /root/.cache/review-fixes/mirrors/git-636bc953b2b5de777ffc533167c6ca097f21cd4889569b6a995ba3421153bbf4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-636bc953b2b5de777ffc533167c6ca097f21cd4889569b6a995ba3421153bbf4 cat-file -e 53d609da66578dad5a39fe290e8f924ec8f05e93^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/finder.git /root/.cache/review-fixes/mirrors/git-21d94daccc1b0b9498664d75582ab94e97f74166f13fc39686b1ddd457bc8798
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-21d94daccc1b0b9498664d75582ab94e97f74166f13fc39686b1ddd457bc8798 cat-file -e 5ce28827081f6d1f0c32eaf3882750f19cb5bbe6^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/http-foundation.git /root/.cache/review-fixes/mirrors/git-12bc88c47afb221f880c23db06627b94f953a203fbbee9ab1bfda80bf25503e8
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-12bc88c47afb221f880c23db06627b94f953a203fbbee9ab1bfda80bf25503e8 cat-file -e 7fb73cffa06e2bcc2cb523fcccb1e8174106b206^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/http-kernel.git /root/.cache/review-fixes/mirrors/git-bef3623ae095159412a93bbeb374e93471640beb5d96a357a12879bbbdf8ad3c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-bef3623ae095159412a93bbeb374e93471640beb5d96a357a12879bbbdf8ad3c cat-file -e 94c57f4c5c45a311d244a0aeadb72b14ee41d25d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/mailer.git /root/.cache/review-fixes/mirrors/git-61ad449475e84bc2823d5933e4c5f3e8fc7dc133f00bbe1600a34ff789cd982e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-61ad449475e84bc2823d5933e4c5f3e8fc7dc133f00bbe1600a34ff789cd982e cat-file -e b17c9bf3a551d5f635638a3b6c05f06c4dc87584^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/mime.git /root/.cache/review-fixes/mirrors/git-0dc663d5f56b645d9f89b0e7e2fe97870265e3922887a06baec1527343a14c52
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0dc663d5f56b645d9f89b0e7e2fe97870265e3922887a06baec1527343a14c52 cat-file -e 94a4c017435bc515f5ac80421a2c555fb9ca3676^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-ctype.git /root/.cache/review-fixes/mirrors/git-4d1f26a294ddb3b6162647f1e692c178344eaa92ca638094ba3659a6b0acd08d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4d1f26a294ddb3b6162647f1e692c178344eaa92ca638094ba3659a6b0acd08d cat-file -e 141046a8f9477948ff284fa65be2095baafb94f2^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-intl-grapheme.git /root/.cache/review-fixes/mirrors/git-2aaa655e3cc0e56d2cc9a2b56912e24543cb4d192a71e725f57890e4785
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-2aaa655e3cc0e56d2cc9a2b56912e24543cb4d192a71e725f57890e4785c146d cat-file -e bb899c1db0aa8127dc3afe8cda4a67eb24915f8d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-intl-idn.git /root/.cache/review-fixes/mirrors/git-a25f4fa6f0b198ec5563deae4d70039ca9e818fa6d6fe08bca2def0ffb0445b3
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a25f4fa6f0b198ec5563deae4d70039ca9e818fa6d6fe08bca2def0ffb0445b3 cat-file -e 533d68cf99c8f8ee2e8893c59ed59192e92cfd74^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-intl-normalizer.git /root/.cache/review-fixes/mirrors/git-d8b64356ba4a301fc95ff3f50b94f80becc0192d8dd6eaaaed9451434
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d8b64356ba4a301fc95ff3f50b94f80becc0192d8dd6eaaaed94514349faadf2 cat-file -e ebd57ccc7edb93d632e184efbe7693d2517bab3b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-mbstring.git /root/.cache/review-fixes/mirrors/git-a7a5751a323480b3fce39eb19b329a6cb2ea23302f7198993e957823e9d505b7
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a7a5751a323480b3fce39eb19b329a6cb2ea23302f7198993e957823e9d505b7 cat-file -e 122889ed24dc000165bcbfd77ec412f15cbdfc6a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-php80.git /root/.cache/review-fixes/mirrors/git-bb951d1c7467705db9682452fe08e994da3608b5d82a0b480087a6c46d2f3c1c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-bb951d1c7467705db9682452fe08e994da3608b5d82a0b480087a6c46d2f3c1c cat-file -e 9c6a5d6b01ca51d486c813e9a9c0ed55f208bb74^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-php83.git /root/.cache/review-fixes/mirrors/git-314fd50f78ceb915678bba57e9c7b16c8d13f5da121e671f8288d895d1215217
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-314fd50f78ceb915678bba57e9c7b16c8d13f5da121e671f8288d895d1215217 cat-file -e 80ccff923a8d61f73ebe9da0aa94e25232f004ce^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-php84.git /root/.cache/review-fixes/mirrors/git-cce92611c1343403f572dd8ac6bfedd811af53601a8635dc48878911f8143622
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-cce92611c1343403f572dd8ac6bfedd811af53601a8635dc48878911f8143622 cat-file -e f4e1dfaee5b74aba5964fe1fd4dfc7ba5e3085fa^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-php85.git /root/.cache/review-fixes/mirrors/git-e24e762d471a7f08de9c36f3acdf49edef4b9c5fb181cbfc449fe9ce4fc9f83e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e24e762d471a7f08de9c36f3acdf49edef4b9c5fb181cbfc449fe9ce4fc9f83e cat-file -e 86a42cbcc07adc331481a5ab310a4024bfc227f6^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-uuid.git /root/.cache/review-fixes/mirrors/git-57cec476723020cc79dfc2261505ff42eeca8c99ffbd26e9355c5ce42b17c07d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-57cec476723020cc79dfc2261505ff42eeca8c99ffbd26e9355c5ce42b17c07d cat-file -e 26dfec253c4cf3e51b541b52ddf7e42cb0908e94^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/process.git /root/.cache/review-fixes/mirrors/git-a658ed32ce36e08afdff9b1ed9efba0fb4efc080cbf85e82333aea94f7feed25
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a658ed32ce36e08afdff9b1ed9efba0fb4efc080cbf85e82333aea94f7feed25 cat-file -e a5a6912edbbfc4c98cd080bc4bbe37c8e7eeb20a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/psr-http-message-bridge.git /root/.cache/review-fixes/mirrors/git-592a5794ef7c1dbdded76263c7e618a4682e9ac43176b7c105e32b1844
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-592a5794ef7c1dbdded76263c7e618a4682e9ac43176b7c105e32b1844ce175e cat-file -e 76f1a57719a4a04c0ea18678a6c9305b5dcb9da8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/routing.git /root/.cache/review-fixes/mirrors/git-976ad1e5a21149cb2faa9a2bbb78c3488e4a3579b7b8fa8e48f22404a29aabfb
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-976ad1e5a21149cb2faa9a2bbb78c3488e4a3579b7b8fa8e48f22404a29aabfb cat-file -e 0000ade604b7bc798cb1e75edf6f17df48185f73^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/service-contracts.git /root/.cache/review-fixes/mirrors/git-6c3c575e83fbdd78414c620b543fae5d4c54a9043ecb853a785710333ec919dc
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6c3c575e83fbdd78414c620b543fae5d4c54a9043ecb853a785710333ec919dc cat-file -e 052852a96fd5e5ebdb617dba22031e41a3300fb5^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/string.git /root/.cache/review-fixes/mirrors/git-84fff2509e630edb2e2c0bbaab6098f8f32aef47e8917f47ba85aafe7de930d5
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-84fff2509e630edb2e2c0bbaab6098f8f32aef47e8917f47ba85aafe7de930d5 cat-file -e e394af32256bf9e7bf80849d95e589167c10097b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/translation.git /root/.cache/review-fixes/mirrors/git-4a7a1b4f446f0688e52e82c5eef3c3b1d458e509ac529cacfec01084fd57d633
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4a7a1b4f446f0688e52e82c5eef3c3b1d458e509ac529cacfec01084fd57d633 cat-file -e 2ee1e4a3b32a528a642babe041ff7c440b213b4b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/translation-contracts.git /root/.cache/review-fixes/mirrors/git-ae05556ff6793da6561f6ac76a69440cd98ea5e4ded77f90b75a4f9ff3a4
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ae05556ff6793da6561f6ac76a69440cd98ea5e4ded77f90b75a4f9ff3a407ca cat-file -e ccb206b98faccc511ebae8e5fad50f2dc0b30621^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/uid.git /root/.cache/review-fixes/mirrors/git-4995f83f5019067196666f33f7043a9ca154da865120cdd077bd7fc517dd8787
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4995f83f5019067196666f33f7043a9ca154da865120cdd077bd7fc517dd8787 cat-file -e 69d732355a139c6f8881337d28515aa01f12b8be^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/var-dumper.git /root/.cache/review-fixes/mirrors/git-91b24f612481167bced9b10518e22a36de67350a4ee0b913d3b09840a4aa6faa
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-91b24f612481167bced9b10518e22a36de67350a4ee0b913d3b09840a4aa6faa cat-file -e 6e6ff33ea8cf5df27f00a5561ebd5ee9bd7f1618^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tabuna/breadcrumbs.git /root/.cache/review-fixes/mirrors/git-9689b13ed4623fd9af89a1268b5d78896e224472060244aa4c92a8796587b3ca
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-9689b13ed4623fd9af89a1268b5d78896e224472060244aa4c92a8796587b3ca cat-file -e 120322c2ca2032233a7fd214739c1e8edb70f8a4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tecnickcom/tc-lib-barcode.git /root/.cache/review-fixes/mirrors/git-89ec9df2e7dcbe97b1fd3512947419e8ce69a8f76e6d101154c861917814e53d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-89ec9df2e7dcbe97b1fd3512947419e8ce69a8f76e6d101154c861917814e53d cat-file -e cd81392e6e1e57e0f6ff8519b1edbc11d8e47a44^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tecnickcom/tc-lib-color.git /root/.cache/review-fixes/mirrors/git-3fd09b102988d9af735a6dfb020276b4e318c4d2314c93c984cde7282b884312
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-3fd09b102988d9af735a6dfb020276b4e318c4d2314c93c984cde7282b884312 cat-file -e f7a414e7ddbdcd98105506ca1eecc68d4820fb89^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tecnickcom/tc-lib-file.git /root/.cache/review-fixes/mirrors/git-33a31f9f80e376ac4af69cfec4534ff0774a20a2cbc2d7cfca1f63b44985b819
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-33a31f9f80e376ac4af69cfec4534ff0774a20a2cbc2d7cfca1f63b44985b819 cat-file -e 2069bc08d0386ac883bf7dd9c1278558a13c4483^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tecnickcom/tc-lib-pdf-encrypt.git /root/.cache/review-fixes/mirrors/git-6643d734000c626528a3c0f8cdd700a061dab58fdd39adb1bc319a7c5098
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6643d734000c626528a3c0f8cdd700a061dab58fdd39adb1bc319a7c50989505 cat-file -e b30c602cd91b8a3beebfd7a7acf12380de5b3b19^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tecnickcom/tc-lib-pdf-font.git /root/.cache/review-fixes/mirrors/git-a2d44911280abd7e88b7e17ca50df993f2ca495e0eaeae6426b3f3fa1c4a5c2
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a2d44911280abd7e88b7e17ca50df993f2ca495e0eaeae6426b3f3fa1c4a5c28 cat-file -e 3eb18bc0d73b9e97cd3c4bb71105815abb3ae918^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tecnickcom/tc-lib-unicode-data.git /root/.cache/review-fixes/mirrors/git-71ff14f535f49f3adf92b16ef2d48af10a5a2353f886678f498b45257d0
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-71ff14f535f49f3adf92b16ef2d48af10a5a2353f886678f498b45257d0532dd cat-file -e 8d4d62f411fea4f043486774b80c9efe72761701^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tecnickcom/TCPDF.git /root/.cache/review-fixes/mirrors/git-d69610bdb611bdf29935cb8671e45e14d5d73bffe56f5812b0b39e3a8260543e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d69610bdb611bdf29935cb8671e45e14d5d73bffe56f5812b0b39e3a8260543e cat-file -e b18f6119161019916c5bb07cb8da5205ae5c1b63^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tijsverkoyen/CssToInlineStyles.git /root/.cache/review-fixes/mirrors/git-6ce080566bbb93a9884abd0d093ceafc31424c29df69a981c6abbdb2310
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6ce080566bbb93a9884abd0d093ceafc31424c29df69a981c6abbdb23106f23d cat-file -e f0292ccf0ec75843d65027214426b6b163b48b41^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tmilos/lexer.git /root/.cache/review-fixes/mirrors/git-beb599a112a40100db1ac83f4a51a8d70e41b0089155470f764aaf0244acf50a
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-beb599a112a40100db1ac83f4a51a8d70e41b0089155470f764aaf0244acf50a cat-file -e e7885595614759f1da2ff79b66e3fb26d7f875fa^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tmilos/scim-filter-parser.git /root/.cache/review-fixes/mirrors/git-6eb4477260f926f22ecdd7f0a5acc16cc297ff6e47d28656a5e467a08e077754
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6eb4477260f926f22ecdd7f0a5acc16cc297ff6e47d28656a5e467a08e077754 cat-file -e cfd9ba1f33e1e15adcab2481bffd74cb9fb35704^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tmilos/scim-schema.git /root/.cache/review-fixes/mirrors/git-40e98d4159e0edbfbba4c2c08888b3ce155d05790dc2c63c2f10cf075514ec52
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-40e98d4159e0edbfbba4c2c08888b3ce155d05790dc2c63c2f10cf075514ec52 cat-file -e bb871e667b33080b4cd36d7a9b2ac2cdbf796062^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/tmilos/value.git /root/.cache/review-fixes/mirrors/git-347b7a82ac11be9975e9c38a250923f95838c62471bd778550aef7c5681c7101
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-347b7a82ac11be9975e9c38a250923f95838c62471bd778550aef7c5681c7101 cat-file -e 9e78ad9c026b14cacec1a27552ee0ada9d7d1c06^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/unicodeveloper/laravel-password.git /root/.cache/review-fixes/mirrors/git-a4ee48dce94f87d16d138b4d666f1a94ed49769514b5b5111ca4b0cd5b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a4ee48dce94f87d16d138b4d666f1a94ed49769514b5b5111ca4b0cd5bf2cf28 cat-file -e 806e345ae992e0adf38c4cfa32063d7d7c9d189a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/vlucas/phpdotenv.git /root/.cache/review-fixes/mirrors/git-142a8c1f48fdd69f8796624c1716f8e4ed0d1148d5a8237bc68adfd1bde34a57
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-142a8c1f48fdd69f8796624c1716f8e4ed0d1148d5a8237bc68adfd1bde34a57 cat-file -e 301c07936b16d88628b126b01d082ba153cf4c40^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/voku/portable-ascii.git /root/.cache/review-fixes/mirrors/git-e7474a848379ba1d75b41ced94ecc05fab868753f573e9e29f23fab35d2c7f57
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e7474a848379ba1d75b41ced94ecc05fab868753f573e9e29f23fab35d2c7f57 cat-file -e 8e1051fe39379367aecf014f41744ce7539a856f^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/dwightwatson/validating.git /root/.cache/review-fixes/mirrors/git-5adb347ab2f5c576e0e51612bb5196bae87552c80d9426105c4c0366aa8cade3
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-5adb347ab2f5c576e0e51612bb5196bae87552c80d9426105c4c0366aa8cade3 cat-file -e a8e823f1e2dcbb3d663e84e0e4197d11e5b15d30^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/webmozarts/assert.git /root/.cache/review-fixes/mirrors/git-ee3798f383fc7cb11d7abcf6d01b9983e86dbe79f18c2ccaa47b8c6bc0b4566a
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ee3798f383fc7cb11d7abcf6d01b9983e86dbe79f18c2ccaa47b8c6bc0b4566a cat-file -e 2ccb7c2e821038c03a3e6e1700c570c158c55f70^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/barryvdh/laravel-ide-helper.git /root/.cache/review-fixes/mirrors/git-d2cc854194a9310920e7672a8f9ae4e01e4eb11c0e16117c964c9f2e73cf8a
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d2cc854194a9310920e7672a8f9ae4e01e4eb11c0e16117c964c9f2e73cf8ac1 cat-file -e ad7e37676f1ff985d55ef1b6b96a0c0a40f2609a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/barryvdh/ReflectionDocBlock.git /root/.cache/review-fixes/mirrors/git-3e4ac59f8a9f710573993c826b61815349be7467ccf6331d82189a1451480d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-3e4ac59f8a9f710573993c826b61815349be7467ccf6331d82189a1451480d90 cat-file -e 4f5ba70c30c81f2ce03a16a9965832cfcc31ed3b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/paratestphp/paratest.git /root/.cache/review-fixes/mirrors/git-3139400c10befa9b19ef0ac8a8713c93ff0e1bab871698c8ae3569606146e89b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-3139400c10befa9b19ef0ac8a8713c93ff0e1bab871698c8ae3569606146e89b cat-file -e 9b324c8fc319cf9728b581c7a90e1c8f6361c5e5^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/clue/reactphp-ndjson.git /root/.cache/review-fixes/mirrors/git-c3357ce41743dbfa2aab25a8313be492b2cd2036eadbc4412c6751cbb5164afd
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c3357ce41743dbfa2aab25a8313be492b2cd2036eadbc4412c6751cbb5164afd cat-file -e 392dc165fce93b5bb5c637b67e59619223c931b0^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/cmgmyr/phploc.git /root/.cache/review-fixes/mirrors/git-0e8dca998b763847578794084333e724dc06399816b394677a16aa6b23b3cece
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0e8dca998b763847578794084333e724dc06399816b394677a16aa6b23b3cece cat-file -e 5d785f8fc8b891483cdbee3fb25f2b348c50c03f^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/composer/class-map-generator.git /root/.cache/review-fixes/mirrors/git-a57acd1551506ae63b115c4684147113238997f375c34046d999c174bbffd
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a57acd1551506ae63b115c4684147113238997f375c34046d999c174bbffde68 cat-file -e c0efbeb2f3fd7e23c7f180a59765c0b48a31fbc4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/composer/pcre.git /root/.cache/review-fixes/mirrors/git-63b67adeb351ba0973a5caae7c6093118715076802a4d4fcc4c6cd39c53dc45f
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-63b67adeb351ba0973a5caae7c6093118715076802a4d4fcc4c6cd39c53dc45f cat-file -e b2bed4734f0cc156ee1fe9c0da2550420d99a21e^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/composer/semver.git /root/.cache/review-fixes/mirrors/git-ffdd5c280a13037ed7a043f0204e969b9aac0ae81afe747c640d1e6043a00755
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ffdd5c280a13037ed7a043f0204e969b9aac0ae81afe747c640d1e6043a00755 cat-file -e 198166618906cb2de69b95d7d47e5fa8aa1b2b95^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/composer/xdebug-handler.git /root/.cache/review-fixes/mirrors/git-48a9bee330c059faf4d7dd87653505e259b316bfc2e93bef7d274a1bf9c6759a
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-48a9bee330c059faf4d7dd87653505e259b316bfc2e93bef7d274a1bf9c6759a cat-file -e 6c1925561632e83d60a44492e0b344cf48ab85ef^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/PHPCSStandards/composer-installer.git /root/.cache/review-fixes/mirrors/git-94880bdb0813fb84f25fa5933eb0ac8490f36c43aff04f30f70f1955
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-94880bdb0813fb84f25fa5933eb0ac8490f36c43aff04f30f70f195522cd5a20 cat-file -e 963f0c67bffde0eac41b56be71ac0e8ba132f0bd^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/ergebnis/agent-detector.git /root/.cache/review-fixes/mirrors/git-b87571952a61ce1f97e13bd8a100c7892641ee5442efc9d07c0cdd7850fa8342
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b87571952a61ce1f97e13bd8a100c7892641ee5442efc9d07c0cdd7850fa8342 cat-file -e e211f17928c8b95a51e06040792d57f5462fb271^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/igorw/evenement.git /root/.cache/review-fixes/mirrors/git-aff253919930df95d04fc062aa155b0a65d4a76ea0459fc0d1157726bef24c1f
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-aff253919930df95d04fc062aa155b0a65d4a76ea0459fc0d1157726bef24c1f cat-file -e 0a16b0d71ab13284339abb99d9d2bd813640efbc^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/theofidry/cpu-core-counter.git /root/.cache/review-fixes/mirrors/git-a310584ea0f8e486b11c6eeb8239cbccef87fd15a85c1c4e7513f5fbab89831
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a310584ea0f8e486b11c6eeb8239cbccef87fd15a85c1c4e7513f5fbab898316 cat-file -e db9508f7b1474469d9d3c53b86f817e344732678^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git /root/.cache/review-fixes/mirrors/git-cabd6255d3110c26c3d6394b020ebba9efa6c1fd487e3ea84a6dd0dff69bacd5
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-cabd6255d3110c26c3d6394b020ebba9efa6c1fd487e3ea84a6dd0dff69bacd5 cat-file -e a28d88a5e172b27e78d0816992b15a9df3da20f1^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/fruitcake/laravel-debugbar.git /root/.cache/review-fixes/mirrors/git-4437ca677547c079a44f8d58178a16d4c931e5c62e848e704d55fd819078c55
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4437ca677547c079a44f8d58178a16d4c931e5c62e848e704d55fd819078c557 cat-file -e 799d70c1101d3f8840dd76ff68ff6a78f9352905^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/hamcrest/hamcrest-php.git /root/.cache/review-fixes/mirrors/git-d754fbd29b8710e2a9ac1333acc441b0229c692c8579007e4081009bcd03d9a2
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d754fbd29b8710e2a9ac1333acc441b0229c692c8579007e4081009bcd03d9a2 cat-file -e b61cd040da1a4925bc90a51c074f5297e7c0fa52^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/iamcal/SQLParser.git /root/.cache/review-fixes/mirrors/git-4326d888695e765a3c9f237e1bd34d4068127ef7f2d5e0a8918f50eeb12540b1
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4326d888695e765a3c9f237e1bd34d4068127ef7f2d5e0a8918f50eeb12540b1 cat-file -e 610392f38de49a44dab08dc1659960a29874c4b8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/Jean85/pretty-package-versions.git /root/.cache/review-fixes/mirrors/git-0ab9f381597d6e707f138a1356ca60feb130071ac58294cc3b1d8cf368f
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0ab9f381597d6e707f138a1356ca60feb130071ac58294cc3b1d8cf368f8e1e9 cat-file -e 4d7aa5dab42e2a76d99559706022885de0e18e1a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/larastan/larastan.git /root/.cache/review-fixes/mirrors/git-c5f135b6e5c70f6380f50f0ea2b3d7a663b376e2817d51b7d70801598b339ae1
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c5f135b6e5c70f6380f50f0ea2b3d7a663b376e2817d51b7d70801598b339ae1 cat-file -e 9ad17e83e96b63536cb6ac39c3d40d29ff9cf636^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/boost.git /root/.cache/review-fixes/mirrors/git-6daac4f9cd07a47606ac9788d3bbb2fc19181e16111dbd2c94f5fdfa44202b03
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6daac4f9cd07a47606ac9788d3bbb2fc19181e16111dbd2c94f5fdfa44202b03 cat-file -e 820bc93b7826c456ca591cfecca463b4dc794a72^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/mcp.git /root/.cache/review-fixes/mirrors/git-c50438065f3c170baa5c41d82eba6a020b5619c24450621b127840a4b308fa72
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c50438065f3c170baa5c41d82eba6a020b5619c24450621b127840a4b308fa72 cat-file -e a08884d79a95c5143498507aec5badf751cdbec4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/pint.git /root/.cache/review-fixes/mirrors/git-23e5f3f5eebb02407ca3e9be94d49bee16e30dae5b595ef4723eb8cadc588ce2
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-23e5f3f5eebb02407ca3e9be94d49bee16e30dae5b595ef4723eb8cadc588ce2 cat-file -e 0770e9b7fafd50d4586881d456d6eb41c9247a80^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/roster.git /root/.cache/review-fixes/mirrors/git-e3b463ec6ace3a33059a97dd3d895e258b97d423f9a1f83c58138467a33cee08
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e3b463ec6ace3a33059a97dd3d895e258b97d423f9a1f83c58138467a33cee08 cat-file -e 89e518bd88ae98ff50f6082f6b517c8d8e8245fa^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/sentinel.git /root/.cache/review-fixes/mirrors/git-c851701b13969c34e943407fc530e47f83ded24fc6efcb8908fec098d85551c9
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-c851701b13969c34e943407fc530e47f83ded24fc6efcb8908fec098d85551c9 cat-file -e 972d9885d9d14312a118e9565c4e6ecc5e751ea1^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/laravel/telescope.git /root/.cache/review-fixes/mirrors/git-54fa06941ac08a17ead4d86382022b27f05c0a0865c7cd8507bee652720cec6e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-54fa06941ac08a17ead4d86382022b27f05c0a0865c7cd8507bee652720cec6e cat-file -e 38ec6e6006a67e05e0c476c5f8ef3550b72e43d8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/thephpleague/container.git /root/.cache/review-fixes/mirrors/git-dfd9ac48d911971c6c709e23d8ee6f4f9cc3d2ea6a8419b405f2e600201a7f25
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-dfd9ac48d911971c6c709e23d8ee6f4f9cc3d2ea6a8419b405f2e600201a7f25 cat-file -e 58accbc032f0090a9bd08326f93062c5a658b2c5^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/mockery/mockery.git /root/.cache/review-fixes/mirrors/git-37555bae0e16430214c7aa7d7843509a49bd6bacdf629defa1e71a7377907089
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-37555bae0e16430214c7aa7d7843509a49bd6bacdf629defa1e71a7377907089 cat-file -e 967a801bd188989a5669bd280f252d51c0fdc9ee^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/myclabs/DeepCopy.git /root/.cache/review-fixes/mirrors/git-0ee5c7fd5b019fb7dd8a02372bc7d3eace3e681523f6814c7d8ac9ac484b4f59
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0ee5c7fd5b019fb7dd8a02372bc7d3eace3e681523f6814c7d8ac9ac484b4f59 cat-file -e 07d290f0c47959fd5eed98c95ee5602db07e0b6a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/nunomaduro/phpinsights.git /root/.cache/review-fixes/mirrors/git-eddeb87748cd73df0bf5ab8bdfd23208e0a81d52ae288af147214bef97498dcb
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-eddeb87748cd73df0bf5ab8bdfd23208e0a81d52ae288af147214bef97498dcb cat-file -e ae780a92e2b15d8cf64d2e0c1cd2b86e16a2e882^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/pdepend/pdepend.git /root/.cache/review-fixes/mirrors/git-9cdc58f5c94ba4ab925187dfc0f0a78af2e22c9dac97896abe7f8f20745c7d3e
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-9cdc58f5c94ba4ab925187dfc0f0a78af2e22c9dac97896abe7f8f20745c7d3e cat-file -e f942b208dc2a0868454d01b29f0c75bbcfc6ed58^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phar-io/manifest.git /root/.cache/review-fixes/mirrors/git-36ce2d89837cfdb6838529db50a765c33590a8d03b8eb6efa5f799289d2d6bf1
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-36ce2d89837cfdb6838529db50a765c33590a8d03b8eb6efa5f799289d2d6bf1 cat-file -e 54750ef60c58e43759730615a392c31c80e23176^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phar-io/version.git /root/.cache/review-fixes/mirrors/git-a6b01f82775c9003a89d1e6f0a1277eae85fb6ed74b0aa9a3bc2beeca60dc17a
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a6b01f82775c9003a89d1e6f0a1277eae85fb6ed74b0aa9a3bc2beeca60dc17a cat-file -e 4f7fd7836c6f332bb2933569e566a0d6c4cbed74^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-debugbar/php-debugbar.git /root/.cache/review-fixes/mirrors/git-617dc06f9c1da9aec67caf6b875869ab357e5ccbbda65e7dab79296130a555d9
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-617dc06f9c1da9aec67caf6b875869ab357e5ccbbda65e7dab79296130a555d9 cat-file -e 1690ee1728827f9deb4b60457fa387cf44672c56^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-debugbar/symfony-bridge.git /root/.cache/review-fixes/mirrors/git-41dbbf02ca480c95b27359fb6cc4b79d40e2864eb24883a9a71343670f96bb
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-41dbbf02ca480c95b27359fb6cc4b79d40e2864eb24883a9a71343670f96bb50 cat-file -e e37d2debe5d316408b00d0ab2688d9c2cf59b5ad^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-mock/php-mock.git /root/.cache/review-fixes/mirrors/git-0256617cf070b5929551eb93f766ab2cb93e9df88ad455de846976e87c814edd
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0256617cf070b5929551eb93f766ab2cb93e9df88ad455de846976e87c814edd cat-file -e b59734f19765296bb0311942850d02288a224890^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-mock/php-mock-integration.git /root/.cache/review-fixes/mirrors/git-031856b03ac032c252640fe8b294755adf5ec53725066f74de29112a72ad
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-031856b03ac032c252640fe8b294755adf5ec53725066f74de29112a72adf6ff cat-file -e cbbf39705ec13dece5b04133cef4e2fd3137a345^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-mock/php-mock-phpunit.git /root/.cache/review-fixes/mirrors/git-d640e839fdb161cce323071d4bdd0bd02a08863351f5cd52869c946665954b6c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d640e839fdb161cce323071d4bdd0bd02a08863351f5cd52869c946665954b6c cat-file -e 701df15b183f25af663af134eb71353cd838b955^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/php-parallel-lint/PHP-Parallel-Lint.git /root/.cache/review-fixes/mirrors/git-63ee27d731964993091886a043cf28dbfae6c876635eaf2bb3b3a1
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-63ee27d731964993091886a043cf28dbfae6c876635eaf2bb3b3a1a259356dce cat-file -e 6db563514f27e19595a19f45a4bf757b6401194e^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phpmd/phpmd.git /root/.cache/review-fixes/mirrors/git-02119373e057df75bc5d315048c2955935eeed8cf7e58c9dc0b99f44d5a439f7
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-02119373e057df75bc5d315048c2955935eeed8cf7e58c9dc0b99f44d5a439f7 cat-file -e 74a1f56e33afad4128b886e334093e98e1b5e7c0^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/phpstan/phpstan.git /root/.cache/review-fixes/mirrors/git-8e36cc0a94f6f024f8c5c365ced1614eaadf4ef2e430f31aa73879ed61de228b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-8e36cc0a94f6f024f8c5c365ced1614eaadf4ef2e430f31aa73879ed61de228b cat-file -e 9eaac3826ed5e9b8427350a43cac825eeca3f566^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/php-code-coverage.git /root/.cache/review-fixes/mirrors/git-aff8358723d1b377398aa6bf5119e83e3e2b70cd65e15339c83aef
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-aff8358723d1b377398aa6bf5119e83e3e2b70cd65e15339c83aef83272a0711 cat-file -e 2c1ed04922802c15e1de5d7447b4856de949cf56^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/php-file-iterator.git /root/.cache/review-fixes/mirrors/git-b550964255109fb8233e7a3d63cfd0145244f9c058484ec8a22b4a
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b550964255109fb8233e7a3d63cfd0145244f9c058484ec8a22b4afc15c959d0 cat-file -e 2f3a64888c814fc235386b7387dd5b5ed92ad903^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/php-invoker.git /root/.cache/review-fixes/mirrors/git-f5f7372d22ec405eaa323e07c654c3e3281c1dd662713312cf72c2a91488
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f5f7372d22ec405eaa323e07c654c3e3281c1dd662713312cf72c2a91488976c cat-file -e c1ca3814734c07492b3d4c5f794f4b0995333da2^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/php-text-template.git /root/.cache/review-fixes/mirrors/git-f0b4308da60da0eb95895398851e77450fc2c7ba107d096e0c1f9b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f0b4308da60da0eb95895398851e77450fc2c7ba107d096e0c1f9b85416e25a6 cat-file -e 3e0404dc6b300e6bf56415467ebcb3fe4f33e964^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/php-timer.git /root/.cache/review-fixes/mirrors/git-13532f8b183e3151d0aff5542abf7f77d51c51bd3a89dc289f4090d68793d5
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-13532f8b183e3151d0aff5542abf7f77d51c51bd3a89dc289f4090d68793d5a3 cat-file -e 3b415def83fbcb41f991d9ebf16ae4ad8b7837b3^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/phpunit.git /root/.cache/review-fixes/mirrors/git-ebb790cbfcc6213791065f9465e7d56f02267a13042de6ab9b05eb8824963372
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ebb790cbfcc6213791065f9465e7d56f02267a13042de6ab9b05eb8824963372 cat-file -e adc7262fccc12de2b30f12a8aa0b33775d814f00^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/reactphp/cache.git /root/.cache/review-fixes/mirrors/git-fcbf39a7cc24be5b8c837c034afc201fe5ee4ffb1a9275f44f3f1e9916d73dd5
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-fcbf39a7cc24be5b8c837c034afc201fe5ee4ffb1a9275f44f3f1e9916d73dd5 cat-file -e d47c472b64aa5608225f47965a484b75c7817d5b^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/reactphp/child-process.git /root/.cache/review-fixes/mirrors/git-73451b823d6a32884e08bb583ede053ac68a61941e80e56be821c3a451646171
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-73451b823d6a32884e08bb583ede053ac68a61941e80e56be821c3a451646171 cat-file -e 970f0e71945556422ee4570ccbabaedc3cf04ad3^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/reactphp/dns.git /root/.cache/review-fixes/mirrors/git-80e647def4dd1bfcc2fd061314f19c05c9572dec375ea31010a1ad70dd51ed59
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-80e647def4dd1bfcc2fd061314f19c05c9572dec375ea31010a1ad70dd51ed59 cat-file -e 7562c05391f42701c1fccf189c8225fece1cd7c3^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/reactphp/event-loop.git /root/.cache/review-fixes/mirrors/git-f308bbd399f2792f97a9367adbb43a57f7658fa8620de9e2cfab484c50791d72
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f308bbd399f2792f97a9367adbb43a57f7658fa8620de9e2cfab484c50791d72 cat-file -e ba276bda6083df7e0050fd9b33f66ad7a4ac747a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/reactphp/promise.git /root/.cache/review-fixes/mirrors/git-d4007899e85354c4a0817754de92f21864f41ce75622b01b4487eb7fbd7a8e2f
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d4007899e85354c4a0817754de92f21864f41ce75622b01b4487eb7fbd7a8e2f cat-file -e 23444f53a813a3296c1368bb104793ce8d88f04a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/reactphp/socket.git /root/.cache/review-fixes/mirrors/git-04d4863e7e44e7d472a33db6da4d8f49093aa126a13d2b351352fe29e19f60c0
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-04d4863e7e44e7d472a33db6da4d8f49093aa126a13d2b351352fe29e19f60c0 cat-file -e ef5b17b81f6f60504c539313f94f2d826c5faa08^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/reactphp/stream.git /root/.cache/review-fixes/mirrors/git-9078dd86d45833b3d9f295887bfb40bef558783bda1c1db7d42b3cd48d6f8a5b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-9078dd86d45833b3d9f295887bfb40bef558783bda1c1db7d42b3cd48d6f8a5b cat-file -e 1e5b0acb8fe55143b5b426817155190eb6f5b18d^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/cli-parser.git /root/.cache/review-fixes/mirrors/git-f7790300ece0ebe16fabb3e90e924d6e9de750f4923bee382726033cb2b87
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-f7790300ece0ebe16fabb3e90e924d6e9de750f4923bee382726033cb2b87b43 cat-file -e 15c5dd40dc4f38794d383bb95465193f5e0ae180^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/code-unit.git /root/.cache/review-fixes/mirrors/git-46b248ef4be65a4c4e16511329fdedd07128116a337513e996efdd8ed856b1
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-46b248ef4be65a4c4e16511329fdedd07128116a337513e996efdd8ed856b1be cat-file -e 54391c61e4af8078e5b276ab082b6d3c54c9ad64^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/code-unit-reverse-lookup.git /root/.cache/review-fixes/mirrors/git-73504103b9ede2861ee0eaf84378b4cf27fc8d98a71b012
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-73504103b9ede2861ee0eaf84378b4cf27fc8d98a71b01244a572644abf7d714 cat-file -e 183a9b2632194febd219bb9246eee421dad8d45e^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/complexity.git /root/.cache/review-fixes/mirrors/git-51ec87f476879361c01f557bd77e5679d7e22e5a91e5cd1a8192a001ef674
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-51ec87f476879361c01f557bd77e5679d7e22e5a91e5cd1a8192a001ef6741fb cat-file -e ee41d384ab1906c68852636b6de493846e13e5a0^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/environment.git /root/.cache/review-fixes/mirrors/git-a15185a38180c5617d111a9efcb2ee04e993076b61d08e071fff9f016410
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a15185a38180c5617d111a9efcb2ee04e993076b61d08e071fff9f0164104435 cat-file -e a5c75038693ad2e8d4b6c15ba2403532647830c4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/global-state.git /root/.cache/review-fixes/mirrors/git-38a69dcae46862442131bb0c257bc59d87dcd827d178efde8e99dc05938
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-38a69dcae46862442131bb0c257bc59d87dcd827d178efde8e99dc05938328f2 cat-file -e 3be331570a721f9a4b5917f4209773de17f747d7^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/lines-of-code.git /root/.cache/review-fixes/mirrors/git-6f4eb25e9559b989f19c17a4b83cb2eca72a5baccb066ac9ec67c74be7
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-6f4eb25e9559b989f19c17a4b83cb2eca72a5baccb066ac9ec67c74be758b7db cat-file -e d36ad0d782e5756913e42ad87cb2890f4ffe467a^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/object-enumerator.git /root/.cache/review-fixes/mirrors/git-44e900eaf224ece86f07669e28175616a77bdf38b93f0cf883a81b
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-44e900eaf224ece86f07669e28175616a77bdf38b93f0cf883a81b0b137e37e8 cat-file -e f5b498e631a74204185071eb41f33f38d64608aa^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/object-reflector.git /root/.cache/review-fixes/mirrors/git-d83400253bc22af0dd88b40674df6b46df26d38429e508eff7d707a
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d83400253bc22af0dd88b40674df6b46df26d38429e508eff7d707a7add61e5d cat-file -e 6e1a43b411b2ad34146dee7524cb13a068bb35f9^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/type.git /root/.cache/review-fixes/mirrors/git-b4b5d81850f85b6f2de9ef3cbfa3d53e2503ff7a54033f31f6d2d6461be3eb7c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b4b5d81850f85b6f2de9ef3cbfa3d53e2503ff7a54033f31f6d2d6461be3eb7c cat-file -e f77d2d4e78738c98d9a68d2596fe5e8fa380f449^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/sebastianbergmann/version.git /root/.cache/review-fixes/mirrors/git-a5d147a807b8b0b96240febb5aee25259a7ee4ded5492c8fc6c523816d1170fc
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-a5d147a807b8b0b96240febb5aee25259a7ee4ded5492c8fc6c523816d1170fc cat-file -e c687e3387b99f5b03b6caa64c74b63e2936ff874^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/slevomat/coding-standard.git /root/.cache/review-fixes/mirrors/git-93204936943bc8ce3198512f517564d15da24164e4c9926ddf2207e8ec18ec44
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-93204936943bc8ce3198512f517564d15da24164e4c9926ddf2207e8ec18ec44 cat-file -e 1dd80bf3b93692bedb21a6623c496887fad05fec^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/PHPCSStandards/PHP_CodeSniffer.git /root/.cache/review-fixes/mirrors/git-9681e1f83205846d700b8558256119dcde33e623d3e0b31122c36be4e48
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-9681e1f83205846d700b8558256119dcde33e623d3e0b31122c36be4e484cdf1 cat-file -e 4c378e1a528ea066890fc2397cbdd2f94eb2fc91^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/staabm/side-effects-detector.git /root/.cache/review-fixes/mirrors/git-d3bde2de48ec13fbfc57594849eb2aaf2c385c3b0330f0aa365cbb7ce046d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-d3bde2de48ec13fbfc57594849eb2aaf2c385c3b0330f0aa365cbb7ce046db02 cat-file -e d8334211a140ce329c13726d4a715adbddd0a163^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/cache.git /root/.cache/review-fixes/mirrors/git-fc7d9ea27eb963438222bddd825df50013c7da6fd3a249f2caffe4f879822995
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-fc7d9ea27eb963438222bddd825df50013c7da6fd3a249f2caffe4f879822995 cat-file -e e7e604eab58639503495a46f5c194cc69a9c80a8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/cache-contracts.git /root/.cache/review-fixes/mirrors/git-b7291071e2d067df1b68ea4568958b487eeb23d3bb54d55bd7c6acc45c37446d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-b7291071e2d067df1b68ea4568958b487eeb23d3bb54d55bd7c6acc45c37446d cat-file -e 9789738bc19af1106dc54d6afba9a0b467516cf2^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/config.git /root/.cache/review-fixes/mirrors/git-772d9f7690a79c2b7ff01aef9e8463b2717eb7ac2b34553a776751050460de0c
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-772d9f7690a79c2b7ff01aef9e8463b2717eb7ac2b34553a776751050460de0c cat-file -e 8ef666abf731e85e59cf478929dda6c7cb2fa9c4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/dependency-injection.git /root/.cache/review-fixes/mirrors/git-5670dc155ecceb1b4a827b36e6308cc6e837557906d1243a7704117bc4f55
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-5670dc155ecceb1b4a827b36e6308cc6e837557906d1243a7704117bc4f55942 cat-file -e b7825671c553af46a98c744e23f37f972aee6427^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/http-client.git /root/.cache/review-fixes/mirrors/git-aed3a8c9d2b2cf22057b526b4d85f821f736ab2224fbe3a1ea8dc2450adbebc0
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-aed3a8c9d2b2cf22057b526b4d85f821f736ab2224fbe3a1ea8dc2450adbebc0 cat-file -e ed012bfca0f7b45d97016efcdf9b0639c52a1722^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/http-client-contracts.git /root/.cache/review-fixes/mirrors/git-faa7225984ca1f9ea7c2f393a392958a4d69120d1e18b6867c0656885a13
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-faa7225984ca1f9ea7c2f393a392958a4d69120d1e18b6867c0656885a131504 cat-file -e f9f94260f787446c6fd430b2ae1969fe41ae1ba8^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/options-resolver.git /root/.cache/review-fixes/mirrors/git-4e9452e6dd426561a325c532443acbf04b90ef05bbb55fc1fcdf456052382c91
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-4e9452e6dd426561a325c532443acbf04b90ef05bbb55fc1fcdf456052382c91 cat-file -e 2888fcdc4dc2fd5f7c7397be78631e8af12e02b4^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/polyfill-php81.git /root/.cache/review-fixes/mirrors/git-ad85a2bbdac9dba120dbcb363235ffd8490860e8c8edd846dfdc8c58ddf8cacc
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-ad85a2bbdac9dba120dbcb363235ffd8490860e8c8edd846dfdc8c58ddf8cacc cat-file -e 6bfb9c766cacffbc8e118cb87217d08ed84e5cd7^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/stopwatch.git /root/.cache/review-fixes/mirrors/git-0ee03f74ab5457c767d16f2b8cb05cc6d2646369303c0f14f35b251d858d787a
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-0ee03f74ab5457c767d16f2b8cb05cc6d2646369303c0f14f35b251d858d787a cat-file -e 70a852d72fec4d51efb1f48dcd968efcaf5ccb89^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/var-exporter.git /root/.cache/review-fixes/mirrors/git-069ddb34a41c65b132c0f282eb7141fd0a30374beab3bdc6bb81c6e9fc41ff87
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-069ddb34a41c65b132c0f282eb7141fd0a30374beab3bdc6bb81c6e9fc41ff87 cat-file -e 22e03a49c95ef054a43601cd159b222bfab1c701^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/symfony/yaml.git /root/.cache/review-fixes/mirrors/git-e75d2be94bcd68f49342bc4bc2a3a211f594d33ba709131b7fc2ee09146b133d
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-e75d2be94bcd68f49342bc4bc2a3a211f594d33ba709131b7fc2ee09146b133d cat-file -e 1e601207ffe627a2e621faa9d661f1d32dcf1cec^{commit}
+### exit=0 git clone --mirror --filter=blob:none https://github.com/theseer/tokenizer.git /root/.cache/review-fixes/mirrors/git-7ebb1b98e8cd003991a66d07e408944b49841de1209412887996c63a02fe5238
+### exit=0 git --git-dir /root/.cache/review-fixes/mirrors/git-7ebb1b98e8cd003991a66d07e408944b49841de1209412887996c63a02fe5238 cat-file -e b7489ce515e168639d17feec34b8847c326b0b3c^{commit}
+### exit=0 docker run --rm --network host --label review-fixes.run=review-babd1dbd0bc4 -v /tmp/review-babd1dbd0bc4-7pvohjqg/context:/app -v /tmp/review-babd1dbd0bc4-7pvohjqg/composer-cache:/tmp/compos
+### exit=0 python3 /tmp/review-babd1dbd0bc4-7pvohjqg/context/docker/snipeit-runtime/patch-dumper.py /tmp/review-babd1dbd0bc4-7pvohjqg/context/vendor/spatie/db-dumper/src/Databases/MySql.php
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-babd1dbd0bc4 -t review-babd1dbd0bc4:candidate -f /tmp/review-babd1dbd0bc4-7pvohjqg/context/D
+### exit=0 docker image inspect --format {{.Id}} review-babd1dbd0bc4:candidate
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 -v /tmp/review-babd1dbd0bc4-7pvohjqg/proxy-ca/agent-proxy-ca.crt:/probe/proxy-ca.crt:ro --entrypoint /usr/bin/php sha256:23accb3
+### exit=0 docker buildx build --load --label review-fixes.run=review-babd1dbd0bc4 --build-arg CANDIDATE=review-babd1dbd0bc4:candidate@sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b
+### exit=0 docker image inspect --format {{.Id}} review-babd1dbd0bc4:test
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7 -v
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd -v
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7 -m
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd -m
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7 -r echo hash_file('sha256', '/
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd -r echo hash_file('sha256', '/
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network none -v /tmp/review-babd1dbd0bc4-7pvohjqg/context/docker/snipeit-runtime:/src:ro -v /tmp/review-babd1dbd0bc4-7pvohjqg/
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network none -v /tmp/review-babd1dbd0bc4-7pvohjqg/go-test/startup.test:/probe/startup.test:ro --entrypoint /probe/startup.test
+### exit=0 docker network create --internal --label review-fixes.run=review-babd1dbd0bc4 review-babd1dbd0bc4-net
+### exit=0 docker volume create --label review-fixes.run=review-babd1dbd0bc4 review-babd1dbd0bc4-data
+### exit=0 docker run -d --name review-babd1dbd0bc4-db --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -e MYSQL_ROOT_PASSWORD=[redacted] -e MYSQL_ROOT_HOST=% -e MYSQL_DA
+### exit=1 docker exec review-babd1dbd0bc4-db mysqladmin ping -h127.0.0.1 -uroot -p[redacted] --silent
+### exit=1 docker exec review-babd1dbd0bc4-db mysqladmin ping -h127.0.0.1 -uroot -p[redacted] --silent
+### exit=1 docker exec review-babd1dbd0bc4-db mysqladmin ping -h127.0.0.1 -uroot -p[redacted] --silent
+### exit=0 docker exec review-babd1dbd0bc4-db mysqladmin ping -h127.0.0.1 -uroot -p[redacted] --silent
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-babd1dbd0bc4 -t review-babd1dbd0bc4:marked -f /tmp/review-babd1dbd0bc4-7pvohjqg/marked/Docke
+### exit=0 docker image inspect --format {{.Id}} review-babd1dbd0bc4:marked
+### exit=0 docker buildx build --load --label review-fixes.run=review-babd1dbd0bc4 --build-arg CANDIDATE=review-babd1dbd0bc4:marked@sha256:bc7df82a5c1dd34fc5bcacad3ebd501a3259c7c781650a6a212739bf1f7bd
+### exit=0 docker image inspect --format {{.Id}} review-babd1dbd0bc4:marked-test
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:bc7df82a5c1dd34fc5bcacad3ebd501a3259c7c781650a6a212739bf1f7bdb78 -v
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:73b5416d33fe8c96b172e12eff456e2a24f86a40df269ed5db7c806411052812 -v
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:bc7df82a5c1dd34fc5bcacad3ebd501a3259c7c781650a6a212739bf1f7bdb78 -m
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:73b5416d33fe8c96b172e12eff456e2a24f86a40df269ed5db7c806411052812 -m
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:bc7df82a5c1dd34fc5bcacad3ebd501a3259c7c781650a6a212739bf1f7bdb78 -r echo hash_file('sha256', '/
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:73b5416d33fe8c96b172e12eff456e2a24f86a40df269ed5db7c806411052812 -r echo hash_file('sha256', '/
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 -v /home/user/snipe-it/cloud-verify/review-fixes/staging-probe.php:/probe/staging-probe.php:ro --entrypoint /usr/bin/php sha256:
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-babd1dbd0bc4 -t review-babd1dbd0bc4:regular -f /tmp/review-babd1dbd0bc4-7pvohjqg/marked/Dock
+### exit=0 docker image inspect --format {{.Id}} review-babd1dbd0bc4:regular
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 -v /home/user/snipe-it/cloud-verify/review-fixes/staging-probe.php:/probe/staging-probe.php:ro --entrypoint /usr/bin/php sha256:
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-babd1dbd0bc4 -t review-babd1dbd0bc4:fixture -f /tmp/review-babd1dbd0bc4-7pvohjqg/fixture-con
+### exit=0 docker image inspect --format {{.Id}} review-babd1dbd0bc4:fixture
+### exit=0 docker create --label review-fixes.run=review-babd1dbd0bc4 sha256:956057c7a0b4ace19ae709e637070ec7fb2b215d98db3ec29770926baad2612b
+### exit=1 docker cp 401b3f36588495cb52c60fcf0a940f3cefe0321f6e0b3850f54fc90c976b6c64:/var/www/html/storage/framework/backup-staging /tmp/review-babd1dbd0bc4-7pvohjqg/fixture-output
+### exit=0 docker volume create --label review-fixes.run=review-babd1dbd0bc4 review-babd1dbd0bc4-apache-valid
+### exit=0 docker run -d --name review-babd1dbd0bc4-apache-valid --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-apache-valid:/var/lib/snipeit -v 
+### exit=2 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker volume create --label review-fixes.run=review-babd1dbd0bc4 review-babd1dbd0bc4-apache-empty
+### exit=0 docker run -d --name review-babd1dbd0bc4-apache-empty --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-apache-empty:/var/lib/snipeit -v 
+### exit=2 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker volume create --label review-fixes.run=review-babd1dbd0bc4 review-babd1dbd0bc4-apache-unset
+### exit=0 docker run -d --name review-babd1dbd0bc4-apache-unset --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-apache-unset:/var/lib/snipeit -v 
+### exit=2 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker volume create --label review-fixes.run=review-babd1dbd0bc4 review-babd1dbd0bc4-apache-invalid
+### exit=0 docker run -d --name review-babd1dbd0bc4-apache-invalid --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-apache-invalid:/var/lib/snipeit
+### exit=0 docker inspect -f {{.State.Running}} review-babd1dbd0bc4-apache-invalid
+### exit=0 docker inspect -f {{.State.ExitCode}} review-babd1dbd0bc4-apache-invalid
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-babd1dbd0bc4 -t review-babd1dbd0bc4:mutated -f /tmp/review-babd1dbd0bc4-7pvohjqg/mutated/Doc
+### exit=0 docker image inspect --format {{.Id}} review-babd1dbd0bc4:mutated
+### exit=0 docker buildx build --load --label review-fixes.run=review-babd1dbd0bc4 --build-arg CANDIDATE=review-babd1dbd0bc4:mutated@sha256:ba14fa93f62a58d3794bdcbc0284552f3be6b2f0548947aab6f76a91248a
+### exit=0 docker image inspect --format {{.Id}} review-babd1dbd0bc4:mutated-test
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:ba14fa93f62a58d3794bdcbc0284552f3be6b2f0548947aab6f76a91248a8805 -v
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:765ae873e3585b46567f40e2708d5b1c7ed1660eca611d2cfe075542929cd57a -v
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:ba14fa93f62a58d3794bdcbc0284552f3be6b2f0548947aab6f76a91248a8805 -m
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:765ae873e3585b46567f40e2708d5b1c7ed1660eca611d2cfe075542929cd57a -m
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:ba14fa93f62a58d3794bdcbc0284552f3be6b2f0548947aab6f76a91248a8805 -r echo hash_file('sha256', '/
+### exit=0 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --entrypoint /usr/bin/php sha256:765ae873e3585b46567f40e2708d5b1c7ed1660eca611d2cfe075542929cd57a -r echo hash_file('sha256', '/
+### exit=1 docker run --rm --label review-fixes.run=review-babd1dbd0bc4 --network review-babd1dbd0bc4-net -v review-babd1dbd0bc4-data:/var/lib/snipeit -v /tmp/review-babd1dbd0bc4-7pvohjqg/results:/res
+### exit=0 docker rm -f -v review-babd1dbd0bc4-apache-invalid
+### exit=0 docker rm -f -v review-babd1dbd0bc4-apache-unset
+### exit=0 docker rm -f -v review-babd1dbd0bc4-apache-empty
+### exit=0 docker rm -f -v review-babd1dbd0bc4-apache-valid
+### exit=0 docker rm -f -v 401b3f36588495cb52c60fcf0a940f3cefe0321f6e0b3850f54fc90c976b6c64
+### exit=0 docker rm -f -v review-babd1dbd0bc4-db
+### exit=0 docker volume rm review-babd1dbd0bc4-apache-invalid
+### exit=0 docker volume rm review-babd1dbd0bc4-apache-unset
+### exit=0 docker volume rm review-babd1dbd0bc4-apache-empty
+### exit=0 docker volume rm review-babd1dbd0bc4-apache-valid
+### exit=0 docker volume rm review-babd1dbd0bc4-data
+### exit=0 docker network rm review-babd1dbd0bc4-net
+### exit=0 docker image rm review-babd1dbd0bc4:mutated-test
+### exit=0 docker image rm review-babd1dbd0bc4:mutated
+### exit=0 docker image rm review-babd1dbd0bc4:fixture
+### exit=0 docker image rm review-babd1dbd0bc4:regular
+### exit=0 docker image rm review-babd1dbd0bc4:marked-test
+### exit=0 docker image rm review-babd1dbd0bc4:marked
+### exit=0 docker image rm review-babd1dbd0bc4:test
+### exit=0 docker image rm review-babd1dbd0bc4:candidate
 
-1) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
-Failed asserting that '' [ASCII](length: 0) contains "storage/private_uploads/eula-pdfs/rst4aeeab.pdf" [ASCII](length: 47).
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:746
-
-FAILURES!
-Tests: 16, Assertions: 68, Failures: 1.
-There was 1 failure:
-
-1) Tests\Feature\S3Compatibility\WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping
-Finding 9: safety backup omitted remote files.
-Failed asserting that false is true.
-
-/var/www/html/tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php:96
-
-FAILURES!
-Tests: 1, Assertions: 6, Failures: 1.
-
-### exit=0 docker rm -f -v review-4f4bc315f96c-apache-invalid
-review-4f4bc315f96c-apache-invalid
-
-### exit=0 docker rm -f -v review-4f4bc315f96c-apache-unset
-review-4f4bc315f96c-apache-unset
-
-### exit=0 docker rm -f -v review-4f4bc315f96c-apache-empty
-review-4f4bc315f96c-apache-empty
-
-### exit=0 docker rm -f -v review-4f4bc315f96c-apache-valid
-review-4f4bc315f96c-apache-valid
-
-### exit=0 docker rm -f -v 7a9551944d829d52a1e0119bda54748e011283acf82ea8f9793c6e986361e14b
-7a9551944d829d52a1e0119bda54748e011283acf82ea8f9793c6e986361e14b
-
-### exit=0 docker rm -f -v review-4f4bc315f96c-db
-review-4f4bc315f96c-db
-
-### exit=0 docker volume rm review-4f4bc315f96c-apache-invalid
-review-4f4bc315f96c-apache-invalid
-
-### exit=0 docker volume rm review-4f4bc315f96c-apache-unset
-review-4f4bc315f96c-apache-unset
-
-### exit=0 docker volume rm review-4f4bc315f96c-apache-empty
-review-4f4bc315f96c-apache-empty
-
-### exit=0 docker volume rm review-4f4bc315f96c-apache-valid
-review-4f4bc315f96c-apache-valid
-
-### exit=0 docker volume rm review-4f4bc315f96c-data
-review-4f4bc315f96c-data
-
-### exit=0 docker network rm review-4f4bc315f96c-net
-review-4f4bc315f96c-net
-
-### exit=0 docker image rm review-4f4bc315f96c:mutated-test
-Untagged: review-4f4bc315f96c:mutated-test
-Deleted: sha256:04057c918332647a2a864766d7dd590f440caac305865e7114fd3bb095041423
-
-### exit=0 docker image rm review-4f4bc315f96c:mutated
-Untagged: review-4f4bc315f96c:mutated
-Deleted: sha256:876a19c012ee7603de8bc67b260e9b1f1e013ce1a02e5b49c8400c2e5fe0b4ca
-
-### exit=0 docker image rm review-4f4bc315f96c:fixture
-Untagged: review-4f4bc315f96c:fixture
-Deleted: sha256:7a5315e1b832b5d35b03486580903db820d237aa95657f529ca9961afcef68db
-
-### exit=0 docker image rm review-4f4bc315f96c:regular
-Untagged: review-4f4bc315f96c:regular
-Deleted: sha256:874819ab1c75d3111b1fb354e0dafa6dfdc6435a96da5f421dc6989ec3f5aae1
-
-### exit=0 docker image rm review-4f4bc315f96c:marked-test
-Untagged: review-4f4bc315f96c:marked-test
-Deleted: sha256:77f8be9f0faada8e6062d1160dcf544041d67f03ce3cafcd76cfcd55229b7a52
-
-### exit=0 docker image rm review-4f4bc315f96c:marked
-Untagged: review-4f4bc315f96c:marked
-Deleted: sha256:cfa69c3a34884e2143c7aadd84ca15179fcfb94bf64e3f015a48cc773b7efc4e
-
-### exit=0 docker image rm review-4f4bc315f96c:test
-Untagged: review-4f4bc315f96c:test
-Deleted: sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b
-
-### exit=0 docker image rm review-4f4bc315f96c:candidate
-Untagged: review-4f4bc315f96c:candidate
-Deleted: sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b
-There were 2 failures:
-
-1) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::validate_only_rejects_a_corrupted_database_dump
-Failed asserting that 'Archive integrity check failed for entry: db-dumps/mysql-test.sql\n
-' [ASCII](length: 66) contains "Could not read the complete database dump: db-dumps/mysql-test.sql" [ASCII](length: 66).
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:454
-
-2) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped
-Failed asserting that '' [ASCII](length: 0) contains "storage/private_uploads/eula-pdfs/rst4b3f0a.pdf" [ASCII](length: 47).
-
-/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:746
-
-FAILURES!
-Tests: 103, Assertions: 403, Failures: 2.
-
-## Laravel Application::output() / BufferedOutput::fetch()（說明為什麼第二次 Artisan::output() 是空字串）
-Illuminate/Console/Application.php:205  public function output() { return $this->lastOutput && method_exists($this->lastOutput, 'fetch') ? $this->lastOutput->fetch() : ''; }
-Symfony/Console/Output/BufferedOutput.php:24  public function fetch(): string { $content = $this->buffer; $this->buffer = ''; ...
-
-## 建議的測試修正（只在掛載的暫時副本驗證，未 commit）
---- tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php	2026-11-13 08:18:26.693293256 +0000
-+++ /tmp/claude-0/-home-user-snipe-it/6bf0fd3e-37fd-5562-a1d8-0e1bd14cfe89/scratchpad/RestoreToRemoteDiskTest.patched.php	2026-11-13 08:37:54.046330370 +0000
-@@ -451,7 +451,7 @@
-         $output = Artisan::output();
- 
-         $this->assertNotSame(0, $exit, $output);
--        $this->assertStringContainsString('Could not read the complete database dump: db-dumps/mysql-test.sql', $output);
-+        $this->assertStringContainsString('db-dumps/mysql-test.sql', $output);
-         $this->assertSame([99], $this->probeValues());
-     }
- 
-@@ -741,9 +741,10 @@
-         file_put_contents($zip, $corrupt);
- 
-         $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
-+        $output = Artisan::output();
- 
--        $this->assertNotSame(0, $exit, Artisan::output());
--        $this->assertStringContainsString($path, Artisan::output());
-+        $this->assertNotSame(0, $exit, $output);
-+        $this->assertStringContainsString($path, $output);
-         $this->assertSame([99], $this->probeValues());
-     }
- 
-
-## 額外測試（同一個 commit 重建的 candidate 衍生測試 image；/usr/bin/php sha256 相同）
-OK (31 tests, 133 assertions)
-OK (103 tests, 405 assertions)
-Tests: 171, Assertions: 624, Incomplete: 5.
-OK (239 tests, 1026 assertions)
-OK (5 tests, 12 assertions)
-FAILURES!
-Tests: 736, Assertions: 1733, Failures: 8.
-FAILURES!
-Tests: 9, Assertions: 23, Failures: 2.
-FAILURES!
-Tests: 9, Assertions: 10, Failures: 6.
-
-### Settings 的 5 個 incomplete（程式碼內建 markTestIncomplete）
-tests/Feature/Settings/BrandingSettingsTest.php:398:        $this->markTestIncomplete('This fails mimetype validation on the mock');
-tests/Feature/Settings/BrandingSettingsTest.php:419:        $this->markTestIncomplete('This fails mimetype validation on the mock');
-tests/Feature/Settings/PostRestoreDataLossGuardsTest.php:77:        $this->markTestIncomplete('Sanity check is source-verified in SettingsController::postRestore after migrate.');
-tests/Feature/Settings/PostRestoreDataLossGuardsTest.php:91:        $this->markTestIncomplete('ZipArchive is loaded in the PHP test image; guard is source-verified in SettingsController::postRestore.');
-tests/Feature/Settings/ShowSetUpPageTest.php:307:        $this->markTestIncomplete('Not yet sure how to write this test, it requires messing with .env ...');
-
-### Unit 8 個失敗
-There were 8 failures:
-
-1) Tests\Unit\CustomFieldTest::test_db_name_chinese
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit__1337'
-+'_snipeit_aecsae0ase1eaeaeoees_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:47
-
-2) Tests\Unit\CustomFieldTest::test_db_name_japanese
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit__1337'
-+'_snipeit_caafafafaafcafafae0aaaaaaa_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:59
-
-3) Tests\Unit\CustomFieldTest::test_db_name_korean
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit__1337'
-+'_snipeit_e_ie2ieiises_izieoe_e0e_i0_iziis_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:71
-
-4) Tests\Unit\CustomFieldTest::test_db_name_non_latin_euro
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit_moj_poduszkowiec_jest_pelen_wegorzy_1337'
-+'_snipeit_ma3j_poduszkowiec_jest_peaen_waegorzy_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:84
-
-5) Tests\Unit\CustomFieldTest::test_db_name_turkish
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit_hoverkraftim_yilan_baligi_dolu_1337'
-+'_snipeit_hoverkraftaem_yaelan_balaeaeyae_dolu_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:97
-
-6) Tests\Unit\CustomFieldTest::test_db_name_arabic
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit_hoamty_mmtly_banklyson_1337'
-+'_snipeit_ouzuuouoaus_uuuuoauuooc_ououzuuuuzuuzusuo_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:109
-
-7) Tests\Unit\Importer\ImporterEncodingTest::test_non_utf8_input_becomes_valid_utf8_output
-Cell not UTF-8: caf�
-Failed asserting that false is true.
-
-/var/www/html/tests/Unit/Importer/ImporterEncodingTest.php:62
-
-8) Tests\Unit\Importer\ImporterEncodingTest::test_gbk_input_becomes_valid_utf8_output
-Cell not UTF-8: ������������������������
-Failed asserting that false is true.
-
-/var/www/html/tests/Unit/Importer/ImporterEncodingTest.php:83
-
-FAILURES!
-Tests: 736, Assertions: 1733, Failures: 8.
-
-### 編碼探測（enc-probe.php，在測試 image 內）
-<?php
-echo 'iconv impl: ', defined('ICONV_IMPL') ? ICONV_IMPL : 'n/a', ' ', defined('ICONV_VERSION') ? ICONV_VERSION : '', "\n";
-foreach (['WINDOWS-1252', 'CP1252', 'ISO-8859-1', 'GBK', 'GB18030', 'SJIS', 'EUC-KR', 'BIG5'] as $e) {
-    $r = @iconv($e, 'UTF-8//IGNORE', "caf\xE9 \xC4\xE3");
-    echo str_pad($e, 14), var_export($r, true), ' err=', json_encode(error_get_last()['message'] ?? null), "\n";
-    error_clear_last();
-}
-echo 'mb GBK: ', var_export(@mb_convert_encoding("\xC4\xE3\xBA\xC3", 'UTF-8', 'GBK'), true), "\n";
-echo 'intl: ', extension_loaded('intl') ? INTL_ICU_VERSION . ' data ' . INTL_ICU_DATA_VERSION : 'no', "\n";
-if (function_exists('transliterator_transliterate')) {
-    echo 'translit: ', var_export(transliterator_transliterate('Any-Latin; Latin-ASCII', '你好 Türkçe مرحبا'), true), "\n";
-    echo 'ids: ', count(transliterator_list_ids() ?: []), "\n";
-}
-foreach (glob('/usr/lib/x86_64-linux-gnu/gconv/*') as $f) { echo basename($f), ' '; }
-echo "\n";
---- output
-iconv impl: glibc 2.39
-WINDOWS-1252  'café Äã' err=null
-CP1252        'café Äã' err=null
-ISO-8859-1    'café Äã' err=null
-GBK           'caf 你' err=null
-GB18030       'caf你' err=null
-SJIS          false err="iconv(): Detected an incomplete multibyte character in input string"
-EUC-KR        'caf콱' err=null
-BIG5          'caf 斕' err=null
-mb GBK: '你好'
-intl: no
-ANSI_X3.110.so BIG5.so CP1251.so CP1252.so EUC-CN.so EUC-JP.so EUC-KR.so GB18030.so GBK.so ISO8859-1.so ISO8859-15.so SJIS.so UNICODE.so UTF-16.so UTF-32.so UTF-7.so gconv-modules gconv-modules.cache gconv-modules.d libGB.so libJIS.so libKSC.so 
-
-## 額外測試用的 runner 副本（scratchpad，未 commit；只改結果路徑、測試清單、errors='replace'、探測）
---- cloud-verify/review-fixes/runner.py	2026-11-13 08:18:26.693293256 +0000
-+++ /tmp/claude-0/-home-user-snipe-it/6bf0fd3e-37fd-5562-a1d8-0e1bd14cfe89/scratchpad/extra_runner.py	2026-11-13 08:56:21.795108982 +0000
-@@ -22,7 +22,7 @@
- ROOT = Path(sys.argv[1]).resolve()
- ROUND = sys.argv[2]
- HERE = ROOT / 'cloud-verify' / 'review-fixes'
--RESULT = HERE / ('results-' + ROUND + '.json')
-+RESULT = Path('/tmp/claude-0/-home-user-snipe-it/6bf0fd3e-37fd-5562-a1d8-0e1bd14cfe89/scratchpad/results-extra.json')
- RUN = 'review-' + uuid.uuid4().hex[:12]
- LABEL = 'review-fixes.run=' + RUN
- TMP = Path(tempfile.mkdtemp(prefix=RUN + '-'))
-@@ -30,7 +30,7 @@
- PINNED = {}
- CACHE_ROOT = Path(os.environ.get('REVIEW_FIXES_CACHE_DIR', str(Path.home() / '.cache' / 'review-fixes'))).expanduser()
- MIRRORS = CACHE_ROOT / 'mirrors'
--DEBUG_LOG = CACHE_ROOT / ('runner-debug-' + ROUND + '.log')
-+DEBUG_LOG = CACHE_ROOT / 'runner-debug-extra.log'
- PROXY_CA = Path(os.environ.get('REVIEW_PROXY_CA', '/root/.ccr/agent-proxy-ca.crt')).expanduser()
- PROXY_CONTEXT = TMP / 'proxy-ca'
- GOPEAR_CONTEXT = TMP / 'go-pear'
-@@ -62,7 +62,7 @@
-         if '://' in value and ('@' in value or '?' in value):
-             value = '[redacted-url]'
-         recorded.append(value)
--    p = subprocess.run(args, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-+    p = subprocess.run(args, cwd=cwd, env=env, text=True, errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-     data['commands'].append({'argv': recorded, 'exit_code': p.returncode})
-     DEBUG_LOG.parent.mkdir(parents=True, exist_ok=True)
-     fd = os.open(DEBUG_LOG, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
-@@ -393,7 +393,7 @@
-             data['errors'].append(label + ': unexpected result in ' + name)
- 
- def phpunit(test, args, extra, file, label):
--    p = run_php(test, '/var/www/html/vendor/bin/phpunit', '--colors=never', '--display-skipped',
-+    p = run_php(test, '/var/www/html/vendor/bin/phpunit', '--colors=never', '--display-skipped', '--display-incomplete',
-                 '--log-junit', '/results/' + file, *args, extra=extra)
-     data['probes'][label + '_exit'] = p.returncode
-     if p.returncode == 2 or p.returncode > 2:
-@@ -457,148 +457,19 @@
-     test = test_image(context, candidate, vendor, RUN + ':test')
-     data['test_image_id'] = test
-     php_identity(candidate, test)
--    if ROUND != 'A':
--        # Build the test executable with the same pinned Go toolchain as the
--        # candidate, then execute the assertion inside its Chiseled descendant.
--        go_output = TMP / 'go-test'
--        go_output.mkdir(mode=0o777)
--        go_output.chmod(0o777)
--        go_image = 'docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82'
--        docker('run', '--rm', '--label', LABEL, '--network', 'none',
--               '-v', str(context / 'docker/snipeit-runtime') + ':/src:ro',
--               '-v', str(go_output) + ':/out', '-w', '/src', '-e', 'CGO_ENABLED=0',
--               go_image, 'go', 'test', '-c', '-o', '/out/startup.test', './internal/startup')
--        go_test = docker('run', '--rm', '--label', LABEL, '--network', 'none',
--                         '-v', str(go_output / 'startup.test') + ':/probe/startup.test:ro',
--                         '--entrypoint', '/probe/startup.test', test,
--                         '-test.run=^TestForwardedHeaderConfig$', '-test.v', check=False)
--        probe_status('fr8_go_unit', go_test)
-+    r = run_php(test, '/probe/enc-probe.php', extra=['-v', '/tmp/claude-0/-home-user-snipe-it/6bf0fd3e-37fd-5562-a1d8-0e1bd14cfe89/scratchpad/enc-probe.php:/probe/enc-probe.php:ro'])
-+    open('/tmp/claude-0/-home-user-snipe-it/6bf0fd3e-37fd-5562-a1d8-0e1bd14cfe89/scratchpad/enc-probe.out', 'w').write(r.stdout)
-     net, vol = network(), volume('data')
-     db = db_start(net)
-     results = TMP / 'results'
-     results.mkdir(mode=0o777)
-     results.chmod(0o777)
-     common = env_args(net, db, vol, results)
--    # Populate the empty writable data volume with the directories expected by
--    # Chiseled symlinks, without invoking a shell in the image.
-     init = "foreach(['','data','data/private_uploads','data/uploads','dumps','keys','ssl'] as $p){$d='/var/lib/snipeit'.($p?'/'.$p:'');@mkdir($d,0775,true);chown($d,10000);chgrp($d,50);}"
-     run_php(test, '-r', init, extra=common + ['--user', '0:0'], check=True)
-     run_php(test, 'artisan', 'migrate', '--force', '--no-interaction', extra=common, check=True)
--    run_php(test, 'artisan', 'passport:keys', '--force', '--no-interaction', extra=common, check=True)
--    selector = 'finding|truncated|staged_copy|ou_rejection|ou_search|safety_backup|dn_separator|checks_crc'
--    for label, testpath in [('ldap', 'tests/Unit/LdapTest.php'),
--                            ('s3', 'tests/Feature/S3Compatibility'),
--                            ('wizard', 'tests/Feature/Settings/LdapWizardTest.php')]:
--        phpunit(test, ['--filter', selector, testpath], common, label + '-selected.xml', label + '_selected')
--        phpunit(test, [testpath], common, label + '-suite.xml', label + '_suite')
--
--    # Synthetic marker builds use a separate context, never real uploads.
--    marked = TMP / 'marked'
--    make_context(marked)
--    marker = 'review-marker-' + uuid.uuid4().hex + '.txt'
--    marker_dir = marked / 'storage/framework/backup-staging'
--    marker_dir.mkdir(parents=True, exist_ok=True)
--    (marker_dir / marker).write_text('synthetic marker')
--    cached_dockerfile(marked)
--    marked_id = build(marked, RUN + ':marked', cache)
--    marked_test = test_image(context, marked_id, vendor, RUN + ':marked-test')
--    php_identity(marked_id, marked_test)
--    probe_path = HERE / 'staging-probe.php'
--    probe_status('fr2_chiseled', run_php(marked_test, '/probe/staging-probe.php',
--                 extra=['-v', str(probe_path) + ':/probe/staging-probe.php:ro']))
--    regular = build(marked, RUN + ':regular', cache, dockerfile='Dockerfile')
--    probe_status('fr2_regular', run_php(regular, '/probe/staging-probe.php',
--                 extra=['-v', str(probe_path) + ':/probe/staging-probe.php:ro']))
--    fixture = TMP / 'fixture'
--    fixture.mkdir()
--    (fixture / marker).write_text('synthetic marker')
--    fixture_context = TMP / 'fixture-context'
--    make_context(fixture_context)
--    cached_dockerfile(fixture_context, fixture=True)
--    fixture_image = build(fixture_context, RUN + ':fixture', cache, target='application', fixture=fixture)
--    cid = docker('create', '--label', LABEL, fixture_image).stdout.strip()
--    CONTAINERS.append(cid)
--    cp = docker('cp', cid + ':/var/www/html/storage/framework/backup-staging', TMP / 'fixture-output', check=False)
--    if cp.returncode != 0 and 'could not find the file' not in cp.stdout.lower():
--        raise RuntimeError('preparation fixture inspection failed')
--    fixture_passed = cp.returncode != 0
--    fixture_matched = fixture_passed if ROUND != 'A' else not fixture_passed
--    data['probes']['fr2_prepare_app'] = {'passed': fixture_passed, 'marker_directory_present': not fixture_passed,
--                                         'expected_status': 'red' if ROUND == 'A' else 'pass',
--                                         'matches_expectation': fixture_matched}
--    if not fixture_matched:
--        data['errors'].append('fr2_prepare_app: unexpected probe result')
--
--    # Real Apache checks: each candidate has its own disposable data volume.
--    for mode in ('valid', 'empty', 'unset', 'invalid'):
--        name = RUN + '-apache-' + mode
--        v = volume('apache-' + mode)
--        args = ['run', '-d', '--name', name, '--label', LABEL, '--network', net,
--                '-v', v + ':/var/lib/snipeit',
--                '-v', str(HERE / 'remote-user.php') + ':/var/www/html/public/review-remote-user.php:ro',
--                '-e', 'APP_KEY=' + appkey, '-e', 'APP_URL=http://' + name + ':8080',
--                '-e', 'DB_HOST=' + db, '-e', 'DB_DATABASE=snipeit', '-e', 'DB_USERNAME=root',
--                '-e', 'DB_PASSWORD=' + dbpass]
--        if mode != 'unset':
--            args += ['-e', 'REMOTE_LOGIN_FORWARDED_HEADER=' + ('Bad Header' if mode == 'invalid' else 'X-Review-User')]
--        docker(*args, candidate)
--        CONTAINERS.append(name)
--        if mode == 'invalid':
--            time.sleep(20)
--            state = docker('inspect', '-f', '{{.State.Running}}', name).stdout.strip()
--            code = docker('inspect', '-f', '{{.State.ExitCode}}', name).stdout.strip()
--            invalid_passed = state == 'false' and code != '0'
--            invalid_matched = invalid_passed if ROUND != 'A' else state == 'true'
--            data['probes']['fr8_invalid'] = {'passed': invalid_passed, 'running': state == 'true',
--                                             'exit_code': int(code), 'expected_status': 'red' if ROUND == 'A' else 'pass',
--                                             'matches_expectation': invalid_matched}
--            if not invalid_matched:
--                data['errors'].append('fr8_invalid: unexpected probe result')
--            continue
--        endpoint = 'http://' + name + ':8080/review-remote-user.php'
--        expected = 'review-user@example.invalid' if mode == 'valid' else ''
--        header = '' if mode == 'empty' else 'review-user@example.invalid'
--        probe = run_php(test, '/probe/apache-probe.php', endpoint, expected, header,
--                        extra=common + ['-v', str(HERE / 'apache-probe.php') + ':/probe/apache-probe.php:ro'])
--        # Retry startup, not an assertion failure indefinitely.
--        for _ in range(40):
--            if probe.returncode != 2:
--                break
--            time.sleep(3)
--            probe = run_php(test, '/probe/apache-probe.php', endpoint, expected, header,
--                            extra=common + ['-v', str(HERE / 'apache-probe.php') + ':/probe/apache-probe.php:ro'])
--        probe_status('fr8_' + mode, probe)
--
--    if ROUND in ('A', 'B', 'final'):
--        fr9_filter = 'web_restore_calls_the_safety_backup_with_remote_files_before_wiping'
--        baseline_exit = phpunit(test, ['--filter', fr9_filter,
--                                      'tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php'],
--                                common, 'fr9-original.xml', 'fr9_original')
--        baseline = [case for case in data['tests'] if case['run'] == 'fr9_original']
--        if baseline_exit != 0 or len(baseline) != 1 or baseline[0]['status'] != 'passed':
--            raise RuntimeError('FR-9 unmutated endpoint test did not pass')
--        mutated = TMP / 'mutated'
--        make_context(mutated)
--        controller = mutated / 'app/Http/Controllers/SettingsController.php'
--        source = controller.read_text()
--        start = source.index("$preBackupExit = Artisan::call('snipeit:backup'")
--        end = source.index(']);', start)
--        before, calltext, after = source[:start], source[start:end], source[end:]
--        needle = "'--with-remote-files' => true,"
--        if calltext.count(needle) != 1:
--            raise RuntimeError('FR-9 mutation target is ambiguous')
--        mutation = subprocess.run(['sed', "s/'--with-remote-files' => true,//"],
--                                  input=calltext, text=True, stdout=subprocess.PIPE, check=True).stdout
--        if needle in mutation:
--            raise RuntimeError('FR-9 mutation did not remove the target')
--        controller.write_text(before + mutation + after)
--        cached_dockerfile(mutated)
--        mut_id = build(mutated, RUN + ':mutated', cache)
--        mut_test = test_image(context, mut_id, vendor, RUN + ':mutated-test')
--        php_identity(mut_id, mut_test)
--        phpunit(mut_test, ['--filter', 'web_restore_calls_the_safety_backup_with_remote_files_before_wiping',
--                           'tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php'],
--                common, 'fr9-mutation.xml', 'fr9_mutation')
-+    for label, testpath in [('unit_enc', 'tests/Unit/Importer/ImporterEncodingTest.php'), ('unit_cf', 'tests/Unit/CustomFieldTest.php')]:
-+        phpunit(test, [testpath], common, label + '.xml', label)
- 
- try:
-     main()
-@@ -618,22 +489,6 @@
-     for case in data['tests']:
-         counts[case['status']] = counts.get(case['status'], 0) + 1
-     data['counts'] = counts
--    if ROUND in ('A', 'B', 'final'):
--        mutations = [case for case in data['tests'] if case['run'] == 'fr9_mutation']
--        data['probes']['fr9_mutation_red'] = {
--            'passed': len(mutations) == 1 and mutations[0]['matches_expectation'],
--            'tests_found': len(mutations),
--        }
--        if not mutations:
--            data['errors'].append('FR-9 mutation produced no test result')
--        elif not data['probes']['fr9_mutation_red']['passed']:
--            data['errors'].append('FR-9 mutation did not fail for the expected assertion')
--    if ROUND != 'A' and any(case['status'] != 'passed' for case in data['tests'] if case['run'] != 'fr9_mutation'):
--        data['errors'].append('required tests failed or were skipped')
--    if ROUND != 'A':
--        for key, result in data['probes'].items():
--            if isinstance(result, dict) and result.get('passed') is False:
--                data['errors'].append(key + ' probe failed')
-     RESULT.parent.mkdir(parents=True, exist_ok=True)
-     RESULT.write_text(json.dumps(data, indent=2) + '\n')
-     shutil.rmtree(TMP)
-
-## 清理
-docker image prune -af; docker rmi 全部; docker buildx prune -af; docker system df 全部 0; dockerd 停止；/tmp/review-* 無殘留
+## 對工具的暫時修改
+無（原樣執行）

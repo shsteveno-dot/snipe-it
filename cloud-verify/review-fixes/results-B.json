@@ -1,12 +1,12 @@
 {
   "round": "B",
-  "run_id": "review-4f4bc315f96c",
-  "date_utc": "2026-11-13T08:18:49.743732+00:00",
-  "commit": "bfa60db91d99f91547e57489e765259b38509c54",
+  "run_id": "review-babd1dbd0bc4",
+  "date_utc": "2026-11-13T09:05:19.124789+00:00",
+  "commit": "cd8b1a6197d2c138cf64879b468ae5432a90fd29",
   "platform": "Linux-6.18.44-fc-v445-x86_64-with-glibc2.39",
   "target_platform": "linux/amd64",
-  "candidate_image_id": "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b",
-  "test_image_id": "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+  "candidate_image_id": "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7",
+  "test_image_id": "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
   "php_comparison": {
     "version": {
       "equal": true
@@ -518,11 +518,11 @@
     {
       "run": "s3_selected",
       "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
-      "status": "failure",
-      "message": "Failed asserting that '' [ASCII](length: 0) contains \"storage/private_uploads/eula-pdfs/rst4aeeab.pdf\" [ASCII](length: 47).",
+      "status": "passed",
+      "message": "",
       "round_a_expectation": "red",
       "expected_status": "passed",
-      "matches_expectation": false
+      "matches_expectation": true
     },
     {
       "run": "s3_selected",
@@ -1274,11 +1274,11 @@
     {
       "run": "s3_suite",
       "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_a_corrupted_database_dump",
-      "status": "failure",
-      "message": "Failed asserting that 'Archive integrity check failed for entry: db-dumps/mysql-test.sql\\n",
+      "status": "passed",
+      "message": "",
       "round_a_expectation": "existing",
       "expected_status": "passed",
-      "matches_expectation": false
+      "matches_expectation": true
     },
     {
       "run": "s3_suite",
@@ -1409,11 +1409,11 @@
     {
       "run": "s3_suite",
       "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
-      "status": "failure",
-      "message": "Failed asserting that '' [ASCII](length: 0) contains \"storage/private_uploads/eula-pdfs/rst4b3f0a.pdf\" [ASCII](length: 47).",
+      "status": "passed",
+      "message": "",
       "round_a_expectation": "red",
       "expected_status": "passed",
-      "matches_expectation": false
+      "matches_expectation": true
     },
     {
       "run": "s3_suite",
@@ -2029,8 +2029,8 @@
     }
   ],
   "counts": {
-    "passed": 219,
-    "failure": 4
+    "passed": 222,
+    "failure": 1
   },
   "probes": {
     "chiseled_input_locks": {
@@ -2051,8 +2051,8 @@
     },
     "ldap_selected_exit": 0,
     "ldap_suite_exit": 0,
-    "s3_selected_exit": 1,
-    "s3_suite_exit": 1,
+    "s3_selected_exit": 0,
+    "s3_suite_exit": 0,
     "wizard_selected_exit": 0,
     "wizard_suite_exit": 0,
     "fr2_chiseled": {
@@ -7857,11 +7857,11 @@
         "--network",
         "host",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/context:/app",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context:/app",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/composer-cache:/tmp/composer-cache",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/composer-cache:/tmp/composer-cache",
         "-w",
         "/app",
         "-e",
@@ -7885,8 +7885,8 @@
     {
       "argv": [
         "python3",
-        "/tmp/review-4f4bc315f96c-koinydc0/context/docker/snipeit-runtime/patch-dumper.py",
-        "/tmp/review-4f4bc315f96c-koinydc0/context/vendor/spatie/db-dumper/src/Databases/MySql.php"
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context/docker/snipeit-runtime/patch-dumper.py",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context/vendor/spatie/db-dumper/src/Databases/MySql.php"
       ],
       "exit_code": 0
     },
@@ -7901,20 +7901,20 @@
         "--platform",
         "linux/amd64",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-t",
-        "review-4f4bc315f96c:candidate",
+        "review-babd1dbd0bc4:candidate",
         "-f",
-        "/tmp/review-4f4bc315f96c-koinydc0/context/Dockerfile.chiseled",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context/Dockerfile.chiseled",
         "--build-context",
-        "composercache=/tmp/review-4f4bc315f96c-koinydc0/composer-cache",
+        "composercache=/tmp/review-babd1dbd0bc4-7pvohjqg/composer-cache",
         "--build-context",
-        "proxyca=/tmp/review-4f4bc315f96c-koinydc0/proxy-ca",
+        "proxyca=/tmp/review-babd1dbd0bc4-7pvohjqg/proxy-ca",
         "--build-arg",
         "HTTPS_PROXY",
         "--build-arg",
         "NO_PROXY",
-        "/tmp/review-4f4bc315f96c-koinydc0/context"
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context"
       ],
       "exit_code": 0
     },
@@ -7925,7 +7925,7 @@
         "inspect",
         "--format",
         "{{.Id}}",
-        "review-4f4bc315f96c:candidate"
+        "review-babd1dbd0bc4:candidate"
       ],
       "exit_code": 0
     },
@@ -7935,12 +7935,12 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/proxy-ca/agent-proxy-ca.crt:/probe/proxy-ca.crt:ro",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/proxy-ca/agent-proxy-ca.crt:/probe/proxy-ca.crt:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b",
+        "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7",
         "-r",
         "$pem=file_get_contents('/probe/proxy-ca.crt');$bundle=@file_get_contents('/etc/ssl/certs/ca-certificates.crt');if($pem===false || strlen($pem)===0 || $bundle===false){exit(2);}if(file_exists('/usr/local/share/ca-certificates/agent-proxy-ca.crt')||file_exists('/etc/ssl/certs/agent-proxy-ca.pem')||($bundle!==false && strpos($bundle,$pem)!==false)){exit(1);}"
       ],
@@ -7953,16 +7953,16 @@
         "build",
         "--load",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--build-arg",
-        "CANDIDATE=review-4f4bc315f96c:candidate@sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b",
+        "CANDIDATE=review-babd1dbd0bc4:candidate@sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7",
         "--build-context",
-        "devvendor=/tmp/review-4f4bc315f96c-koinydc0/context/vendor",
+        "devvendor=/tmp/review-babd1dbd0bc4-7pvohjqg/context/vendor",
         "-f",
-        "/tmp/review-4f4bc315f96c-koinydc0/context/cloud-verify/review-fixes/Dockerfile.test",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context/cloud-verify/review-fixes/Dockerfile.test",
         "-t",
-        "review-4f4bc315f96c:test",
-        "/tmp/review-4f4bc315f96c-koinydc0/context"
+        "review-babd1dbd0bc4:test",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context"
       ],
       "exit_code": 0
     },
@@ -7973,7 +7973,7 @@
         "inspect",
         "--format",
         "{{.Id}}",
-        "review-4f4bc315f96c:test"
+        "review-babd1dbd0bc4:test"
       ],
       "exit_code": 0
     },
@@ -7983,10 +7983,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b",
+        "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7",
         "-v"
       ],
       "exit_code": 0
@@ -7997,10 +7997,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "-v"
       ],
       "exit_code": 0
@@ -8011,10 +8011,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b",
+        "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7",
         "-m"
       ],
       "exit_code": 0
@@ -8025,10 +8025,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "-m"
       ],
       "exit_code": 0
@@ -8039,10 +8039,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b",
+        "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7",
         "-r",
         "echo hash_file('sha256', '/usr/bin/php');"
       ],
@@ -8054,10 +8054,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "-r",
         "echo hash_file('sha256', '/usr/bin/php');"
       ],
@@ -8069,13 +8069,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
         "none",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/context/docker/snipeit-runtime:/src:ro",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context/docker/snipeit-runtime:/src:ro",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/go-test:/out",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/go-test:/out",
         "-w",
         "/src",
         "-e",
@@ -8096,14 +8096,14 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
         "none",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/go-test/startup.test:/probe/startup.test:ro",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/go-test/startup.test:/probe/startup.test:ro",
         "--entrypoint",
         "/probe/startup.test",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "-test.run=^TestForwardedHeaderConfig$",
         "-test.v"
       ],
@@ -8116,8 +8116,8 @@
         "create",
         "--internal",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
-        "review-4f4bc315f96c-net"
+        "review-fixes.run=review-babd1dbd0bc4",
+        "review-babd1dbd0bc4-net"
       ],
       "exit_code": 0
     },
@@ -8127,8 +8127,8 @@
         "volume",
         "create",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
-        "review-4f4bc315f96c-data"
+        "review-fixes.run=review-babd1dbd0bc4",
+        "review-babd1dbd0bc4-data"
       ],
       "exit_code": 0
     },
@@ -8138,11 +8138,11 @@
         "run",
         "-d",
         "--name",
-        "review-4f4bc315f96c-db",
+        "review-babd1dbd0bc4-db",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-e",
         "MYSQL_ROOT_PASSWORD=[redacted]",
         "-e",
@@ -8157,7 +8157,7 @@
       "argv": [
         "docker",
         "exec",
-        "review-4f4bc315f96c-db",
+        "review-babd1dbd0bc4-db",
         "mysqladmin",
         "ping",
         "-h127.0.0.1",
@@ -8171,7 +8171,7 @@
       "argv": [
         "docker",
         "exec",
-        "review-4f4bc315f96c-db",
+        "review-babd1dbd0bc4-db",
         "mysqladmin",
         "ping",
         "-h127.0.0.1",
@@ -8185,7 +8185,7 @@
       "argv": [
         "docker",
         "exec",
-        "review-4f4bc315f96c-db",
+        "review-babd1dbd0bc4-db",
         "mysqladmin",
         "ping",
         "-h127.0.0.1",
@@ -8199,7 +8199,7 @@
       "argv": [
         "docker",
         "exec",
-        "review-4f4bc315f96c-db",
+        "review-babd1dbd0bc4-db",
         "mysqladmin",
         "ping",
         "-h127.0.0.1",
@@ -8215,13 +8215,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8233,7 +8233,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8260,7 +8260,7 @@
         "0:0",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "-r",
         "foreach(['','data','data/private_uploads','data/uploads','dumps','keys','ssl'] as $p){$d='/var/lib/snipeit'.($p?'/'.$p:'');@mkdir($d,0775,true);chown($d,10000);chgrp($d,50);}"
       ],
@@ -8272,13 +8272,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8290,7 +8290,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8315,7 +8315,7 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "artisan",
         "migrate",
         "--force",
@@ -8329,13 +8329,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8347,7 +8347,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8372,7 +8372,7 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "artisan",
         "passport:keys",
         "--force",
@@ -8386,13 +8386,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8404,7 +8404,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8429,10 +8429,11 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/var/www/html/vendor/bin/phpunit",
         "--colors=never",
         "--display-skipped",
+        "--display-incomplete",
         "--log-junit",
         "/results/ldap-selected.xml",
         "--filter",
@@ -8447,13 +8448,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8465,7 +8466,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8490,10 +8491,11 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/var/www/html/vendor/bin/phpunit",
         "--colors=never",
         "--display-skipped",
+        "--display-incomplete",
         "--log-junit",
         "/results/ldap-suite.xml",
         "tests/Unit/LdapTest.php"
@@ -8506,13 +8508,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8524,7 +8526,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8549,17 +8551,18 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/var/www/html/vendor/bin/phpunit",
         "--colors=never",
         "--display-skipped",
+        "--display-incomplete",
         "--log-junit",
         "/results/s3-selected.xml",
         "--filter",
         "finding|truncated|staged_copy|ou_rejection|ou_search|safety_backup|dn_separator|checks_crc",
         "tests/Feature/S3Compatibility"
       ],
-      "exit_code": 1
+      "exit_code": 0
     },
     {
       "argv": [
@@ -8567,13 +8570,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8585,7 +8588,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8610,15 +8613,16 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/var/www/html/vendor/bin/phpunit",
         "--colors=never",
         "--display-skipped",
+        "--display-incomplete",
         "--log-junit",
         "/results/s3-suite.xml",
         "tests/Feature/S3Compatibility"
       ],
-      "exit_code": 1
+      "exit_code": 0
     },
     {
       "argv": [
@@ -8626,13 +8630,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8644,7 +8648,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8669,10 +8673,11 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/var/www/html/vendor/bin/phpunit",
         "--colors=never",
         "--display-skipped",
+        "--display-incomplete",
         "--log-junit",
         "/results/wizard-selected.xml",
         "--filter",
@@ -8687,13 +8692,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -8705,7 +8710,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -8730,10 +8735,11 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/var/www/html/vendor/bin/phpunit",
         "--colors=never",
         "--display-skipped",
+        "--display-incomplete",
         "--log-junit",
         "/results/wizard-suite.xml",
         "tests/Feature/Settings/LdapWizardTest.php"
@@ -8751,20 +8757,20 @@
         "--platform",
         "linux/amd64",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-t",
-        "review-4f4bc315f96c:marked",
+        "review-babd1dbd0bc4:marked",
         "-f",
-        "/tmp/review-4f4bc315f96c-koinydc0/marked/Dockerfile.chiseled",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/marked/Dockerfile.chiseled",
         "--build-context",
-        "composercache=/tmp/review-4f4bc315f96c-koinydc0/composer-cache",
+        "composercache=/tmp/review-babd1dbd0bc4-7pvohjqg/composer-cache",
         "--build-context",
-        "proxyca=/tmp/review-4f4bc315f96c-koinydc0/proxy-ca",
+        "proxyca=/tmp/review-babd1dbd0bc4-7pvohjqg/proxy-ca",
         "--build-arg",
         "HTTPS_PROXY",
         "--build-arg",
         "NO_PROXY",
-        "/tmp/review-4f4bc315f96c-koinydc0/marked"
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/marked"
       ],
       "exit_code": 0
     },
@@ -8775,7 +8781,7 @@
         "inspect",
         "--format",
         "{{.Id}}",
-        "review-4f4bc315f96c:marked"
+        "review-babd1dbd0bc4:marked"
       ],
       "exit_code": 0
     },
@@ -8786,16 +8792,16 @@
         "build",
         "--load",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--build-arg",
-        "CANDIDATE=review-4f4bc315f96c:marked@sha256:cfa69c3a34884e2143c7aadd84ca15179fcfb94bf64e3f015a48cc773b7efc4e",
+        "CANDIDATE=review-babd1dbd0bc4:marked@sha256:bc7df82a5c1dd34fc5bcacad3ebd501a3259c7c781650a6a212739bf1f7bdb78",
         "--build-context",
-        "devvendor=/tmp/review-4f4bc315f96c-koinydc0/context/vendor",
+        "devvendor=/tmp/review-babd1dbd0bc4-7pvohjqg/context/vendor",
         "-f",
-        "/tmp/review-4f4bc315f96c-koinydc0/context/cloud-verify/review-fixes/Dockerfile.test",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context/cloud-verify/review-fixes/Dockerfile.test",
         "-t",
-        "review-4f4bc315f96c:marked-test",
-        "/tmp/review-4f4bc315f96c-koinydc0/context"
+        "review-babd1dbd0bc4:marked-test",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context"
       ],
       "exit_code": 0
     },
@@ -8806,7 +8812,7 @@
         "inspect",
         "--format",
         "{{.Id}}",
-        "review-4f4bc315f96c:marked-test"
+        "review-babd1dbd0bc4:marked-test"
       ],
       "exit_code": 0
     },
@@ -8816,10 +8822,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:cfa69c3a34884e2143c7aadd84ca15179fcfb94bf64e3f015a48cc773b7efc4e",
+        "sha256:bc7df82a5c1dd34fc5bcacad3ebd501a3259c7c781650a6a212739bf1f7bdb78",
         "-v"
       ],
       "exit_code": 0
@@ -8830,10 +8836,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:77f8be9f0faada8e6062d1160dcf544041d67f03ce3cafcd76cfcd55229b7a52",
+        "sha256:73b5416d33fe8c96b172e12eff456e2a24f86a40df269ed5db7c806411052812",
         "-v"
       ],
       "exit_code": 0
@@ -8844,10 +8850,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:cfa69c3a34884e2143c7aadd84ca15179fcfb94bf64e3f015a48cc773b7efc4e",
+        "sha256:bc7df82a5c1dd34fc5bcacad3ebd501a3259c7c781650a6a212739bf1f7bdb78",
         "-m"
       ],
       "exit_code": 0
@@ -8858,10 +8864,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:77f8be9f0faada8e6062d1160dcf544041d67f03ce3cafcd76cfcd55229b7a52",
+        "sha256:73b5416d33fe8c96b172e12eff456e2a24f86a40df269ed5db7c806411052812",
         "-m"
       ],
       "exit_code": 0
@@ -8872,10 +8878,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:cfa69c3a34884e2143c7aadd84ca15179fcfb94bf64e3f015a48cc773b7efc4e",
+        "sha256:bc7df82a5c1dd34fc5bcacad3ebd501a3259c7c781650a6a212739bf1f7bdb78",
         "-r",
         "echo hash_file('sha256', '/usr/bin/php');"
       ],
@@ -8887,10 +8893,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:77f8be9f0faada8e6062d1160dcf544041d67f03ce3cafcd76cfcd55229b7a52",
+        "sha256:73b5416d33fe8c96b172e12eff456e2a24f86a40df269ed5db7c806411052812",
         "-r",
         "echo hash_file('sha256', '/usr/bin/php');"
       ],
@@ -8902,12 +8908,12 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-v",
         "/home/user/snipe-it/cloud-verify/review-fixes/staging-probe.php:/probe/staging-probe.php:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:77f8be9f0faada8e6062d1160dcf544041d67f03ce3cafcd76cfcd55229b7a52",
+        "sha256:73b5416d33fe8c96b172e12eff456e2a24f86a40df269ed5db7c806411052812",
         "/probe/staging-probe.php"
       ],
       "exit_code": 0
@@ -8923,20 +8929,20 @@
         "--platform",
         "linux/amd64",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-t",
-        "review-4f4bc315f96c:regular",
+        "review-babd1dbd0bc4:regular",
         "-f",
-        "/tmp/review-4f4bc315f96c-koinydc0/marked/Dockerfile",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/marked/Dockerfile",
         "--build-context",
-        "composercache=/tmp/review-4f4bc315f96c-koinydc0/composer-cache",
+        "composercache=/tmp/review-babd1dbd0bc4-7pvohjqg/composer-cache",
         "--build-context",
-        "gopear=/tmp/review-4f4bc315f96c-koinydc0/go-pear",
+        "gopear=/tmp/review-babd1dbd0bc4-7pvohjqg/go-pear",
         "--build-arg",
         "HTTPS_PROXY",
         "--build-arg",
         "NO_PROXY",
-        "/tmp/review-4f4bc315f96c-koinydc0/marked"
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/marked"
       ],
       "exit_code": 0
     },
@@ -8947,7 +8953,7 @@
         "inspect",
         "--format",
         "{{.Id}}",
-        "review-4f4bc315f96c:regular"
+        "review-babd1dbd0bc4:regular"
       ],
       "exit_code": 0
     },
@@ -8957,12 +8963,12 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-v",
         "/home/user/snipe-it/cloud-verify/review-fixes/staging-probe.php:/probe/staging-probe.php:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:874819ab1c75d3111b1fb354e0dafa6dfdc6435a96da5f421dc6989ec3f5aae1",
+        "sha256:54c30163ac0c60520328985b4e92d1f8babdf22e2e9c73ff4924c0df0bcfe9ca",
         "/probe/staging-probe.php"
       ],
       "exit_code": 0
@@ -8978,24 +8984,24 @@
         "--platform",
         "linux/amd64",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-t",
-        "review-4f4bc315f96c:fixture",
+        "review-babd1dbd0bc4:fixture",
         "-f",
-        "/tmp/review-4f4bc315f96c-koinydc0/fixture-context/Dockerfile.chiseled",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/fixture-context/Dockerfile.chiseled",
         "--build-context",
-        "composercache=/tmp/review-4f4bc315f96c-koinydc0/composer-cache",
+        "composercache=/tmp/review-babd1dbd0bc4-7pvohjqg/composer-cache",
         "--build-context",
-        "proxyca=/tmp/review-4f4bc315f96c-koinydc0/proxy-ca",
+        "proxyca=/tmp/review-babd1dbd0bc4-7pvohjqg/proxy-ca",
         "--target",
         "application",
         "--build-context",
-        "stagingfixture=/tmp/review-4f4bc315f96c-koinydc0/fixture",
+        "stagingfixture=/tmp/review-babd1dbd0bc4-7pvohjqg/fixture",
         "--build-arg",
         "HTTPS_PROXY",
         "--build-arg",
         "NO_PROXY",
-        "/tmp/review-4f4bc315f96c-koinydc0/fixture-context"
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/fixture-context"
       ],
       "exit_code": 0
     },
@@ -9006,7 +9012,7 @@
         "inspect",
         "--format",
         "{{.Id}}",
-        "review-4f4bc315f96c:fixture"
+        "review-babd1dbd0bc4:fixture"
       ],
       "exit_code": 0
     },
@@ -9015,8 +9021,8 @@
         "docker",
         "create",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
-        "sha256:7a5315e1b832b5d35b03486580903db820d237aa95657f529ca9961afcef68db"
+        "review-fixes.run=review-babd1dbd0bc4",
+        "sha256:956057c7a0b4ace19ae709e637070ec7fb2b215d98db3ec29770926baad2612b"
       ],
       "exit_code": 0
     },
@@ -9024,8 +9030,8 @@
       "argv": [
         "docker",
         "cp",
-        "7a9551944d829d52a1e0119bda54748e011283acf82ea8f9793c6e986361e14b:/var/www/html/storage/framework/backup-staging",
-        "/tmp/review-4f4bc315f96c-koinydc0/fixture-output"
+        "401b3f36588495cb52c60fcf0a940f3cefe0321f6e0b3850f54fc90c976b6c64:/var/www/html/storage/framework/backup-staging",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/fixture-output"
       ],
       "exit_code": 1
     },
@@ -9035,8 +9041,8 @@
         "volume",
         "create",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
-        "review-4f4bc315f96c-apache-valid"
+        "review-fixes.run=review-babd1dbd0bc4",
+        "review-babd1dbd0bc4-apache-valid"
       ],
       "exit_code": 0
     },
@@ -9046,21 +9052,21 @@
         "run",
         "-d",
         "--name",
-        "review-4f4bc315f96c-apache-valid",
+        "review-babd1dbd0bc4-apache-valid",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-apache-valid:/var/lib/snipeit",
+        "review-babd1dbd0bc4-apache-valid:/var/lib/snipeit",
         "-v",
         "/home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-user.php:ro",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
-        "APP_URL=http://review-4f4bc315f96c-apache-valid:8080",
+        "APP_URL=http://review-babd1dbd0bc4-apache-valid:8080",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_DATABASE=snipeit",
         "-e",
@@ -9069,7 +9075,7 @@
         "DB_PASSWORD=[redacted]",
         "-e",
         "REMOTE_LOGIN_FORWARDED_HEADER=X-Review-User",
-        "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b"
+        "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7"
       ],
       "exit_code": 0
     },
@@ -9079,13 +9085,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -9097,7 +9103,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -9124,9 +9130,9 @@
         "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/probe/apache-probe.php",
-        "http://review-4f4bc315f96c-apache-valid:8080/review-remote-user.php",
+        "http://review-babd1dbd0bc4-apache-valid:8080/review-remote-user.php",
         "review-user@example.invalid",
         "review-user@example.invalid"
       ],
@@ -9138,13 +9144,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -9156,7 +9162,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -9183,9 +9189,9 @@
         "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/probe/apache-probe.php",
-        "http://review-4f4bc315f96c-apache-valid:8080/review-remote-user.php",
+        "http://review-babd1dbd0bc4-apache-valid:8080/review-remote-user.php",
         "review-user@example.invalid",
         "review-user@example.invalid"
       ],
@@ -9197,8 +9203,8 @@
         "volume",
         "create",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
-        "review-4f4bc315f96c-apache-empty"
+        "review-fixes.run=review-babd1dbd0bc4",
+        "review-babd1dbd0bc4-apache-empty"
       ],
       "exit_code": 0
     },
@@ -9208,21 +9214,21 @@
         "run",
         "-d",
         "--name",
-        "review-4f4bc315f96c-apache-empty",
+        "review-babd1dbd0bc4-apache-empty",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-apache-empty:/var/lib/snipeit",
+        "review-babd1dbd0bc4-apache-empty:/var/lib/snipeit",
         "-v",
         "/home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-user.php:ro",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
-        "APP_URL=http://review-4f4bc315f96c-apache-empty:8080",
+        "APP_URL=http://review-babd1dbd0bc4-apache-empty:8080",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_DATABASE=snipeit",
         "-e",
@@ -9231,7 +9237,7 @@
         "DB_PASSWORD=[redacted]",
         "-e",
         "REMOTE_LOGIN_FORWARDED_HEADER=X-Review-User",
-        "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b"
+        "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7"
       ],
       "exit_code": 0
     },
@@ -9241,13 +9247,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -9259,7 +9265,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -9286,9 +9292,9 @@
         "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/probe/apache-probe.php",
-        "http://review-4f4bc315f96c-apache-empty:8080/review-remote-user.php",
+        "http://review-babd1dbd0bc4-apache-empty:8080/review-remote-user.php",
         "",
         ""
       ],
@@ -9300,13 +9306,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -9318,7 +9324,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -9345,9 +9351,9 @@
         "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/probe/apache-probe.php",
-        "http://review-4f4bc315f96c-apache-empty:8080/review-remote-user.php",
+        "http://review-babd1dbd0bc4-apache-empty:8080/review-remote-user.php",
         "",
         ""
       ],
@@ -9359,8 +9365,8 @@
         "volume",
         "create",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
-        "review-4f4bc315f96c-apache-unset"
+        "review-fixes.run=review-babd1dbd0bc4",
+        "review-babd1dbd0bc4-apache-unset"
       ],
       "exit_code": 0
     },
@@ -9370,28 +9376,28 @@
         "run",
         "-d",
         "--name",
-        "review-4f4bc315f96c-apache-unset",
+        "review-babd1dbd0bc4-apache-unset",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-apache-unset:/var/lib/snipeit",
+        "review-babd1dbd0bc4-apache-unset:/var/lib/snipeit",
         "-v",
         "/home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-user.php:ro",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
-        "APP_URL=http://review-4f4bc315f96c-apache-unset:8080",
+        "APP_URL=http://review-babd1dbd0bc4-apache-unset:8080",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_DATABASE=snipeit",
         "-e",
         "DB_USERNAME=root",
         "-e",
         "DB_PASSWORD=[redacted]",
-        "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b"
+        "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7"
       ],
       "exit_code": 0
     },
@@ -9401,13 +9407,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -9419,7 +9425,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -9446,9 +9452,9 @@
         "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/probe/apache-probe.php",
-        "http://review-4f4bc315f96c-apache-unset:8080/review-remote-user.php",
+        "http://review-babd1dbd0bc4-apache-unset:8080/review-remote-user.php",
         "",
         "review-user@example.invalid"
       ],
@@ -9460,13 +9466,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -9478,7 +9484,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -9505,9 +9511,9 @@
         "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/probe/apache-probe.php",
-        "http://review-4f4bc315f96c-apache-unset:8080/review-remote-user.php",
+        "http://review-babd1dbd0bc4-apache-unset:8080/review-remote-user.php",
         "",
         "review-user@example.invalid"
       ],
@@ -9519,8 +9525,8 @@
         "volume",
         "create",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
-        "review-4f4bc315f96c-apache-invalid"
+        "review-fixes.run=review-babd1dbd0bc4",
+        "review-babd1dbd0bc4-apache-invalid"
       ],
       "exit_code": 0
     },
@@ -9530,21 +9536,21 @@
         "run",
         "-d",
         "--name",
-        "review-4f4bc315f96c-apache-invalid",
+        "review-babd1dbd0bc4-apache-invalid",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-apache-invalid:/var/lib/snipeit",
+        "review-babd1dbd0bc4-apache-invalid:/var/lib/snipeit",
         "-v",
         "/home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-user.php:ro",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
-        "APP_URL=http://review-4f4bc315f96c-apache-invalid:8080",
+        "APP_URL=http://review-babd1dbd0bc4-apache-invalid:8080",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_DATABASE=snipeit",
         "-e",
@@ -9553,7 +9559,7 @@
         "DB_PASSWORD=[redacted]",
         "-e",
         "REMOTE_LOGIN_FORWARDED_HEADER=Bad Header",
-        "sha256:21261e78453cae1148cdcd0b736001d70c704c509bfe09c35c82070aa899038b"
+        "sha256:23accb37ba66eefa7679b14f6d5de75fa232bf45338fa1e2f6cd62505b9639b7"
       ],
       "exit_code": 0
     },
@@ -9563,7 +9569,7 @@
         "inspect",
         "-f",
         "{{.State.Running}}",
-        "review-4f4bc315f96c-apache-invalid"
+        "review-babd1dbd0bc4-apache-invalid"
       ],
       "exit_code": 0
     },
@@ -9573,7 +9579,7 @@
         "inspect",
         "-f",
         "{{.State.ExitCode}}",
-        "review-4f4bc315f96c-apache-invalid"
+        "review-babd1dbd0bc4-apache-invalid"
       ],
       "exit_code": 0
     },
@@ -9583,13 +9589,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -9601,7 +9607,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -9626,10 +9632,11 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:7fda9a570eca66362ca5f4182a4404a9efa85316a0ce171d047d86f4342d858b",
+        "sha256:8facabfde499b7e9c632dc8b4685d4f597a41f9612e14cb613c548923f0072dd",
         "/var/www/html/vendor/bin/phpunit",
         "--colors=never",
         "--display-skipped",
+        "--display-incomplete",
         "--log-junit",
         "/results/fr9-original.xml",
         "--filter",
@@ -9649,20 +9656,20 @@
         "--platform",
         "linux/amd64",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "-t",
-        "review-4f4bc315f96c:mutated",
+        "review-babd1dbd0bc4:mutated",
         "-f",
-        "/tmp/review-4f4bc315f96c-koinydc0/mutated/Dockerfile.chiseled",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/mutated/Dockerfile.chiseled",
         "--build-context",
-        "composercache=/tmp/review-4f4bc315f96c-koinydc0/composer-cache",
+        "composercache=/tmp/review-babd1dbd0bc4-7pvohjqg/composer-cache",
         "--build-context",
-        "proxyca=/tmp/review-4f4bc315f96c-koinydc0/proxy-ca",
+        "proxyca=/tmp/review-babd1dbd0bc4-7pvohjqg/proxy-ca",
         "--build-arg",
         "HTTPS_PROXY",
         "--build-arg",
         "NO_PROXY",
-        "/tmp/review-4f4bc315f96c-koinydc0/mutated"
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/mutated"
       ],
       "exit_code": 0
     },
@@ -9673,7 +9680,7 @@
         "inspect",
         "--format",
         "{{.Id}}",
-        "review-4f4bc315f96c:mutated"
+        "review-babd1dbd0bc4:mutated"
       ],
       "exit_code": 0
     },
@@ -9684,16 +9691,16 @@
         "build",
         "--load",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--build-arg",
-        "CANDIDATE=review-4f4bc315f96c:mutated@sha256:876a19c012ee7603de8bc67b260e9b1f1e013ce1a02e5b49c8400c2e5fe0b4ca",
+        "CANDIDATE=review-babd1dbd0bc4:mutated@sha256:ba14fa93f62a58d3794bdcbc0284552f3be6b2f0548947aab6f76a91248a8805",
         "--build-context",
-        "devvendor=/tmp/review-4f4bc315f96c-koinydc0/context/vendor",
+        "devvendor=/tmp/review-babd1dbd0bc4-7pvohjqg/context/vendor",
         "-f",
-        "/tmp/review-4f4bc315f96c-koinydc0/context/cloud-verify/review-fixes/Dockerfile.test",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context/cloud-verify/review-fixes/Dockerfile.test",
         "-t",
-        "review-4f4bc315f96c:mutated-test",
-        "/tmp/review-4f4bc315f96c-koinydc0/context"
+        "review-babd1dbd0bc4:mutated-test",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/context"
       ],
       "exit_code": 0
     },
@@ -9704,7 +9711,7 @@
         "inspect",
         "--format",
         "{{.Id}}",
-        "review-4f4bc315f96c:mutated-test"
+        "review-babd1dbd0bc4:mutated-test"
       ],
       "exit_code": 0
     },
@@ -9714,10 +9721,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:876a19c012ee7603de8bc67b260e9b1f1e013ce1a02e5b49c8400c2e5fe0b4ca",
+        "sha256:ba14fa93f62a58d3794bdcbc0284552f3be6b2f0548947aab6f76a91248a8805",
         "-v"
       ],
       "exit_code": 0
@@ -9728,10 +9735,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:04057c918332647a2a864766d7dd590f440caac305865e7114fd3bb095041423",
+        "sha256:765ae873e3585b46567f40e2708d5b1c7ed1660eca611d2cfe075542929cd57a",
         "-v"
       ],
       "exit_code": 0
@@ -9742,10 +9749,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:876a19c012ee7603de8bc67b260e9b1f1e013ce1a02e5b49c8400c2e5fe0b4ca",
+        "sha256:ba14fa93f62a58d3794bdcbc0284552f3be6b2f0548947aab6f76a91248a8805",
         "-m"
       ],
       "exit_code": 0
@@ -9756,10 +9763,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:04057c918332647a2a864766d7dd590f440caac305865e7114fd3bb095041423",
+        "sha256:765ae873e3585b46567f40e2708d5b1c7ed1660eca611d2cfe075542929cd57a",
         "-m"
       ],
       "exit_code": 0
@@ -9770,10 +9777,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:876a19c012ee7603de8bc67b260e9b1f1e013ce1a02e5b49c8400c2e5fe0b4ca",
+        "sha256:ba14fa93f62a58d3794bdcbc0284552f3be6b2f0548947aab6f76a91248a8805",
         "-r",
         "echo hash_file('sha256', '/usr/bin/php');"
       ],
@@ -9785,10 +9792,10 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:04057c918332647a2a864766d7dd590f440caac305865e7114fd3bb095041423",
+        "sha256:765ae873e3585b46567f40e2708d5b1c7ed1660eca611d2cfe075542929cd57a",
         "-r",
         "echo hash_file('sha256', '/usr/bin/php');"
       ],
@@ -9800,13 +9807,13 @@
         "run",
         "--rm",
         "--label",
-        "review-fixes.run=review-4f4bc315f96c",
+        "review-fixes.run=review-babd1dbd0bc4",
         "--network",
-        "review-4f4bc315f96c-net",
+        "review-babd1dbd0bc4-net",
         "-v",
-        "review-4f4bc315f96c-data:/var/lib/snipeit",
+        "review-babd1dbd0bc4-data:/var/lib/snipeit",
         "-v",
-        "/tmp/review-4f4bc315f96c-koinydc0/results:/results",
+        "/tmp/review-babd1dbd0bc4-7pvohjqg/results:/results",
         "-e",
         "APP_KEY=[redacted]",
         "-e",
@@ -9818,7 +9825,7 @@
         "-e",
         "DB_CONNECTION=mysql",
         "-e",
-        "DB_HOST=review-4f4bc315f96c-db",
+        "DB_HOST=review-babd1dbd0bc4-db",
         "-e",
         "DB_PORT=3306",
         "-e",
@@ -9843,10 +9850,11 @@
         "LDAP_MEM_LIM=2G",
         "--entrypoint",
         "/usr/bin/php",
-        "sha256:04057c918332647a2a864766d7dd590f440caac305865e7114fd3bb095041423",
+        "sha256:765ae873e3585b46567f40e2708d5b1c7ed1660eca611d2cfe075542929cd57a",
         "/var/www/html/vendor/bin/phpunit",
         "--colors=never",
         "--display-skipped",
+        "--display-incomplete",
         "--log-junit",
         "/results/fr9-mutation.xml",
         "--filter",
@@ -9861,7 +9869,7 @@
         "rm",
         "-f",
         "-v",
-        "review-4f4bc315f96c-apache-invalid"
+        "review-babd1dbd0bc4-apache-invalid"
       ],
       "exit_code": 0
     },
@@ -9871,7 +9879,7 @@
         "rm",
         "-f",
         "-v",
-        "review-4f4bc315f96c-apache-unset"
+        "review-babd1dbd0bc4-apache-unset"
       ],
       "exit_code": 0
     },
@@ -9881,7 +9889,7 @@
         "rm",
         "-f",
         "-v",
-        "review-4f4bc315f96c-apache-empty"
+        "review-babd1dbd0bc4-apache-empty"
       ],
       "exit_code": 0
     },
@@ -9891,7 +9899,7 @@
         "rm",
         "-f",
         "-v",
-        "review-4f4bc315f96c-apache-valid"
+        "review-babd1dbd0bc4-apache-valid"
       ],
       "exit_code": 0
     },
@@ -9901,7 +9909,7 @@
         "rm",
         "-f",
         "-v",
-        "7a9551944d829d52a1e0119bda54748e011283acf82ea8f9793c6e986361e14b"
+        "401b3f36588495cb52c60fcf0a940f3cefe0321f6e0b3850f54fc90c976b6c64"
       ],
       "exit_code": 0
     },
@@ -9911,7 +9919,7 @@
         "rm",
         "-f",
         "-v",
-        "review-4f4bc315f96c-db"
+        "review-babd1dbd0bc4-db"
       ],
       "exit_code": 0
     },
@@ -9920,7 +9928,7 @@
         "docker",
         "volume",
         "rm",
-        "review-4f4bc315f96c-apache-invalid"
+        "review-babd1dbd0bc4-apache-invalid"
       ],
       "exit_code": 0
     },
@@ -9929,7 +9937,7 @@
         "docker",
         "volume",
         "rm",
-        "review-4f4bc315f96c-apache-unset"
+        "review-babd1dbd0bc4-apache-unset"
       ],
       "exit_code": 0
     },
@@ -9938,7 +9946,7 @@
         "docker",
         "volume",
         "rm",
-        "review-4f4bc315f96c-apache-empty"
+        "review-babd1dbd0bc4-apache-empty"
       ],
       "exit_code": 0
     },
@@ -9947,7 +9955,7 @@
         "docker",
         "volume",
         "rm",
-        "review-4f4bc315f96c-apache-valid"
+        "review-babd1dbd0bc4-apache-valid"
       ],
       "exit_code": 0
     },
@@ -9956,7 +9964,7 @@
         "docker",
         "volume",
         "rm",
-        "review-4f4bc315f96c-data"
+        "review-babd1dbd0bc4-data"
       ],
       "exit_code": 0
     },
@@ -9965,7 +9973,7 @@
         "docker",
         "network",
         "rm",
-        "review-4f4bc315f96c-net"
+        "review-babd1dbd0bc4-net"
       ],
       "exit_code": 0
     },
@@ -9974,7 +9982,7 @@
         "docker",
         "image",
         "rm",
-        "review-4f4bc315f96c:mutated-test"
+        "review-babd1dbd0bc4:mutated-test"
       ],
       "exit_code": 0
     },
@@ -9983,7 +9991,7 @@
         "docker",
         "image",
         "rm",
-        "review-4f4bc315f96c:mutated"
+        "review-babd1dbd0bc4:mutated"
       ],
       "exit_code": 0
     },
@@ -9992,7 +10000,7 @@
         "docker",
         "image",
         "rm",
-        "review-4f4bc315f96c:fixture"
+        "review-babd1dbd0bc4:fixture"
       ],
       "exit_code": 0
     },
@@ -10001,7 +10009,7 @@
         "docker",
         "image",
         "rm",
-        "review-4f4bc315f96c:regular"
+        "review-babd1dbd0bc4:regular"
       ],
       "exit_code": 0
     },
@@ -10010,7 +10018,7 @@
         "docker",
         "image",
         "rm",
-        "review-4f4bc315f96c:marked-test"
+        "review-babd1dbd0bc4:marked-test"
       ],
       "exit_code": 0
     },
@@ -10019,7 +10027,7 @@
         "docker",
         "image",
         "rm",
-        "review-4f4bc315f96c:marked"
+        "review-babd1dbd0bc4:marked"
       ],
       "exit_code": 0
     },
@@ -10028,7 +10036,7 @@
         "docker",
         "image",
         "rm",
-        "review-4f4bc315f96c:test"
+        "review-babd1dbd0bc4:test"
       ],
       "exit_code": 0
     },
@@ -10037,7 +10045,7 @@
         "docker",
         "image",
         "rm",
-        "review-4f4bc315f96c:candidate"
+        "review-babd1dbd0bc4:candidate"
       ],
       "exit_code": 0
     }
@@ -10052,10 +10060,5 @@
     "fr9_original": "",
     "fr9_mutation": ""
   },
-  "errors": [
-    "s3_selected: unexpected result in validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
-    "s3_suite: unexpected result in validate_only_rejects_a_corrupted_database_dump",
-    "s3_suite: unexpected result in validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
-    "required tests failed or were skipped"
-  ]
+  "errors": []
 }
