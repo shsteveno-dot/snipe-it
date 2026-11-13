@@ -52,6 +52,8 @@ Each run records `python3 -I docker/chiseled/repin_app_inputs.py --check` on the
 cloud host before building and stops on lock drift. Round B and final require
 all unmutated tests and probes to pass with no skips; the FR-9 mutation must
 still fail for its specific assertion.
+The startup Go regression is compiled with the candidate's pinned Go builder;
+the resulting static test executable runs inside the candidate-derived image.
 
 The results file is
 `cloud-verify/review-fixes/results-<round>.json`: image identities,

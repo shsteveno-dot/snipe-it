@@ -457,6 +457,22 @@ def main():
     test = test_image(context, candidate, vendor, RUN + ':test')
     data['test_image_id'] = test
     php_identity(candidate, test)
+    if ROUND != 'A':
+        # Build the test executable with the same pinned Go toolchain as the
+        # candidate, then execute the assertion inside its Chiseled descendant.
+        go_output = TMP / 'go-test'
+        go_output.mkdir(mode=0o777)
+        go_output.chmod(0o777)
+        go_image = 'docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82'
+        docker('run', '--rm', '--label', LABEL, '--network', 'none',
+               '-v', str(context / 'docker/snipeit-runtime') + ':/src:ro',
+               '-v', str(go_output) + ':/out', '-w', '/src', '-e', 'CGO_ENABLED=0',
+               go_image, 'go', 'test', '-c', '-o', '/out/startup.test', './internal/startup')
+        go_test = docker('run', '--rm', '--label', LABEL, '--network', 'none',
+                         '-v', str(go_output / 'startup.test') + ':/probe/startup.test:ro',
+                         '--entrypoint', '/probe/startup.test', test,
+                         '-test.run=^TestForwardedHeaderConfig$', '-test.v', check=False)
+        probe_status('fr8_go_unit', go_test)
     net, vol = network(), volume('data')
     db = db_start(net)
     results = TMP / 'results'
