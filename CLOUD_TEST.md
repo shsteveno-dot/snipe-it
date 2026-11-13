@@ -8,6 +8,21 @@
 
 ## 這次的重點
 
+第 11 輪：**重跑 review-fixes 第 A 輪**（還是只有測試、沒有修正程式碼，預期 RED）。第 10 輪結果在 `f81c371b21`（`CLOUD_TEST_RESULT.md`、`results-A.json`）。第 10 輪的修改建議都已經改進 `review-fixes`：
+- 工具（`1f49cd6e41`、`620b5a6655`）：5.1 的 1–12 項（`.env.testing`、`FROM name:tag@digest`、phpstan 沒有 source、自動偵測 `/root/.ccr/agent-proxy-ca.crt` 並檢查 CA 沒進 candidate、一般 Dockerfile 在暫存 context 裡的 build 調整、依 digest 預先 pull 並重試、round A 遇到 error 或非新測試失敗/略過要記成錯誤、FR-9 先要求原版通過、JUnit 真正的錯誤行和略過摘要、去掉秘密的 debug log、git mirror 快取重用、開始時清掉中斷留下的資源）。
+- 測試（`9eb2d4d6da`、`493616efb4`）：B1 `mysql` 或 `mariadb` 都接受（不用 shell）；B2 php-mock 先 `expects()`；B3 改用有建構子的 `Kernel` partial mock + `Artisan::swap`；B4 問題 3 的舊副本放在後面（local 和 remote 都測），另一個順序當回歸測試；B5/B6 標成對照組。runner 現在會在 `results-A.json` 對每個新測試記錄「預期 RED 或對照組」以及實際結果是否符合。
+
+要做的：
+1. 啟動 dockerd（同上一輪），用當下的 `$HTTPS_PROXY`。
+2. **先用 repo 裡的工具原樣執行**：`bash cloud-verify/review-fixes/run.sh "$PWD" A`。這次的目標是工具不需要任何本機修改就能跑完。還是跑不下去時，照上一輪的方式在 scratchpad 的副本修改、不要 commit，diff 寫進報告。
+3. 逐一判斷：每個「預期 RED」的新測試是否**因為它要抓的問題**失敗；每個對照組是否通過；既有測試（`LdapTest`、`S3Compatibility`、`LdapWizardTest` 全套）是否全部通過、**0 略過**（chiseled 有 `mariadb`，restore 測試這次應該要跑）；FR-2 三個探測、FR-8 四種情況、FR-9（原版通過、突變版失敗）、`candidate_proxy_ca_absent`。
+4. runner 的 exit code 和 `errors` 是否正確反映結果（全部符合預期時 exit 0、`errors` 是空的）。
+5. 清理：這輪建立的容器、volume、網路、image，`docker buildx prune -af`，停掉 dockerd。
+
+回報：commit `cloud-verify/review-fixes/results-A.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。如果全部符合預期，報告開頭寫「第 A 輪通過，可以進第 B 輪」。
+
+---
+
 第 10 輪：**review-fixes 第 A 輪（只寫測試，還沒修）**。分支 `review-fixes`（從 `all-changes` `04a07b3584` 開出）只加了測試和 `cloud-verify/review-fixes/` 測試工具，**沒有任何修正程式碼**，所以新測試照理應該**失敗**（RED）。第 9 輪結果在 `984a0f7347`。
 
 背景：程式碼審查找到 9 個問題（LDAP OU 排除可被本機密碼繞過、`backup-staging` 可能進 image、還原時舊的本機副本蓋掉暫存副本、`--validate-only` 沒檢查整個 zip、DN 拆分不符 RFC 4514、LDAP 搜尋不完整被當完整、遠端 CSV 被截斷照樣匯入、chiseled 不支援 `REMOTE_LOGIN_FORWARDED_HEADER`、還原安全備份的測試只是對原始碼做 regex）。規定：**所有測試都要在 chiseled image 裡跑**（從 chiseled image 的 digest 衍生出只多了測試檔和 dev 套件的測試 image，用同一個 `/usr/bin/php`）。
