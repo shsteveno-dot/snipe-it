@@ -24,4 +24,5 @@ storage/framework/sessions/*
 !storage/framework/sessions/.gitignore
 storage/framework/testing
 storage/app/backup-temp
+storage/framework/backup-staging
 bootstrap/cache/*.php
