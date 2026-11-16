@@ -47,7 +47,7 @@ class Location extends SnipeModel implements Importable
         'state' => 'min:2|max:191|nullable',
         'country' => 'min:2|max:191|nullable',
         'zip' => 'max:10|nullable',
-        'manager_id' => 'exists:users,id|nullable',
+        'manager_id' => 'exists:users,id|nullable|fmcs_manager',
         'parent_id' => 'nullable|exists:locations,id|non_circular:locations,id|parent_matches_location_company',
         'company_id' => 'integer|nullable|exists:companies,id|fmcs_company',
     ];
@@ -486,5 +486,33 @@ class Location extends SnipeModel implements Importable
     public function newEloquentBuilder($query): LocationQueryBuilder
     {
         return new LocationQueryBuilder($query);
+    }
+
+    /**
+     * Build the parent-company-mismatch error message for store / update
+     * flows (API, web, and the parent_matches_location_company validator
+     * replacer). GHSA-vx68-xhq6-9gmr: the detailed variant disclosed the
+     * cross-tenant parent location's name to any caller who submitted its
+     * id, turning the endpoint into an enumeration oracle for location
+     * names across company boundaries. Legitimate callers who already have
+     * visibility into the parent (superusers, and non-supers whose company
+     * pivot includes the parent's company) still get the detailed
+     * diagnostic. Everyone else gets a generic message that reveals no
+     * cross-tenant data.
+     */
+    public static function parentCompanyMismatchMessage(self $parent, ?string $locationCompanyName): string
+    {
+        $canSeeParent = auth()->user()?->isSuperUser()
+            || Company::isCurrentUserHasAccess($parent);
+
+        if ($canSeeParent) {
+            return trans('general.error_location_parent_company', [
+                'parent' => $parent->name,
+                'parent_company' => $parent->company?->name ?? trans('general.unassigned'),
+                'location_company' => $locationCompanyName ?? trans('general.unassigned'),
+            ]);
+        }
+
+        return trans('general.error_location_parent_company_generic');
     }
 }

@@ -3,14 +3,17 @@
 namespace App\Models;
 
 use App\Enums\FileStorage;
+use App\Events\CheckoutableCheckedIn;
 use App\Events\CheckoutableCheckedOut;
 use App\Exceptions\CheckoutNotAllowed;
 use App\Helpers\Helper;
 use App\Http\Traits\UniqueUndeletedTrait;
 use App\Models\Builders\AssetQueryBuilder;
+use App\Models\Contracts\HasCustomFields;
 use App\Models\Contracts\Importable;
 use App\Models\Traits\Acceptable;
 use App\Models\Traits\CompanyableTrait;
+use App\Models\Traits\HasAndValidatesCustomFields;
 use App\Models\Traits\HasCalendarEvents;
 use App\Models\Traits\HasImageUpload;
 use App\Models\Traits\HasOrders;
@@ -24,15 +27,15 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Watson\Validating\ValidatingTrait;
+use Illuminate\Validation\Validator;
 
 /**
  * Model for Assets.
@@ -51,13 +54,14 @@ use Watson\Validating\ValidatingTrait;
  *
  * @mixin IdeHelperAsset
  */
-class Asset extends Depreciable implements Importable
+class Asset extends Depreciable implements HasCustomFields, Importable
 {
     protected $presenter = AssetPresenter::class;
 
     // protected $with = ['model', 'adminuser', 'location', 'company'];
 
     use CompanyableTrait;
+    use HasAndValidatesCustomFields;
     use HasCalendarEvents;
     use HasFactory;
     use HasImageUpload;
@@ -68,7 +72,6 @@ class Asset extends Depreciable implements Importable
     use Requestable;
     use SoftDeletes;
     use UniqueUndeletedTrait;
-    use ValidatingTrait;
 
     public const LOCATION = 'location';
 
@@ -78,9 +81,29 @@ class Asset extends Depreciable implements Importable
 
     use Acceptable;
 
+    /**
+     * Tells HasOrders not to add the initial inventory record automatically.
+     */
+    protected static function shouldAutoCreateInventory(): bool
+    {
+        return false;
+    }
+
     public static function fileStorage(): FileStorage
     {
         return FileStorage::Assets;
+    }
+
+    public function custom_fieldset(): Relation
+    {
+        return $this->hasOneThrough(
+            CustomFieldset::class,
+            AssetModel::class,
+            'id', // models.id
+            'id', // custom_fieldsets.id
+            'model_id', // assets.model_id
+            'fieldset_id', // models.fieldset_id
+        )->withTrashedParents();
     }
 
     /**
@@ -104,7 +127,7 @@ class Asset extends Depreciable implements Importable
     protected $table = 'assets';
 
     /**
-     * Whether the model should inject it's identifier to the unique
+     * Whether the model should inject its identifier to the unique
      * validation rules before attempting validation. If this property
      * is not set in the model it will default to true.
      *
@@ -506,9 +529,7 @@ class Asset extends Depreciable implements Importable
     protected static function customFieldFilterableWidgets(): array
     {
         $widgets = [];
-        $fields = CustomField::whereHas('fieldset', function ($query) {
-            $query->whereHas('models');
-        })->get();
+        $fields = CustomField::assignedToInUseFieldsets()->get();
 
         foreach ($fields as $field) {
             $type = match ($field->element) {
@@ -897,48 +918,18 @@ class Asset extends Depreciable implements Importable
         $this->attributes['expected_checkin'] = $value;
     }
 
-    public function customFieldValidationRules()
-    {
-
-        $customFieldValidationRules = [];
-
-        if (($this->model) && ($this->model->fieldset)) {
-
-            foreach ($this->model->fieldset->fields as $field) {
-
-                // this just casts booleans that may come through as strings to an actual boolean type
-                // adding !$field->field_encrypted because when the encrypted value comes through it
-                // screws things up for the encrypted validation rules (and the encrypted string
-                // is not a valid boolean type)
-                if ($field->format == 'BOOLEAN' && ! $field->field_encrypted) {
-                    $this->{$field->db_column} = filter_var($this->{$field->db_column}, FILTER_VALIDATE_BOOLEAN);
-                }
-            }
-
-            $customFieldValidationRules += $this->model->fieldset->validation_rules();
-        }
-
-        return $customFieldValidationRules;
-
-    }
-
     /**
-     * This handles the custom field validation for assets
-     *
-     * @var array
+     * FormRequests reuse getRules() without running this hook, so an omitted
+     * serial can pass request validation and still fail model validation on save.
+     * This requirement belongs to each validator, not the model's stored rules.
      */
-    public function save(array $params = [])
+    protected function withValidator(Validator $validator): void
     {
-        $this->rules += $this->customFieldValidationRules();
-
-        if ($this->model_id && $this->model && (string) $this->model->require_serial === '1') {
-            $this->rules['serial'] = array_merge(
-                array_filter($this->rules['serial'] ?? [], fn ($r) => $r !== 'nullable'),
-                ['required'],
-            );
-        }
-
-        return parent::save($params);
+        $validator->sometimes(
+            'serial',
+            'required',
+            fn () => (string) $this->model?->require_serial === '1',
+        );
     }
 
     public function getDisplayNameAttribute()
@@ -1279,6 +1270,84 @@ class Asset extends Depreciable implements Importable
     }
 
     /**
+     * Check this asset back in. This lives on the model so everything
+     * (HTTP controllers, MCP tools, CLI commands) can call the same
+     * method and get the same behavior.
+     *
+     * Disassociates the current holder, resets location to rtd (or a
+     * provided override), releases license seats, cleans up pending
+     * Acceptance records, saves, and fires the checked-in event. The
+     * checkin_counter is incremented by the Loggable trait's event
+     * listener, not here.
+     *
+     * @param  User|null  $admin  Actor performing the checkin. Defaults to the authed user.
+     * @param  string|null  $note  Optional checkin note recorded on the event.
+     * @param  string|null  $checkin_at  Optional timestamp. Defaults to now.
+     * @param  int|null  $location  Optional location override. Null keeps the rtd-reset default.
+     * @param  bool  $updateDefaultLocation  When true and $location is provided, also writes rtd_location_id.
+     */
+    public function checkIn($admin = null, $note = null, $checkin_at = null, $location = null, bool $updateDefaultLocation = false): bool
+    {
+        $target = $this->assignedTo;
+        $checkin_at = $checkin_at ?? date('Y-m-d H:i:s');
+        $originalValues = $this->getRawOriginal();
+
+        if (substr($checkin_at, 0, 10) !== date('Y-m-d')) {
+            $originalValues['action_date'] = date('Y-m-d H:i:s');
+        }
+
+        $this->expected_checkin = null;
+        $this->last_checkin = $checkin_at;
+        $this->assignedTo()->disassociate($this);
+        $this->accepted = null;
+
+        // This bit cleans up weird data where a location_id or rtd_location_id is set to 0. This should never happen,
+        // but we've seen it in older datasets. Could maybe be a mutator instead?
+        if ($this->rtd_location_id == '0') {
+            $this->rtd_location_id = '';
+        }
+        if ($this->location_id == '0') {
+            $this->location_id = '';
+        }
+
+        $this->location_id = $this->rtd_location_id;
+
+        if ($location !== null) {
+            $this->location_id = $location;
+            if ($updateDefaultLocation) {
+                $this->rtd_location_id = $location;
+            }
+        }
+
+        $this->licenseseats->each(fn($seat) => $seat->update(['assigned_to' => null]));
+
+        CheckoutAcceptance::pending()
+            ->whereHasMorph('checkoutable', [self::class], fn(Builder $q) => $q->where('id', $this->id))
+            ->get()
+            ->each(fn($acceptance) => $acceptance->delete());
+
+        if ($this->save()) {
+            self::where('assigned_type', self::class)
+                ->where('assigned_to', $this->id)
+                ->update(['location_id' => $this->location_id]);
+
+            if (is_int($admin)) {
+                $checkedInBy = User::findOrFail($admin);
+            } elseif ($admin && get_class($admin) === User::class) {
+                $checkedInBy = $admin;
+            } else {
+                $checkedInBy = auth()->user();
+            }
+
+            event(new CheckoutableCheckedIn($this, $target, $checkedInBy, $note, $checkin_at, $originalValues));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Sets the detailedNameAttribute
      *
      * @author [A. Gianotto] [<snipe@snipe.net>]
@@ -1296,54 +1365,6 @@ class Asset extends Depreciable implements Importable
         }
 
         return $this->asset_tag.' - '.$this->name.' ('.$user_name.') '.($this->model) ? $this->model->name : '';
-    }
-
-    /**
-     * Pulls in the validation rules
-     *
-     * @author [A. Gianotto] [<snipe@snipe.net>]
-     *
-     * @since  [v3.0]
-     *
-     * @return array
-     */
-    public function validationRules()
-    {
-        return $this->rules;
-    }
-
-    public function customFieldsForCheckinCheckout($checkin_checkout)
-    {
-        // Check to see if any of the custom fields were included on the form and if they have any values
-        if (($this->model) && ($this->model->fieldset) && ($this->model->fieldset->fields)) {
-
-            foreach ($this->model->fieldset->fields as $field) {
-
-                if (($field->{$checkin_checkout} == 1) && (request()->has($field->db_column))) {
-
-                    if ($field->field_encrypted == '1') {
-
-                        if (Gate::allows('assets.view.encrypted_custom_fields')) {
-                            if (is_array(request()->input($field->db_column))) {
-                                $this->{$field->db_column} = Crypt::encrypt(implode(', ', request()->input($field->db_column)));
-                            } else {
-                                $this->{$field->db_column} = Crypt::encrypt(request()->input($field->db_column));
-                            }
-                        }
-
-                    } else {
-
-                        if (is_array(request()->input($field->db_column))) {
-                            $this->{$field->db_column} = implode(', ', request()->input($field->db_column));
-                        } else {
-                            $this->{$field->db_column} = request()->input($field->db_column);
-                        }
-
-                    }
-                }
-            }
-        }
-
     }
 
     public function manufacturer()
@@ -1725,9 +1746,9 @@ class Asset extends Depreciable implements Importable
      *
      * @since  [v1.0]
      *
-     * @return Relation
+     * @return BelongsTo<AssetModel, $this>
      */
-    public function model()
+    public function model(): BelongsTo
     {
         return $this->belongsTo(AssetModel::class, 'model_id')->withTrashed();
     }

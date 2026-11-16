@@ -162,6 +162,18 @@ class BulkUsersController extends Controller
         if ((! $request->filled('ids')) || $request->input('ids') <= 0) {
             return redirect()->back()->with('error', trans('general.no_users_selected'));
         }
+
+        // Fail-fast FMCS scope check on the three cross-tenant FKs the
+        // bulk form accepts.
+        $bulkFmcsValidator = \Validator::make($request->all(), [
+            'manager_id' => 'nullable|integer|exists:users,id|fmcs_manager',
+            'department_id' => 'nullable|integer|exists:departments,id|fmcs_department',
+            'location_id' => 'nullable|integer|exists:locations,id|fmcs_location',
+        ]);
+        if ($bulkFmcsValidator->fails()) {
+            return redirect()->back()->withInput()->withErrors($bulkFmcsValidator);
+        }
+
         $user_raw_array = $request->input('ids');
 
         // Remove the user from any updates.
@@ -305,8 +317,8 @@ class BulkUsersController extends Controller
                 ->with('error', trans('admin/users/general.cannot_make_floater'));
         }
 
-        // Save per-user so UserObserver::updating() fires and all field changes are written
-        // to the Activity Report. A mass update() bypasses model observers entirely.
+        // Save per-user so Loggable writes field changes to the Activity Report.
+        // A mass update() bypasses model lifecycle events entirely.
         foreach ($users as $user) {
             $canEditAuth = auth()->user()->can('canEditAuthFields', $user) && auth()->user()->can('editableOnDemo');
             $userUpdate = $this->update_array;

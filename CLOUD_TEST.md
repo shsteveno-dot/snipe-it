@@ -1,12 +1,34 @@
 # 雲端測試任務
 
-`cloud-test` 分支 = `all-changes`（我們的改動，rebase 在上游 `grokability/snipe-it` 的 develop 上）+ 這個說明檔。每次有新改動都會推到這裡，請你測試並提出修改建議。
+`cloud-test` 分支 = `all-changes`（我們的改動，rebase 在上游 `grokability/snipe-it` 的 develop 上）+ 這個說明檔和 `cloud-verify/`。每次有新改動都會推到這裡，請你測試並提出修改建議。
 
 **不要修改程式碼。** 唯一允許的 push 是最後把結果檔推回 `cloud-test`（見「回報」和「這次的重點」）。
 
 **一路做完，不要中途結束回應。** 等背景工作時，每次等待不超過 5 分鐘，每 5 分鐘在對話裡寫一行進度（目前步驟、第幾次測試、已知的失敗和略過數字），然後繼續做。
 
 ## 這次的重點
+
+第 15 輪：**rebase 到最新官方 develop 之後的 `all-changes`**。第 14 輪結果在 `828818be12`（review-fixes 第 B 輪通過，基準是舊的 develop `f9f3a6067c`）。
+
+這次的變化：
+- `all-changes` 已 rebase 到官方 develop `581d564e2c`（多了 181 個上游 commit），現在是 `30d08be111`，並已包含 review-fixes 的 9 個修正（`cloud-verify:` 的 commit 不在 `all-changes` 裡，只在這個分支）。
+- rebase 時只有一個衝突：`AppServiceProvider::register()` 上游刪了一個空行，保留我們的 shell-less scheduler 綁定。
+- 上游第一次改了 `composer.lock`（`f8a6a41064`），Chiseled input lock 已 repin（`Repin composer.lock after rebasing onto upstream develop f8a6a41064`）。
+- 上游 `1b7ace4860` 在 CI 的 workflow 加了 `chmod 600 storage/oauth-*.key`，並新增 MCP `ShowAssetTool` 和測試。
+- `cloud-test` 這次是重建的：新的 `all-changes` + 一個 commit 放回 `cloud-verify/`、這個說明檔和上一輪的結果檔。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。
+2. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`。要求同第 14 輪：runner exit 0、`errors` 是空的、0 失敗、0 略過；FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都通過。
+3. **全套測試**（上游多了很多改動，要確認沒有衝突）：在同一個測試 image 裡跑完整的 `tests/`（可以平行，或分 Unit 和 Feature 兩段跑）。已知的會失敗的：
+   - chiseled 沒有 `intl`：`CustomFieldTest` 6 個、`ImporterEncodingTest` 2 個（第 13 輪）。
+   - 沒有 DNS 時的 `ExternalUrl` 相關測試（見「已知狀況」）。
+   其他失敗都要列出來，並到上游 develop `581d564e2c` 對照是不是上游本來就會失敗（只需要重跑相關的測試檔；上游可以用一般的 PHP 環境跑，不需要 chiseled）。
+4. 清理（含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
+
+回報：commit `results-B.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。全部符合時報告開頭寫「第 15 輪通過」。
+
+---
 
 第 14 輪：**review-fixes 第 B 輪最終確認**（短的一輪）。第 13 輪結果在 `4b45667`：除了 `RestoreToRemoteDiskTest` 兩個測試本身的錯以外全部符合。已改進 `review-fixes`：
 - `d0a80b2ce3`：`validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped` 只讀一次 `Artisan::output()`；`validate_only_rejects_a_corrupted_database_dump` 改成只檢查訊息裡有 `db-dumps/mysql-test.sql`（照你的建議）。

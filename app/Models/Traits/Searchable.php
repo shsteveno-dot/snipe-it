@@ -43,7 +43,7 @@ trait Searchable
      *
      * @var array<string, string>|null
      */
-    private static ?array $customFieldFilterMapCache = null;
+    protected static ?array $customFieldFilterMapCache = null;
 
     /**
      * Performs a search on the model, using the provided search terms
@@ -269,7 +269,7 @@ trait Searchable
      *
      * @return array{value: string, negate: bool, operator: string}
      */
-    private function parseFilterValue(string $raw): array
+    protected function parseFilterValue(string $raw): array
     {
         $lower = strtolower($raw);
 
