@@ -482,7 +482,18 @@ def main():
     common = env_args(net, db, vol, results)
     # Populate the empty writable data volume with the directories expected by
     # Chiseled symlinks, without invoking a shell in the image.
-    init = "foreach(['','data','data/private_uploads','data/uploads','dumps','keys','ssl'] as $p){$d='/var/lib/snipeit'.($p?'/'.$p:'');@mkdir($d,0775,true);chown($d,10000);chgrp($d,50);}"
+    startup = (ROOT / 'docker/snipeit-runtime/internal/startup/startup.go').read_text(encoding='utf-8')
+    match = re.search(r'\bvar\s+dataDirs\s*=\s*\[\]string\s*\{([^{}]*)\}', startup)
+    if not match or not re.fullmatch(r'(?:\s*"[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*"\s*,)+\s*', match.group(1)):
+        raise RuntimeError('cannot parse dataDirs from startup.go')
+    dirs = ['']
+    for path in re.findall(r'"([^"]+)"', match.group(1)):
+        parts = path.split('/')
+        for length in range(1, len(parts) + 1):
+            parent = '/'.join(parts[:length])
+            if parent not in dirs:
+                dirs.append(parent)
+    init = "foreach(json_decode('" + json.dumps(dirs) + "') as $p){$d='/var/lib/snipeit'.($p?'/'.$p:'');@mkdir($d,0775,true);chown($d,10000);chgrp($d,50);}"
     run_php(test, '-r', init, extra=common + ['--user', '0:0'], check=True)
     run_php(test, 'artisan', 'migrate', '--force', '--no-interaction', extra=common, check=True)
     run_php(test, 'artisan', 'passport:keys', '--force', '--no-interaction', extra=common, check=True)

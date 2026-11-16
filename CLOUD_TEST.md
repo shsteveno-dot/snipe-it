@@ -196,6 +196,9 @@
 
 ## 已知狀況
 
+- `Tests\Feature\Importing\ImportAssetsTest::will_encrypt_custom_fields`：上游 develop 也會失敗。
+- `Tests\Feature\Mcp\ListLicensesToolTest::test_offset_skips_results_for_pagination`：上游只依 `created_at` 排序，在 MySQL 8.4 上會失敗。
+- AppleBusinessManager 的 SyncAdapters 測試會實際請求 `api-business.apple.com`，沒有網路時每個測試約需 64 秒。
 - `Tests\Feature\Livewire\ImporterMutexTest::test_locks_are_scoped_per_file_so_a_second_file_can_still_start`：平行模式下偶發失敗（共用 file cache + 各 process 的 Import ID 重複），上游也有同樣風險。乾淨 cache 單獨跑會過。第 2–4 輪都沒有重現。
 - 程式碼本來就標記跳過的 3 個（上游也有）：`ApiRateLimitTest` 兩個、`DeleteAssetsTest::test_cannot_delete_asset_that_is_checked_out`。
 - 容器沒有 DNS 時（`getent ahosts example.com` 沒有輸出），`ExternalUrl` 相關的 14 個測試會失敗，上游也一樣：`SyncAdapters\GroupCompanyMappingTest`、`Intune\IntuneSettingsPageTest`、`Kandji\KandjiSettingsPageTest`、`AssetTagPatternTest`、`Fleet\FleetLicenseTierTest`、`Fleet\FleetSettingsPageTest`、`CompanyWebhooksTest::test_can_filter_companies_with_webhooks`、`WebhookEndpointSsrfTest::test_api_accepts_a_public_https_webhook_endpoint_from_superuser`。要讓它們通過，跑測試前暫時把 `example.com graph.microsoft.com graph.microsoft.us example.api.kandji.io hooks.slack.com` 加進 `/etc/hosts`（對應任一公開 IP），跑完還原。
