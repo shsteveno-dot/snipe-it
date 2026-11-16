@@ -1,12 +1,33 @@
 # 雲端測試任務
 
-`cloud-test` 分支 = `all-changes`（我們的改動，rebase 在上游 `grokability/snipe-it` 的 develop 上）+ 這個說明檔和 `cloud-verify/`。每次有新改動都會推到這裡，請你測試並提出修改建議。
+`cloud-test` 分支 = `all-changes`（我們的改動，rebase 在上游 `grokability/snipe-it` 的 master 上）+ 這個說明檔和 `cloud-verify/`。每次有新改動都會推到這裡，請你測試並提出修改建議。
 
 **不要修改程式碼。** 唯一允許的 push 是最後把結果檔推回 `cloud-test`（見「回報」和「這次的重點」）。
 
 **一路做完，不要中途結束回應。** 等背景工作時，每次等待不超過 5 分鐘，每 5 分鐘在對話裡寫一行進度（目前步驟、第幾次測試、已知的失敗和略過數字），然後繼續做。
 
 ## 這次的重點
+
+第 16 輪：**rebase 到官方 master 之後的 `all-changes`，加上第 15 輪的兩個修正**。第 15 輪結果在 `1f28d8b71f`（第 B 輪和第 14 輪相同；全套的失敗都已有解釋）。
+
+這次的變化：
+- `all-changes` 改成以官方 master `9f32b39aea` 為基準（= develop `581d564e2c` + 上游的「Updated prod JS assets」，只差 15 個 `public/js` 檔），現在是 `4c1f2c64f8`。
+- `4c1f2c64f8`：`ShelllessOptInTest` 不再依賴環境的 `SNIPEIT_SHELLLESS`（第 15 輪在 chiseled 失敗的 3 個測試）。
+- `97e9f47944`（工具）：`runner.py` 初始化 `/var/lib/snipeit` volume 時，改成從 `startup.go` 的 `dataDirs` 讀目錄清單（第 15 輪少了 `data/private_uploads/imports` 等目錄，造成 14 個 error）。
+- `cloud-test` 這次是把新的 `all-changes` 合併進來（merge commit），`cloud-verify/`、這個說明檔和上一輪的結果檔都保留。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。
+2. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`。要求同第 15 輪：runner exit 0、`errors` 是空的、0 失敗、0 略過；FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都通過。
+3. **全套測試**：照第 15 輪的方式，在同一個測試 image 裡跑完整的 `tests/`，`/var/lib/snipeit` 要用 runner 新的初始化方式建立。預期：
+   - `ShelllessOptInTest` 3 個要通過；第 15 輪 volume 少目錄造成的 14 個 error 要消失。
+   - 已知會失敗的：chiseled 沒有 `intl` 的 8 個（`CustomFieldTest` 6、`ImporterEncodingTest` 2）；沒有 DNS 時的 14 個 `ExternalUrl` 測試（可以照「已知狀況」補 `/etc/hosts` 讓它們通過）；「已知狀況」列的 `will_encrypt_custom_fields` 和 `ListLicensesToolTest`。
+   - 其他失敗都要列出來，判斷原因；疑似上游問題時，到官方 master `9f32b39aea` 重跑相關的測試檔對照。
+4. 清理（含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
+
+回報：commit `results-B.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。第 2 步全部符合、第 3 步沒有未解釋的失敗時，報告開頭寫「第 16 輪通過」。
+
+---
 
 第 15 輪：**rebase 到最新官方 develop 之後的 `all-changes`**。第 14 輪結果在 `828818be12`（review-fixes 第 B 輪通過，基準是舊的 develop `f9f3a6067c`）。
 
