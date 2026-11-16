@@ -1,42 +1,50 @@
-# 雲端測試結果：第 15 輪（rebase 到官方 develop `581d564e2c` 之後的 all-changes）
+# 雲端測試結果：第 16 輪（rebase 到官方 master `9f32b39aea` 之後的 all-changes）
 
-**第 15 輪通過。**
+**第 16 輪通過**，但有一個新的測試隔離問題要修（見第 3 節 F、第 5 節第 1 點）。
 
-- runner 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`：exit **0**，`errors` 是 `[]`，222 個通過，唯一的失敗是預期中的 FR-9 突變版。0 略過、0 incomplete。FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都通過，結果和第 14 輪完全相同。
-- 在同一個測試 image 裡跑完整的 `tests/`：共 7086 個測試（和 `phpunit --list-tests` 的數量一致）。結果是 27 個 failure、14 個 error、3 個略過、54 個 incomplete。**每一個失敗都找到了原因，沒有任何一個是我們的改動或這次 rebase 造成的程式錯誤**：
-  - 已知：缺 `intl` 的 8 個、沒有 DNS 的 14 個。
-  - 測試環境造成：14 個 error 是測試 volume 裡少了 `private_uploads/imports`。另外 3 個 `ShelllessOptInTest` 失敗，是因為 chiseled image 預設 `SNIPEIT_SHELLLESS=true`。條件改正後重跑都通過。
-  - 上游本來就有：`ImportAssetsTest::will_encrypt_custom_fields`，以及在 MySQL 8.4 上的 `ListLicensesToolTest::test_offset_skips_results_for_pagination`。這兩個在上游 develop `581d564e2c` 也會失敗。
+- **第 2 步**：原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`。runner exit **0**，`errors` 是 `[]`。222 個通過，唯一的失敗是預期的 FR-9 突變版。0 略過、0 incomplete。FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都通過，結果和第 14、15 輪相同。
+- **第 3 步**：全套 `tests/` 共 7086 個（和第 15 輪相同），結果是 10 個 failure、18 個 error、3 個略過、54 個 incomplete。
+  - 第 15 輪的兩個問題確認已修好：`ShelllessOptInTest` 6/6 通過；volume 少目錄造成的 14 個 error 消失了，`ImportAssetHistoryTest`、`ImporterTest`、`GeneralImportTest` 全部通過。
+  - 10 個 failure 都是已知的：缺 `intl` 的 8 個，加上上游本來就有的 2 個（`will_encrypt_custom_fields`、`ListLicensesToolTest`）。
+  - DNS 的 14 個：跑之前加了 `--add-host`，全部通過。
+  - **18 個 error 是新出現的**，全在 `S3Compatibility\RestoreToRemoteDiskTest`。原因已經確認：我們自己的 `ShelllessSchedulerTest::tearDown()` 會無條件清掉 `SNIPEIT_SHELLLESS`。在 chiseled image 裡，同一個 process 之後跑的測試因此變成 shellless 關閉，restore 改走 `/bin/sh`，而 image 裡沒有 `/bin/sh`。這不是程式錯誤。單獨跑 31/31 通過；接在 `ShelllessOptInTest` 後面跑也通過；接在 `ShelllessSchedulerTest` 後面跑就重現 18 個 error。
 
-有一點要先說明：`ShelllessOptInTest` 是我們自己的測試，它在 chiseled image 裡會失敗。這是測試對環境的假設造成的，不是程式錯誤，修改建議見第 5 節第 1 點。
+所以沒有未解釋的失敗，也沒有程式錯誤，但第 5 節第 1 點應該修。
 
-被測的 commit 是 `cloud-test` `aa0f654b45`。其中 `all-changes` 是 `30d08be111`，是 `581d564e2c` 加上 53 個 commit。因為 clone 是 shallow，我先 `--deepen` 再確認祖先關係：`581d564e2c` 確實是祖先，`f9f3a6067c..581d564e2c` 是 181 個 commit。`composer.lock` 和上游完全相同。完整輸出見 `cloud-test-output.txt`。
+被測的 commit 是 `cloud-test` `f286a9d352`，它是 merge commit，包含 `all-changes` `4c1f2c64f8`、`97e9f47944` 和官方 master `9f32b39aea`。工具、程式碼和 Dockerfile 都沒有修改。完整輸出見 `cloud-test-output.txt`。
 
 ## 1. 環境
 
 | 項目 | 值 |
 | --- | --- |
-| 主機 | Linux 6.18，4 核，磁碟剩約 30 GB。全新容器，沒有 `~/.cache/review-fixes`，mirror 由 runner 重建 |
-| Docker | dockerd 29.9.2，用 root 啟動，帶當下的 `HTTP(S)_PROXY=$HTTPS_PROXY`。`hello-world` 成功。拉 base image 時 Docker Hub 回過幾次 429，runner 的退避重試都撐過去了 |
-| candidate image | `sha256:7c233b3d43d8adb99bc2c2883bf5a32454c415db8dda1c924c83fffdc98e15aa` |
-| 測試 image | `sha256:8c9f9cccf896c162933a270c7c5ed3a5739878300dd82180bc939590c6b09054`。全套測試用的就是這個 image：runner 建好時我另外 tag 成 `round15-full:test`，image ID 相同 |
-| PHP | chiseled 的 `/usr/bin/php` 是 8.3.6。`php_comparison` 的 version、modules、sha256 都相同，sha256 是 `7f1ac2fe89d2…a67d7`，和第 10–14 輪相同 |
-| 資料庫 | runner 用自己網路裡的 `mysql:8.4`。全套測試另外開了一個 `mysql:8.4`，每個 shard 有自己的資料庫和 `/var/lib/snipeit` volume |
-| 上游對照 | 主機 PHP 8.3.6 + MariaDB 10.11，也連到同一個 mysql:8.4 容器。上游 worktree 用 `581d564e2c`。vendor 從測試 image 複製過來，因為兩邊的 lock 完全相同 |
+| 主機 | Linux 6.18，4 核，15 GB RAM，磁碟剩約 30 GB。`~/.cache/review-fixes/mirrors` 已經存在 |
+| Docker | dockerd 29.9.2，用 root 啟動，帶當下的 `HTTP(S)_PROXY=$HTTPS_PROXY`。`hello-world` 成功，這次沒有遇到 Docker Hub 429 |
+| runner（第 2 次，`results-B.json`） | candidate `sha256:328ff444b81f…`、測試 image `sha256:4d6c75f5048a…` |
+| 全套測試用的 image | runner 第 1 次建的測試 image `sha256:7a53415a204f…`（tag 成 `round16-full:test`）。commit 相同，`/usr/bin/php` sha256 也相同 |
+| PHP | chiseled `/usr/bin/php` 8.3.6。sha256 `7f1ac2fe89d2…a67d7`，和第 10–15 輪相同。`php -v`、`php -m`、sha256 都相同 |
+| 資料庫 | runner 用自己的 `mysql:8.4`。全套測試另外開一個 `mysql:8.4`，每個 shard 有自己的資料庫和 `/var/lib/snipeit` volume |
+
+**runner 跑了兩次，原因是我這邊的操作錯誤，不是工具的問題。** 第 1 次 runner（08:31 開始）放在背景執行時，沒有設定較長的時限，大約 09:01 被這個 session 的 30 分鐘背景時限中斷了。
+
+- 中斷時，第 1 次已經完成：input lock 檢查、candidate 和測試 image 的建置、PHP 比對、Go unit，以及 7 個 phpunit 執行（222 個測試全部通過，0 略過），正在跑 FR-8 的 Apache 探測。
+- 留下來的容器、volume、網路和暫存目錄，我照名稱手動清掉了。
+- 全套測試跑完後，我用 2 小時的時限重跑 runner（09:41:49–09:48:45，build cache 都命中，約 7 分鐘）。commit 的 `results-B.json` 是第 2 次完整執行的結果。
+- 兩次建出的 image ID 不同，因為 build 不是逐位元可重現的。兩次的 commit 和 PHP binary 都相同。
 
 | 階段 | 時間（UTC） |
 | --- | --- |
-| 讀說明、啟動 dockerd | 02:50–02:53 |
-| runner | 02:53:07–03:09:40，約 16.5 分鐘 |
-| 全套測試：4 個 shard 平行，加上 SyncAdapters 分開跑 | 03:02–04:04。shard 耗時分別是 2117、178（拆分後重跑）、882、1393 秒。SyncAdapters 其餘部分 386 秒，ABM 8 個檔案平行跑、最久 1232 秒 |
-| 重跑、上游對照、分析 | 03:25–04:20 |
-| 清理、報告 | worker 中途重啟一次，dockerd 和 MariaDB 被停掉；重新啟動 dockerd 後才做清理 |
+| 讀說明、啟動 dockerd | 08:28–08:31 |
+| runner 第 1 次（中斷） | 08:31–約 09:01 |
+| 全套測試：13 個容器平行跑 | 08:53–09:39。shard 耗時分別是 2257、2734、1178、1435 秒；syncrest 1452 秒；ABM 146–1288 秒 |
+| 分析、二分法定位 | 09:35–09:41 |
+| runner 第 2 次 | 09:41:49–09:48:45 |
+| 清理、報告 | 09:50– |
 
 ## 2. 測試數量
 
 ### runner（`results-B.json`）
 
-`counts` 是 passed 222、failure 1，那 1 個是預期的 FR-9 突變版。和第 14 輪相同。
+`counts` 是 passed 222、failure 1（預期的 FR-9 突變版），和第 14、15 輪相同。
 
 | 執行 | 通過 | 失敗 |
 | --- | --- | --- |
@@ -45,67 +53,116 @@
 | `LdapWizardTest` selected / 全套 | 3 / 57 | 0 / 0 |
 | FR-9 原版 / 突變版 | 1 / 0 | 0 / 1（預期） |
 
-### 全套 `tests/`（chiseled 測試 image，mysql:8.4，第一次跑）
+### 全套 `tests/`
 
-| | 數量 |
-| --- | --- |
-| 測試 | **7086**（Unit 加 Feature，和 `--list-tests` 相同） |
-| assertions | 22014 |
-| failure | 27 |
-| error | 14 |
-| 略過 | 3。全是程式碼本來就標記的：`ApiRateLimitTest` 2 個、`DeleteAssetsTest::test_cannot_delete_asset_that_is_checked_out` |
-| incomplete | 54。全是 `markTestIncomplete`，上游也一樣（「Custom Fields tests do not work on MySQL」45 個等等） |
+分成 4 個 shard（SyncAdapters 以外的部分，依檔案大小平均分配）、syncrest（SyncAdapters 去掉 ABM）和 ABM 8 個檔案，共 13 個容器平行跑。volume 的初始化和 runner 一樣，用 `startup.go` 的 `dataDirs` 產生。
 
-第 13 輪只在 chiseled 裡跑過 `tests/Unit`，所以全套沒有可以直接比較的舊數字。Unit 部分的失敗和第 13 輪相同，就是那 8 個 `intl` 測試。
+| | 第 16 輪 | 第 15 輪 |
+| --- | --- | --- |
+| 測試 | **7086** | 7086 |
+| assertions | 22023 | 22014 |
+| failure | 10 | 27 |
+| error | 18 | 14 |
+| 略過 | 3（程式碼本來就標記的：`ApiRateLimitTest` 2、`DeleteAssetsTest` 1） | 3 |
+| incomplete | 54（`markTestIncomplete`，上游也一樣） | 54 |
+
+和第 15 輪的差異：
+
+- failure 少了 17 個：DNS 的 14 個這次用 `--add-host` 讓它們通過，`ShelllessOptInTest` 的 3 個已修好。
+- error：原本的 14 個消失了，新出現 18 個（F）。
 
 ## 3. 失敗和可疑項目
 
-| # | 測試 | 數量 | 原因 | 修正條件後重跑 | 上游 develop `581d564e2c` |
-| --- | --- | --- | --- | --- | --- |
-| A | `Unit\CustomFieldTest` 6 個、`Unit\Importer\ImporterEncodingTest` 2 個 | 8 F | chiseled 沒有 `intl`（已知） | — | 已知 |
-| B | `CompanyWebhooksTest::test_can_filter_companies_with_webhooks`、`WebhookEndpointSsrfTest::test_api_accepts_a_public_https_webhook_endpoint_from_superuser`、`Fleet\FleetLicenseTierTest` 3 個、`Fleet\FleetSettingsPageTest` 1 個、`Intune\IntuneSettingsPageTest` 3 個、`Kandji\KandjiSettingsPageTest` 1 個、`AssetTagPatternTest` 2 個、`GroupCompanyMappingTest` 2 個 | 14 F | 沒有 DNS，`ExternalUrl` 驗證失敗（已知） | 加上 `--add-host`（「已知狀況」列的 5 個主機）後：Companies 2/2、SyncAdapters 37/37 **通過** | 已知 |
-| C | `Assets\Ui\ImportAssetHistoryTest` 10 個、`Livewire\ImporterTest` 3 個、`Importing\Api\GeneralImportTest::processing_another_users_import_does_not_overwrite_created_by` | 14 E | `fopen(.../storage/private_uploads/imports/...): No such file or directory`。chiseled 的 `storage/private_uploads` 是指向 `/var/lib/snipeit/data/private_uploads` 的 symlink。runner 和我的 volume 初始化只建了上層目錄，正式 init（`startup.go` 的 `dataDirs`）會建 `imports` 等子目錄 | 改用和 `startup.go` 相同的目錄清單後重跑 Importing 全目錄加上這兩個檔案，292 個裡 **291 個通過**，剩下的就是 D | 測試環境造成，和程式無關 |
-| D | `Importing\Api\ImportAssetsTest::will_encrypt_custom_fields` | 1 F | 讀出的原始值和明文相同（`Failed asserting that 'B2:99:…' is not equal to 'B2:99:…'`） | 仍然失敗 | **上游也失敗**（主機 MariaDB）。我們沒有改 `tests/Feature/Importing` 和 `app/Importer` |
-| E | `Mcp\ListLicensesToolTest::test_offset_skips_results_for_pagination` | 1 F | `ListLicensesTool` 只用 `licenses.created_at desc` 排序，10 筆在同一秒建立，`skip/take` 的結果在 MySQL 8.4 上不固定，兩頁會重複 | 容器（MySQL 8.4）裡重跑仍然失敗；主機 MariaDB 上分支和上游各跑 3 次都通過 | **上游在 mysql:8.4 上 3/3 失敗**。上游新加的 MCP，我們沒有改 `app/Mcp` |
-| F | `Console\ShelllessOptInTest` 的 `test_shellless_is_off_by_default`、`test_scheduler_is_the_framework_one_by_default`、`test_restore_uses_a_shell_command_line_by_default` | 3 F | **我們的測試**。這 3 個測試假設 `app.shellless` 是預設值，但 chiseled image 的 Env 本來就有 `SNIPEIT_SHELLLESS=true` | 容器裡加 `-e SNIPEIT_SHELLLESS=false` 後 6/6 通過；主機一般環境 6/6 通過；主機加 `SNIPEIT_SHELLLESS=true` 就重現這 3 個失敗 | 上游沒有這個測試 |
+| # | 測試 | 數量 | 原因 | 上游 |
+| --- | --- | --- | --- | --- |
+| A | `Unit\CustomFieldTest` 6 個、`Unit\Importer\ImporterEncodingTest` 2 個 | 8 F | chiseled 沒有 `intl`（已知） | 已知的環境差異 |
+| B | DNS 的 14 個 `ExternalUrl` 測試 | 0 | 這次跑之前加了 `--add-host`（「已知狀況」列的 5 個主機），全部通過。`CompanyWebhooksTest`、`WebhookEndpointSsrfTest`、Fleet、Intune、Kandji、`AssetTagPatternTest`、`GroupCompanyMappingTest` 0 失敗 | — |
+| C | 第 15 輪 volume 少目錄造成的 14 個 error | 0 | 照 `dataDirs` 初始化後消失了 | — |
+| D | `Importing\Api\ImportAssetsTest::will_encrypt_custom_fields` | 1 F | `Failed asserting that 'D5:20:…' is not equal to 'D5:20:…'`，和第 15 輪相同 | 「已知狀況」列為上游問題 |
+| E | `Mcp\ListLicensesToolTest::test_offset_skips_results_for_pagination` | 1 F | `Failed asserting that an array is empty.`，MySQL 8.4 上的排序不固定，和第 15 輪相同 | 「已知狀況」列為上游問題 |
+| F | `S3Compatibility\RestoreToRemoteDiskTest`，整個類別 18 個測試（包括 finding3 的 4 個資料集和 `local_destination_prefers_manifest_staged_copy_when_stale_copy_follows`） | **18 E** | `ErrorException: proc_open(): posix_spawn() failed: No such file or directory`，發生在 `RestoreFromBackup.php:602`。說明見下方 | 上游沒有這些測試，是我們的測試 |
 
-合計：failure 8 + 14 + 1 + 1 + 3 = 27，error 14，和 junit 的數字一致。
+F 的原因：
 
-**另一個發現（不是失敗，但很耗時間）**：上游 `SyncAdapters\AppleBusinessManager` 的測試會真的對 `api-business.apple.com` 發出請求，有些請求沒有被 `Http::fake` 擋住。在沒有網路的容器裡，每個請求都會走 `RetriesTransientHttpErrors` 的 8 次指數退避，等 0.5 秒、1 秒一直到 32 秒，所以每個測試大約要 64 秒。測試最後還是會通過，但整個目錄 64 個測試要跑 1 小時以上。
+- `tests/Feature/Console/ShelllessSchedulerTest.php` 的 `setUp()` 設 `SNIPEIT_SHELLLESS=true`，`tearDown()` 則**無條件**執行 `putenv('SNIPEIT_SHELLLESS')` 和 `unset($_SERVER[...], $_ENV[...])`，沒有恢復成原本的值。
+- chiseled image 的 Env 本來就是 `SNIPEIT_SHELLLESS=true`。這個測試跑完之後，同一個 phpunit process 裡後面的測試都會讀到 `app.shellless = false`。
+- `dbClientCommand()` 因此回傳字串，`proc_open` 用字串時會經過 `/bin/sh -c`，而 chiseled image 沒有 `/bin/sh`。
+- 這次 shard0 的檔案順序剛好是 `Console/ShelllessSchedulerTest` 在 `S3Compatibility/RestoreToRemoteDiskTest` 前面。第 15 輪的分配不同，所以沒有遇到。runner 只跑 `tests/Feature/S3Compatibility`，所以也不會遇到。
+- 一般環境（CI、主機）沒有設這個變數，清掉也不影響，所以 CI 看不到這個問題。
 
-- 上游一樣：上游 develop 在沒有代理環境變數時跑 `ActivationLockEnrichmentTest`，5 個測試花了 5 分 26 秒，每個約 64 秒。
-- 主機上有 `HTTPS_PROXY`，請求會從代理拿到 HTTP 回應，不是 ConnectionException，不會重試，所以 55 秒就跑完。
+二分法驗證（同一個 image，每次都用新的資料庫和 volume）：
 
-這次我把 SyncAdapters 拆成 ABM 每個檔案一個容器、其餘一個容器平行跑，最後全部通過：ABM 64/64，其餘只有 B 列的 12 個 DNS 失敗。
+| 檔案順序 | 結果 |
+| --- | --- |
+| `RestoreToRemoteDiskTest` 單獨跑 | OK（31 個測試） |
+| `ShelllessOptInTest` → `RestoreToRemoteDiskTest` | OK（37 個測試）。新的 `4c1f2c64f8` 有正確還原環境變數 |
+| `ShelllessSchedulerTest` → `RestoreToRemoteDiskTest` | **18 個 error**，完全重現 |
+
+結論：這是我們測試的隔離問題，不是程式錯誤。正式環境的 restore 在 chiseled 裡走 shell-less 路徑，runner 的 S3 全套（103 個）和第 1 次的結果都通過。
+
+合計：failure 8 + 1 + 1 = 10，error 18，和 junit 的數字一致。
 
 ## 4. 「這次的重點」逐項回答
 
 1. **dockerd**：用當下的 `$HTTPS_PROXY` 啟動，`hello-world` 成功。
 2. **原樣執行 runner**：工具、程式碼和 Dockerfile 都沒有修改。
-   - runner exit **0**，`errors` 是 **`[]`**。
+   - 第 2 次完整執行的結果：exit **0**，`errors` 是 **`[]`**。
    - 除了 FR-9 突變版之外 **0 失敗**；`skipped_summary` 全部是空的，所以 **0 略過**。
-   - FR-2：`fr2_chiseled`、`fr2_regular` 都 exit 0，`fr2_prepare_app` 是 `marker_directory_present: false`。
-   - FR-8：`fr8_valid`、`fr8_empty`、`fr8_unset` 都 exit 0；`fr8_invalid` 容器啟動失敗（exit 1），這是預期結果；`fr8_go_unit` exit 0。
-   - FR-9：原版 exit 0。突變版失敗的訊息是 `Finding 9: safety backup omitted remote files.`，`fr9_mutation_red.passed = true`。
-   - `candidate_proxy_ca_absent` 和 `chiseled_input_locks` 都通過。
-   - 所有 probe 都和第 14 輪相同。`results-B.json` 和 debug log 裡都沒有 `docker.sock`。runner 跑完時 `git status` 只有 `results-B.json` 有變動。
-3. **全套測試**：在同一個測試 image（image ID 相同）裡跑完整的 `tests/`，共 7086 個。已知的失敗（A、B）之外，其他失敗（C、D、E、F）都在第 3 節逐一分析，也到上游 develop `581d564e2c` 對照過。這次 rebase 唯一的衝突在 `AppServiceProvider` 的 shell-less scheduler 綁定，`ShelllessOptInTest` 在一般環境下 6/6 通過，表示 rebase 後綁定仍然正確。上游新增的 MCP 測試（`tests/Feature/Mcp`，778 個）只有 E 一個失敗，而且上游也失敗。
+   - FR-2：`fr2_chiseled`、`fr2_regular` exit 0，`fr2_prepare_app` 是 `marker_directory_present: false`。
+   - FR-8：valid、empty、unset 都 exit 0；invalid 容器啟動失敗（exit 1），符合預期；`fr8_go_unit` exit 0。
+   - FR-9：原版 exit 0。突變版失敗，訊息是 `Finding 9: safety backup omitted remote files.`，`fr9_mutation_red.passed = true`。
+   - `candidate_proxy_ca_absent`、`chiseled_input_locks`（`locks are up to date`）都通過。
+   - `results-B.json`、debug log 和我的全套測試指令裡都沒有 `docker.sock`。runner 跑完後 `git status` 只有 `results-B.json` 有變動。
+   - runner 第 1 次被我這邊的背景時限中斷了，見第 1 節。
+3. **全套測試**：見第 2、3 節。
+   - `ShelllessOptInTest` 3 個（整個類別 6 個）**通過**。
+   - 第 15 輪的 14 個 volume error **消失了**。
+   - 已知的失敗：intl 8 個，以及上游的 `will_encrypt_custom_fields` 和 `ListLicensesToolTest`。DNS 的 14 個用 `--add-host` 讓它們通過。
+   - 其他失敗只有 F 的 18 個 error，原因已定位到我們的 `ShelllessSchedulerTest`，不是上游的問題，所以不需要到官方 master 對照。
 4. **清理**：
-   - runner 自己移除了它建立的資源。
-   - 我刪掉了全套測試用的容器、volume、網路和 tag，並執行 `docker image prune -af`、`docker buildx prune -af`、`docker system prune -af --volumes`，之後 `docker system df` 全部是 0。dockerd 已停止。
-   - `/tmp/dev` worktree、上游和分支的測試資料庫，以及工作目錄裡暫時放的 `vendor/`、`.env`、`.env.testing` 都已刪除。MariaDB 已停止。
+   - 刪掉 runner 中斷後留下的資源，以及全套測試的容器、volume、網路和資料庫容器。
+   - 執行了 `docker image prune -af`、`docker buildx prune -af`、`docker system prune -af --volumes`，之後 `docker system df` 全部是 0。
+   - dockerd 已停止。`/tmp/review-*` 沒有殘留。
    - `~/.cache/review-fixes/mirrors` 是工具設計上要重複使用的快取，所以保留。
-   - 在主機上跑測試時，有測試刪掉了 `public/uploads/**` 和 `storage/private_uploads/**` 裡被 git 追蹤的 `.gitignore`、`.gitkeep` 等檔案（`git status` 出現 37 個 D）。我用 `git checkout` 還原了，沒有 commit 進去。這可能和上游有些測試會清理上傳目錄有關，第 5 節第 5 點有說明。
 
 ## 5. 修改建議（依重要性排序）
 
-1. **`tests/Feature/Console/ShelllessOptInTest.php`（我們的改動）**：「預設是關閉」的 3 個測試直接讀目前的設定，在 chiseled image（Env 有 `SNIPEIT_SHELLLESS=true`）或任何設了這個變數的環境裡都會失敗。建議改成不依賴執行環境：在每個測試開頭先固定設定，`config(['app.shellless' => false]);`，或者在 `setUp()` 裡做。「預設值是 false」這件事，改成檢查 `config/app.php` 的原始碼裡 `env('SNIPEIT_SHELLLESS', false)` 的預設參數，或用 `putenv('SNIPEIT_SHELLLESS')` 清掉變數後重新載入設定。另一個選擇是在 `phpunit.xml` 加 `<env name="SNIPEIT_SHELLLESS" value="false" force="true"/>`，但這樣就會遮住 chiseled 的真實設定，所以比較建議前一種做法。
-2. **測試工具 `cloud-verify/review-fixes/runner.py` 的 volume 初始化（`init`）**：目前只建 `data`、`data/private_uploads`、`data/uploads` 等上層目錄，和正式 init（`docker/snipeit-runtime/internal/startup/startup.go` 的 `dataDirs`）不一致。runner 目前跑的 3 組測試剛好沒用到 `imports`，但以後要在 chiseled 裡跑全套，或加入 import 相關的測試時，就會出現第 3 節 C 列的 14 個假失敗。建議直接用和 `dataDirs` 相同的清單，最好由同一份資料產生。
-3. **說明檔（CLOUD_TEST.md）**：之後如果還要在 chiseled 裡跑全套，建議寫明：
-   - volume 要照 `dataDirs` 初始化（同第 2 點）。
-   - 要用 `-e SNIPEIT_SHELLLESS=false` 跑 `ShelllessOptInTest`，或等第 1 點修好。
-   - SyncAdapters 在沒有網路的容器裡會因為上游 ABM 測試漏掉的真實請求而跑 1 小時以上，要拆開平行跑，或標記成已知的慢測試。
-   - 「已知狀況」要補上 `ListLicensesToolTest`（MySQL 8.4）和 `will_encrypt_custom_fields`（上游本來就失敗）。
-4. **上游 `app/Mcp/Tools/ListLicensesTool.php`（上游的問題）**：`orderBy('licenses.created_at', 'desc')` 之後應該再加一個不會重複的排序欄位，例如 `->orderBy('licenses.id', 'desc')`。否則分頁在 MySQL 8.x 上會重複或漏掉資料，這不只是測試的問題，實際使用也會受影響。其他 `List*Tool` 可能也有同樣的寫法，可以一起檢查。這可以考慮對上游發 PR。
-5. **上游 `tests/Feature/SyncAdapters/AppleBusinessManager/*`（上游的問題）**：測試會漏出真實的 HTTPS 請求到 `api-business.apple.com`。建議在這些測試（或 `TestCase`）裡加上 `Http::preventStrayRequests()`，並把漏掉的端點 fake 起來。這樣測試不會依賴網路，也不會在 CI 有網路時真的打到 Apple。另外，主機上跑完測試後被 git 追蹤的上傳目錄檔案被刪掉了（見第 4 節第 4 點），這次沒有時間找出是哪個測試做的，建議之後確認一下。
-6. **`ImportAssetsTest::will_encrypt_custom_fields`（上游的問題）**：上游 develop 本身就失敗，原始值沒有被加密。這可能是上游加密欄位匯入的回歸，也可能是測試裡 `firstOrNew` 加上 `field_encrypted` 改變之後，欄位的 cast 沒有更新。不是我們的改動造成的，可以向上游回報。
+1. **`tests/Feature/Console/ShelllessSchedulerTest.php`（我們的改動，測試隔離）**：`tearDown()` 應該把 `SNIPEIT_SHELLLESS` 恢復成 `setUp()` 之前的狀態，不要直接清掉。否則在 chiseled 裡（或任何設了 `SNIPEIT_SHELLLESS=true` 的環境）跑全套時，後面的測試會改走 shell 路徑，像 F 那樣失敗。或者更糟的情況是：測試通過了，實際上卻沒有測到 shell-less 路徑。做法和 `4c1f2c64f8` 對 `ShelllessOptInTest` 的處理一樣：
+
+   ```diff
+   +    private string|false $previousShellless;
+   +    private array $previousShelllessGlobals = [];
+   +
+        protected function setUp(): void
+        {
+            parent::setUp();
+   +        $this->previousShellless = getenv('SNIPEIT_SHELLLESS');
+   +        foreach (['_ENV', '_SERVER'] as $global) {
+   +            if (array_key_exists('SNIPEIT_SHELLLESS', $GLOBALS[$global])) {
+   +                $this->previousShelllessGlobals[$global] = $GLOBALS[$global]['SNIPEIT_SHELLLESS'];
+   +            }
+   +        }
+            // Must be set before the application is created: the provider reads it while registering.
+            putenv('SNIPEIT_SHELLLESS=true');
+   ...
+        protected function tearDown(): void
+        {
+   ...
+   -        putenv('SNIPEIT_SHELLLESS');
+   -        unset($_SERVER['SNIPEIT_SHELLLESS'], $_ENV['SNIPEIT_SHELLLESS']);
+   +        $this->previousShellless === false
+   +            ? putenv('SNIPEIT_SHELLLESS')
+   +            : putenv('SNIPEIT_SHELLLESS='.$this->previousShellless);
+   +        unset($_SERVER['SNIPEIT_SHELLLESS'], $_ENV['SNIPEIT_SHELLLESS']);
+   +        foreach ($this->previousShelllessGlobals as $global => $value) {
+   +            $GLOBALS[$global]['SNIPEIT_SHELLLESS'] = $value;
+   +        }
+   ```
+
+   `$_ENV` 和 `$_SERVER` 在函式裡透過 `$GLOBALS` 改寫是可以的。如果想避免用 `$GLOBALS`，也可以像 `ShelllessOptInTest` 那樣，分開記錄 `$hasEnv`、`$hasServer`。改完後可以用第 3 節的順序（`ShelllessSchedulerTest` → `RestoreToRemoteDiskTest`）在 chiseled 測試 image 裡驗證。
+2. **測試工具 `cloud-verify/review-fixes/runner.py`（建議）**：runner 只跑 `S3Compatibility` 這個目錄，所以抓不到跨目錄的狀態污染。可以考慮在 runner 裡加一個固定順序的執行：先跑 `tests/Feature/Console/Shellless*` 再跑 `tests/Feature/S3Compatibility`（一個 phpunit config 列出這些檔案），預期 0 失敗。這樣第 1 點的回歸以後會在 runner 裡被抓到，不用依賴全套 shard 剛好排到這個順序。
+3. **說明檔（CLOUD_TEST.md）**：
+   - 「已知狀況」可以補上：在 chiseled 裡跑全套時，修好第 1 點之前，`RestoreToRemoteDiskTest` 可能因為測試順序出現 18 個 `posix_spawn` error。
+   - 全套測試的方式（shard 分配、`--add-host`、volume 照 `dataDirs` 初始化、ABM 每個檔案一個容器）可以寫成固定的腳本放進 `cloud-verify/`，每輪結果才能比較。這次的腳本是 scratchpad 裡的 `prep.py` 和 `run.sh`，沒有 commit。
+   - runner 和全套測試不能同時重跑。runner 開始時會刪掉帶 `review-fixes.run` label 的容器，而從它的測試 image 啟動的容器會繼承這個 label，所以重跑 runner 會殺掉正在跑全套的容器。
+4. **上游問題（同第 15 輪）**：`ListLicensesTool` 應該再加 `->orderBy('licenses.id', 'desc')` 作為第二排序欄位；`will_encrypt_custom_fields` 在上游本來就失敗。
