@@ -150,7 +150,7 @@ class Ldap extends Model
                 throw new Exception('No user DN found');
             }
             if (! self::isDnInSelectedOus($userDn)) {
-                throw new Exception('User DN is outside the selected OUs');
+                throw new \App\Exceptions\LdapOuScopeDenied('User DN is outside the selected OUs');
             }
             \Log::channel('ldap')->debug("FOUND DN IS: $userDn");
             // The temptation now is to do ldap_unbind on the $admin_conn, but that gets handled in the 'finally' below.
@@ -166,6 +166,8 @@ class Ldap extends Model
             }
 
             return array_change_key_case($user);
+        } catch (\App\Exceptions\LdapOuScopeDenied $e) {
+            throw $e;
         } catch (Exception $e) {
             \Log::channel('ldap')->debug('Exception on fast find-and-bind: '.$e->getMessage());
             if ($slow_failure) {
@@ -258,7 +260,7 @@ class Ldap extends Model
 
         // The fast path above also refuses unselected OUs, but its failure falls through to here.
         if (self::selectedOus() !== null && ! self::isDnInSelectedOus((string) ldap_get_dn($connection, $entry))) {
-            return false;
+            throw new \App\Exceptions\LdapOuScopeDenied('User DN is outside the selected OUs');
         }
 
         if (! $user = ldap_get_attributes($connection, $entry)) {
@@ -738,7 +740,9 @@ class Ldap extends Model
      */
     public static function isDnDirectlyInOus(string $dn, array $ous): bool
     {
-        return in_array(self::parentDn($dn), array_map(self::normalizeDn(...), $ous), true);
+        $parent = self::parentDn($dn);
+
+        return $parent !== '' && in_array($parent, array_map(self::normalizeDn(...), $ous), true);
     }
 
     /**
@@ -766,7 +770,9 @@ class Ldap extends Model
             $errmsg = null;
             $referrals = null;
             $controls = [];
-            ldap_parse_result($connection, $search_results, $errcode, $matcheddn, $errmsg, $referrals, $controls);
+            if (! ldap_parse_result($connection, $search_results, $errcode, $matcheddn, $errmsg, $referrals, $controls) || $errcode !== 0) {
+                throw new Exception('LDAP search returned an incomplete or unsuccessful result.');
+            }
             $cookie = $controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'] ?? '';
 
             $entries = ldap_get_entries($connection, $search_results);
@@ -829,7 +835,24 @@ class Ldap extends Model
 
     private static function normalizeDn(string $dn): string
     {
-        return mb_strtolower(preg_replace('/\s*([,=])\s*/', '$1', trim($dn)));
+        $parts = self::splitDn($dn);
+        foreach ($parts as &$part) {
+            $part = ltrim($part);
+            while ($part !== '' && ctype_space($part[strlen($part) - 1])) {
+                $slashes = 0;
+                for ($i = strlen($part) - 2; $i >= 0 && $part[$i] === '\\'; $i--) {
+                    $slashes++;
+                }
+                if ($slashes % 2 !== 0) {
+                    break;
+                }
+                $part = substr($part, 0, -1);
+            }
+            $part = preg_replace('/^([^=]+?)\s*=\s*/', '$1=', $part);
+        }
+        unset($part);
+
+        return mb_strtolower(implode(',', $parts));
     }
 
     /**
@@ -837,8 +860,26 @@ class Ldap extends Model
      */
     private static function splitDn(string $dn): array
     {
-        // \x5C is a backslash: an escaped comma is part of a value, not a separator.
-        return preg_split('/(?<!\x5C),/', $dn);
+        $parts = [];
+        $start = 0;
+        $backslashes = 0;
+        for ($i = 0, $length = strlen($dn); $i < $length; $i++) {
+            if ($dn[$i] === '\\') {
+                $backslashes++;
+                continue;
+            }
+            if ($dn[$i] === ',' && $backslashes % 2 === 0) {
+                $parts[] = substr($dn, $start, $i - $start);
+                $start = $i + 1;
+            }
+            $backslashes = 0;
+        }
+        if ($backslashes % 2 !== 0) {
+            return [];
+        }
+        $parts[] = substr($dn, $start);
+
+        return $parts;
     }
 
     private static function parentDn(string $dn): string
