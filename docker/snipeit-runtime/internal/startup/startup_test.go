@@ -9,6 +9,22 @@ import (
 	"testing"
 )
 
+func TestForwardedHeaderConfig(t *testing.T) {
+	config, err := forwardedHeaderConfig("X-Review-User")
+	if err != nil || config != "SetEnvIfNoCase ^X-Review-User$ \"^(.+)$\" REMOTE_USER=$1\n" {
+		t.Fatalf("unexpected forwarded header configuration: %q, %v", config, err)
+	}
+	if config, err := forwardedHeaderConfig(""); err != nil || config != "" {
+		t.Fatal("empty header should disable mapping")
+	}
+	if config, err := forwardedHeaderConfig("X.A+B"); err != nil || !strings.Contains(config, `^X\.A\+B$`) {
+		t.Fatal("header name must be matched literally")
+	}
+	if _, err := forwardedHeaderConfig("Bad Header\nInjected"); err == nil {
+		t.Fatal("invalid header must be rejected")
+	}
+}
+
 func TestStartupCommandFixture(t *testing.T) {
 	if os.Getenv("STARTUP_COMMAND_FIXTURE") != "1" {
 		return

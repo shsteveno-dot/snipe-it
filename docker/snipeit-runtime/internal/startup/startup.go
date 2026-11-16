@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -87,6 +88,13 @@ func ResolveSecrets() error {
 }
 
 func RuntimeConfig() error {
+	forwarded, err := forwardedHeaderConfig(os.Getenv("REMOTE_LOGIN_FORWARDED_HEADER"))
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile("/run/snipeit/remote-login.conf", []byte(forwarded), 0644); err != nil {
+		return err
+	}
 	if value, ok := os.LookupEnv("PHP_UPLOAD_LIMIT"); ok {
 		// Accept the same numeric value used by upstream; reject config injection.
 		if value == "" || strings.Trim(value, "0123456789") != "" {
@@ -99,6 +107,7 @@ func RuntimeConfig() error {
 	}
 	limits := []struct{ name, directive string }{{"APACHE_LIMIT_REQUEST_FIELD_SIZE", "LimitRequestFieldSize"}, {"APACHE_LIMIT_REQUEST_LINE", "LimitRequestLine"}, {"APACHE_LIMIT_REQUEST_FIELDS", "LimitRequestFields"}}
 	var lines strings.Builder
+	lines.WriteString("IncludeOptional /run/snipeit/remote-login.conf\n")
 	for _, limit := range limits {
 		if value, ok := os.LookupEnv(limit.name); ok {
 			if value == "" || strings.Trim(value, "0123456789") != "" {
@@ -116,6 +125,18 @@ func RuntimeConfig() error {
 		return os.WriteFile("/run/snipeit/ssl.conf", []byte("Listen 8443\nInclude /etc/apache2/sites-available/001-default-ssl.conf\n"), 0644)
 	}
 	return os.WriteFile("/run/snipeit/ssl.conf", nil, 0644)
+}
+
+func forwardedHeaderConfig(header string) (string, error) {
+	if header == "" {
+		return "", nil
+	}
+	for _, ch := range header {
+		if !((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || strings.ContainsRune("!#$%&'*+-.^_`|~", ch)) {
+			return "", errors.New("REMOTE_LOGIN_FORWARDED_HEADER must be an HTTP field-name token")
+		}
+	}
+	return fmt.Sprintf("SetEnvIfNoCase ^%s$ \"^(.+)$\" REMOTE_USER=$1\n", regexp.QuoteMeta(header)), nil
 }
 
 func MigrationFiles() error {
