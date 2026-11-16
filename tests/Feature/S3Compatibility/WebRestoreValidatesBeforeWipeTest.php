@@ -70,6 +70,64 @@ class WebRestoreValidatesBeforeWipeTest extends TestCase
     }
 
     #[Test]
+    /**
+     * Finding 9: the cloud runner removes --with-remote-files only from the
+     * safety backup call in a throwaway source copy and records this test's RED.
+     */
+    public function web_restore_calls_the_safety_backup_with_remote_files_before_wiping(): void
+    {
+        $admin = User::factory()->superuser()->create();
+        $filename = $this->plantBackup(hash('sha256', 'AVATAR-BYTES'));
+        $artisan = \Mockery::mock(\App\Console\Kernel::class, [app(), app('events')])->makePartial();
+        \Illuminate\Support\Facades\Artisan::swap($artisan);
+        $backupOptions = null;
+        $artisan->shouldReceive('call')->once()->with('snipeit:backup', \Mockery::any())
+            ->andReturnUsing(function ($command, $options) use (&$backupOptions) {
+                $backupOptions = $options;
+
+                return 1; // Always stop before wipe, including in the mutation run.
+            });
+        $artisan->shouldReceive('call')->never()->with('db:wipe', \Mockery::any());
+
+        $this->actingAs($admin)
+            ->post(route('settings.backups.restore', $filename))
+            ->assertRedirect(route('settings.backups.index'))
+            ->assertSessionHas('error');
+        $this->assertTrue($backupOptions['--with-remote-files'] ?? false, 'Finding 9: safety backup omitted remote files.');
+        $this->assertTrue($backupOptions['--force'] ?? false);
+        $this->assertArrayHasKey('--filename', $backupOptions);
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
+
+    #[Test]
+    /** Finding 4: CRC damage in an unmanifested entry must abort before wipe. */
+    public function finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe(): void
+    {
+        $admin = User::factory()->superuser()->create();
+        $filename = $this->plantBackup(hash('sha256', 'AVATAR-BYTES'));
+        $archive = $this->workDir.'/backup-disk/'.config('backup.backup.name', 'backups').'/'.$filename;
+        $entry = 'public/uploads/avatars/stale.png';
+        $zip = new ZipArchive;
+        $this->assertTrue($zip->open($archive));
+        $zip->addFromString($entry, 'UNIQUE-WEB-CRC-PAYLOAD-A');
+        $zip->setCompressionName($entry, ZipArchive::CM_STORE);
+        $zip->close();
+        $bytes = file_get_contents($archive);
+        $bytes = str_replace('UNIQUE-WEB-CRC-PAYLOAD-A', 'UNIQUE-WEB-CRC-PAYLOAD-B', $bytes, $count);
+        $this->assertSame(1, $count);
+        file_put_contents($archive, $bytes);
+        $artisan = \Mockery::mock(\App\Console\Kernel::class, [app(), app('events')])->makePartial();
+        \Illuminate\Support\Facades\Artisan::swap($artisan);
+        $artisan->shouldReceive('call')->with('snipeit:backup', \Mockery::any())->andReturn(1);
+
+        $this->actingAs($admin)->post(route('settings.backups.restore', $filename))
+            ->assertRedirect(route('settings.backups.index'))
+            ->assertSessionHas('error');
+        $this->assertStringContainsString($entry, (string) session('error'), 'Finding 4: CRC entry was not reported before wipe.');
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
+
+    #[Test]
     public function an_archive_whose_manifest_does_not_match_is_refused_before_the_database_is_touched(): void
     {
         $admin = User::factory()->superuser()->create();

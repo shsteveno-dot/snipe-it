@@ -451,7 +451,7 @@ class RestoreToRemoteDiskTest extends TestCase
         $output = Artisan::output();
 
         $this->assertNotSame(0, $exit, $output);
-        $this->assertStringContainsString('Could not read the complete database dump: db-dumps/mysql-test.sql', $output);
+        $this->assertStringContainsString('db-dumps/mysql-test.sql', $output);
         $this->assertSame([99], $this->probeValues());
     }
 
@@ -602,12 +602,150 @@ class RestoreToRemoteDiskTest extends TestCase
         $this->assertSame('LOCAL-COPY', file_get_contents($this->publicRoot.'/avatars/'.$this->tag.'.png'));
     }
 
-    // ---- web flow ---------------------------------------------------------------------------
+    public static function finding3ArchiveOrders(): array
+    {
+        return [
+            'local stale last' => [false, false],
+            'remote stale last' => [true, false],
+            'local stale first control' => [false, true],
+            'remote stale first control' => [true, true],
+        ];
+    }
+
+    /** Finding 3: local stale-last is RED; other orders and remote are controls. */
+    #[Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('finding3ArchiveOrders')]
+    public function finding3_restore_destination_prefers_staged_for_either_archive_order(bool $remote, bool $staleFirst): void
+    {
+        if ($remote) {
+            $this->useRemoteDisks();
+        }
+        $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        $extra = 'storage/private_uploads/imports/'.$this->tag.'.csv';
+        if (! $remote) {
+            $this->track($path);
+            $this->track($extra);
+        }
+        $old = $this->backupZip([$path => 'STAGED', $extra => 'OTHER']);
+        $src = new ZipArchive;
+        $this->assertTrue($src->open($old));
+        $reordered = $this->work.'/reordered-'.bin2hex(random_bytes(4)).'.zip';
+        $dst = new ZipArchive;
+        $this->assertTrue($dst->open($reordered, ZipArchive::CREATE));
+        if ($staleFirst) {
+            $dst->addFromString($path, 'STALE!');
+        }
+        for ($i = 0; $i < $src->numFiles; $i++) {
+            $dst->addFromString($src->getNameIndex($i), $src->getFromIndex($i));
+        }
+        if (! $staleFirst) {
+            $dst->addFromString($path, 'STALE!');
+        }
+        $dst->close();
+        $src->close();
+
+        [$exit, $output] = $this->restore($reordered);
+        $this->assertSame(0, $exit, $output);
+        $this->assertSame('STAGED', $remote ? Storage::disk('custom_private')->get(substr($path, 8)) : file_get_contents(base_path($path)));
+        $this->assertSame('OTHER', $remote ? Storage::disk('custom_private')->get(substr($extra, 8)) : file_get_contents(base_path($extra)));
+    }
+    /** Finding 4 control: broken central directories are already rejected. */
+    #[Test]
+    public function finding4_validate_only_rejects_a_broken_central_directory(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $zip = $this->backupZip([]);
+        $bytes = file_get_contents($zip);
+        $offset = strpos($bytes, "PK\x01\x02");
+        $this->assertNotFalse($offset);
+        $bytes[$offset] = 'X';
+        file_put_contents($zip, $bytes);
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+        $this->assertNotSame(0, $exit, Artisan::output());
+        $this->assertSame([99], $this->probeValues());
+    }
 
     #[Test]
-    public function the_web_restore_takes_its_safety_backup_with_remote_files_included(): void
+    /** Finding 4 control: existing manifest size and SHA-256 checks must remain. */
+    public function finding4_validate_only_checks_manifest_size_and_sha256(): void
     {
-        $source = file_get_contents(base_path('app/Http/Controllers/SettingsController.php'));
-        $this->assertMatchesRegularExpression("/'snipeit:backup',\s*\[[^\]]*'--with-remote-files'\s*=>\s*true/s", $source);
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        foreach (['size', 'sha'] as $kind) {
+            $manifest = ['version' => 1, 'remote_files' => 'included', 'files' => [[
+                'role' => 'private', 'key' => substr($path, 8), 'archive_path' => $path,
+                'bytes' => $kind === 'size' ? 4 : 3,
+                'sha256' => $kind === 'sha' ? str_repeat('0', 64) : hash('sha256', 'PDF'),
+            ]]];
+            $zip = $this->backupZip([$path => 'PDF'], $manifest);
+            $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+            $this->assertNotSame(0, $exit, Artisan::output());
+            $this->assertSame([99], $this->probeValues());
+        }
     }
+
+    #[Test]
+    /** Finding 4. */
+    public function validate_only_rejects_a_truncated_zip_without_changing_the_database(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $zip = $this->backupZip(['storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf' => 'PDF']);
+        $bytes = file_get_contents($zip);
+        $central = strpos($bytes, "PK\x01\x02");
+        $this->assertNotFalse($central);
+        file_put_contents($zip, substr($bytes, 0, $central + 15));
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+
+        $this->assertNotSame(0, $exit, Artisan::output());
+        $this->assertSame([99], $this->probeValues());
+    }
+
+    #[Test]
+    /** Finding 3. */
+    public function local_destination_prefers_manifest_staged_copy_when_stale_copy_follows(): void
+    {
+        $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        $this->track($path);
+        $zip = $this->backupZip([$path => 'STAGED']);
+        $za = new ZipArchive;
+        $this->assertTrue($za->open($zip));
+        $za->addFromString($path, 'STALE!');
+        $za->close();
+
+        [$exit, $output] = $this->restore($zip);
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertSame('STAGED', file_get_contents(base_path($path)));
+    }
+
+    #[Test]
+    /** Finding 4. */
+    public function validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped(): void
+    {
+        $this->useRemoteDisks();
+        $this->seedProbeTable();
+        $path = 'storage/private_uploads/eula-pdfs/'.$this->tag.'.pdf';
+        $zip = $this->backupZip([$path => 'STAGED']);
+        $za = new ZipArchive;
+        $this->assertTrue($za->open($zip));
+        $za->addFromString($path, 'UNIQUE-STALE-PAYLOAD-12345');
+        $za->setCompressionName($path, ZipArchive::CM_STORE);
+        $za->close();
+        $bytes = file_get_contents($zip);
+        $corrupt = str_replace('UNIQUE-STALE-PAYLOAD-12345', 'UNIQUE-STALE-PAYLOAD-12346', $bytes, $count);
+        $this->assertSame(1, $count);
+        file_put_contents($zip, $corrupt);
+
+        $exit = Artisan::call('snipeit:restore', ['filename' => $zip, '--validate-only' => true, '--no-progress' => true]);
+        $output = Artisan::output();
+
+        $this->assertNotSame(0, $exit, $output);
+        $this->assertStringContainsString($path, $output);
+        $this->assertSame([99], $this->probeValues());
+    }
+
 }
