@@ -25,8 +25,24 @@ class ShelllessSchedulerTest extends TestCase
 
     private string $childScript;
 
+    private string|false $shelllessValue;
+
+    private bool $shelllessHasEnv;
+
+    private bool $shelllessHasServer;
+
+    private mixed $shelllessEnv;
+
+    private mixed $shelllessServer;
+
     protected function setUp(): void
     {
+        $this->shelllessValue = getenv('SNIPEIT_SHELLLESS');
+        $this->shelllessHasEnv = array_key_exists('SNIPEIT_SHELLLESS', $_ENV);
+        $this->shelllessHasServer = array_key_exists('SNIPEIT_SHELLLESS', $_SERVER);
+        $this->shelllessEnv = $_ENV['SNIPEIT_SHELLLESS'] ?? null;
+        $this->shelllessServer = $_SERVER['SNIPEIT_SHELLLESS'] ?? null;
+
         parent::setUp();
         // Must be set before the application is created: the provider reads it while registering.
         putenv('SNIPEIT_SHELLLESS=true');
@@ -63,8 +79,17 @@ PHP);
         rmdir($this->directory);
         putenv('SCHEDULER_TEST_MARKER');
         putenv('SCHEDULER_TEST_EXIT');
-        putenv('SNIPEIT_SHELLLESS');
-        unset($_SERVER['SNIPEIT_SHELLLESS'], $_ENV['SNIPEIT_SHELLLESS']);
+        $this->shelllessValue === false ? putenv('SNIPEIT_SHELLLESS') : putenv('SNIPEIT_SHELLLESS='.$this->shelllessValue);
+        if ($this->shelllessHasEnv) {
+            $_ENV['SNIPEIT_SHELLLESS'] = $this->shelllessEnv;
+        } else {
+            unset($_ENV['SNIPEIT_SHELLLESS']);
+        }
+        if ($this->shelllessHasServer) {
+            $_SERVER['SNIPEIT_SHELLLESS'] = $this->shelllessServer;
+        } else {
+            unset($_SERVER['SNIPEIT_SHELLLESS']);
+        }
         unset($_SERVER['SCHEDULER_TEST_MARKER'], $_ENV['SCHEDULER_TEST_MARKER'], $_SERVER['SCHEDULER_TEST_EXIT'], $_ENV['SCHEDULER_TEST_EXIT']);
         restore_error_handler();
         restore_exception_handler();
