@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -55,6 +56,34 @@ func TestInitializeReturnsNoServicesAfterSuccessfulKeyDisplay(t *testing.T) {
 	}
 	if gotName != "/usr/bin/php" || !reflect.DeepEqual(gotArgs, []string{"artisan", "key:generate", "--show"}) {
 		t.Fatalf("key display command = %q %q", gotName, gotArgs)
+	}
+}
+
+func TestKeyPermissionsAt(t *testing.T) {
+	dir := t.TempDir()
+	if err := KeyPermissionsAt(dir); err != nil {
+		t.Fatalf("missing keys: %v", err)
+	}
+	keys := map[string]os.FileMode{"oauth-public.key": 0660, "oauth-private.key": 0600}
+	for name := range keys {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte("fixture key"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := KeyPermissionsAt(dir); err != nil {
+		t.Fatal(err)
+	}
+	if runtime.GOOS == "windows" {
+		return
+	}
+	for name, want := range keys {
+		info, err := os.Stat(filepath.Join(dir, name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := info.Mode().Perm(); got != want {
+			t.Errorf("%s mode = %04o, want %04o", name, got, want)
+		}
 	}
 }
 

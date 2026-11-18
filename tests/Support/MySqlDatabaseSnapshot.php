@@ -18,6 +18,11 @@ class MySqlDatabaseSnapshot extends MySqlSchemaState
             return false;
         }
 
+        // Dump/load use a shell command line; ExecutableFinder falls back to exec('command -v').
+        if (DIRECTORY_SEPARATOR === '/' && ! is_executable('/bin/sh')) {
+            return false;
+        }
+
         $finder = new ExecutableFinder;
 
         return $finder->find('mysql') !== null && $finder->find('mysqldump') !== null;
