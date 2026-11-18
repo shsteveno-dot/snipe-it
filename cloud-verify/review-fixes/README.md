@@ -62,6 +62,11 @@ all unmutated tests and probes to pass with no skips; the FR-9 mutation must
 still fail for its specific assertion.
 The startup Go regression is compiled with the candidate's pinned Go builder;
 the resulting static test executable runs inside the candidate-derived image.
+Before the candidate build in every round (including A), the `go_checks` probe
+runs `gofmt -l .` (requiring no listed files), `go vet ./...`, then `go test ./...`
+in the same pinned Go image with networking disabled and the source mounted
+read-only. It uses `CGO_ENABLED=0`, matching FR-8, and records `passed` and
+`exit_code`; any failure stops the run.
 
 The results file is
 `cloud-verify/review-fixes/results-<round>.json`: image identities,
@@ -70,6 +75,9 @@ skips, probe outcomes, and setup errors. A failed assertion is recorded as a
 test or probe result; a setup failure is recorded under `errors` and makes
 the runner exit non-zero. JUnit errors in `errors` are grouped by run label and
 redacted message, with a count and the first affected test as an example.
+Failed commands include the first matching error line from redacted output,
+preferring a compiler error over a generic BuildKit `failed to solve` wrapper.
+Go check failures use the same cause selection, or `see debug log` if none matches.
 Messages are truncated to 300 characters; empty messages appear as `(no message)`.
 When any tests error, the first entry summarizes the total and most common cause.
 Per-test details remain in `tests`. If the unmodified FR-9 test did not pass,

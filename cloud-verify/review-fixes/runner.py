@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cloud-only review-fixes runner. Results contain no command output or env."""
+"""Cloud-only review-fixes runner. Results contain only redacted error lines, not full output or env."""
 import base64
 import datetime
 import fcntl
@@ -53,6 +53,17 @@ def redact_output(output):
             cleaned.append(re.sub(r'(https?://)[^/\s]*@', r'\1[redacted]@', line))
     return '\n'.join(cleaned)
 
+def failure_cause(output):
+    first_match = None
+    for line in redact_output(output).splitlines():
+        if re.search(r'error:|newline in string|syntax error|fatal:|undefined:|cannot find|no such file|^\s*--- FAIL', line, re.IGNORECASE):
+            cause = ' '.join(line.split())[:300]
+            if 'failed to solve' not in line.lower():
+                return cause
+            if first_match is None:
+                first_match = cause
+    return first_match
+
 def call(args, check=True, cwd=None, env=None):
     # Persist commands and exit codes, while removing generated secrets and URL credentials.
     recorded = []
@@ -72,7 +83,8 @@ def call(args, check=True, cwd=None, env=None):
         log.write('\n### exit=' + str(p.returncode) + ' ' + ' '.join(recorded) + '\n')
         log.write(redact_output(p.stdout or '')[-20000:] + '\n')
     if check and p.returncode:
-        raise RuntimeError('command failed: ' + ' '.join(args[:2]) + ' (exit ' + str(p.returncode) + ')')
+        cause = failure_cause(p.stdout or '')
+        raise RuntimeError('command failed: ' + ' '.join(args[:2]) + ' (exit ' + str(p.returncode) + ')' + (': ' + cause if cause else ''))
     return p
 
 def docker(*args, check=True):
@@ -434,6 +446,15 @@ def main():
     make_context(context)
     prepare_build_contexts()
     prepare_base_images(context)
+    go_image = 'docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82'
+    go_checks = docker('run', '--rm', '--label', LABEL, '--network', 'none',
+                       '-v', str(context / 'docker/snipeit-runtime') + ':/src:ro',
+                       '-w', '/src', '-e', 'CGO_ENABLED=0', go_image, 'sh', '-c',
+                       'out=$(gofmt -l .) && [ -z "$out" ] || { echo "gofmt needs formatting: $out"; exit 1; }; '
+                       'go vet ./... && go test ./...', check=False)
+    data['probes']['go_checks'] = {'passed': go_checks.returncode == 0, 'exit_code': go_checks.returncode}
+    if go_checks.returncode:
+        raise RuntimeError('Go checks failed: ' + (failure_cause(go_checks.stdout or '') or 'see debug log'))
     cache = prepare_cache(context)
     vendor = make_vendor(context, cache)
     cached_dockerfile(context)
@@ -462,7 +483,6 @@ def main():
         go_output = TMP / 'go-test'
         go_output.mkdir(mode=0o777)
         go_output.chmod(0o777)
-        go_image = 'docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82'
         docker('run', '--rm', '--label', LABEL, '--network', 'none',
                '-v', str(context / 'docker/snipeit-runtime') + ':/src:ro',
                '-v', str(go_output) + ':/out', '-w', '/src', '-e', 'CGO_ENABLED=0',
@@ -621,7 +641,7 @@ def main():
 try:
     main()
 except Exception as e:
-    # Exception messages here contain operational metadata only, never command output.
+    # Command failure causes are redacted before reaching exception messages.
     data['errors'].append(str(e).replace(secret, '[redacted]').replace(dbpass, '[redacted]'))
 finally:
     for name in reversed(CONTAINERS):

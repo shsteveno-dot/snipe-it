@@ -14,13 +14,14 @@
 - `startup.go`：警告字串改回 `\n`，其他和第 19 輪相同。
 - **沒有採用**你第 19 輪建議 2（把檢查移到 `TestCase`）：上游的 `Feature\Support\MySqlDatabaseSnapshotTest` 也會直接呼叫 `isSupported()`，檢查移走後它在 chiseled 又會走到 `exec()` 而 error。改成：檢查留在 `isSupported()`，上游的 `Unit\Support\MySqlDatabaseSnapshotTest` 在沒有 `/bin/sh` 時，把預期 true 的 2 個 data set 標成略過（假的 `mysql`/`mysqldump` 本來就是 `#!/bin/sh` 腳本）。
 - 工具：新增 `cloud-verify/full-suite/full/snapshot.xml`（只有上面兩個測試檔）。
+- 工具：`runner.py` 照你第 19 輪建議 3 的其中兩點修改：指令失敗時，`errors` 附上輸出裡第一個像錯誤的行（略過 BuildKit 的 `failed to solve` 外層訊息）；build candidate 之前新增 `go_checks` probe，在固定版本的 golang image 裡跑 `gofmt -l`、`go vet ./...`、`go test ./...`，失敗就停止。分組和摘要的另外兩點這次沒改。
 
 為什麼不跑全套：第 19 輪診斷的全套用的程式和這次只差上面兩處（Go 字串、單元測試的略過），全套其他部分都已經確認過。
 
 要做的：
 1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。所有背景指令都要設足夠長的時限（runner 至少 2 小時）。
 2. 在 `docker/snipeit-runtime` 跑 `gofmt -l . && go vet ./... && go test ./...`（`gofmt -l` 要沒有輸出）。
-3. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`，不要關掉 `exec`。要求同第 19 輪：exit 0、`errors` 是空的、除了 FR-9 突變版以外 0 失敗、0 略過；`shellless_order`、FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都通過。
+3. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`（`go_checks` 也要通過），不要關掉 `exec`。要求同第 19 輪：exit 0、`errors` 是空的、除了 FR-9 突變版以外 0 失敗、0 略過；`shellless_order`、FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都通過。
 4. 照 `cloud-verify/full-suite/README.md` 從 runner 的測試 image tag 出 `full-suite:test`，然後只跑 snapshot 這組：`cd cloud-verify/full-suite && ./run-order.sh full-suite:test "$PWD/out-snapshot" snapshot`（不要設 `PHPUNIT_PHP_ARGS` 或 `PHPUNIT_INI`）。預期：0 失敗、0 error；略過 3 個（單元測試 2 個 data set、Feature 的 1 個），其他 4 個 data set 通過。
 5. 清理（含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
 
