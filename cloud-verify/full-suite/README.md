@@ -49,9 +49,28 @@ cd cloud-verify/full-suite && ./run-order.sh full-suite:test "$PWD/out-order" or
 cd cloud-verify/full-suite && git show 4525efb^:tests/Feature/Console/ShelllessSchedulerTest.php > old-ShelllessSchedulerTest.php && ./run-control.sh full-suite:test "$PWD/out-control" order
 ```
 
+三個執行腳本都支援以下選用環境變數，未設定時維持原本的指令：
+
+- `PHPUNIT_PHP_ARGS`：額外的 PHP 參數，插在 `-d memory_limit=2G` 之後、`vendor/bin/phpunit` 之前；刻意以空白分割。例如：
+
+  ```bash
+  PHPUNIT_PHP_ARGS="-d disable_functions=exec" ./run-order.sh full-suite:test "$PWD/out-order" order order3
+  ```
+
+- `PHPUNIT_INI`：主機上的 `.ini` 檔案路徑；檔案不存在時，腳本會在啟動任何容器前報錯退出。檔案所在目錄會唯讀掛載到 `/php-extra`，每個 shard 的所有 PHP 容器都會設定 `PHP_INI_SCAN_DIR=:/php-extra`。開頭的 `:` 保留 PHP 編譯時的預設掃描目錄；該目錄內所有 `.ini` 都會載入。例如先在專用目錄建立設定檔：
+
+  ```bash
+  mkdir -p "$PWD/php-extra"
+  printf 'disable_functions=exec\n' > "$PWD/php-extra/99-disable-exec.ini"
+  PHPUNIT_INI="$PWD/php-extra/99-disable-exec.ini" ./run-order.sh full-suite:test "$PWD/out-order" order order3
+  ```
+
+`-d` 參數不會傳給 `#[RunInSeparateProcess]` 測試啟動的 PHP 子程序；`PHPUNIT_INI` 透過環境變數讓這些子程序也載入設定。需要讓獨立程序測試同樣停用 `exec` 時，請使用 `PHPUNIT_INI`。
+
 ## 注意
 
 - 腳本結束後會留下資料庫容器、網路和 volume，要手動刪除：`r17-db`、`r17-net`、`r17-vol-*`；順序驗證用的是 `r17o-*`。phpunit 容器用 `--rm` 啟動，跑完會自動刪除。
 - 從 runner 的測試 image 啟動的容器會繼承 `review-fixes.run` label。runner 開始時會刪掉帶這個 label 的容器，所以全套還在跑的時候不要重跑 runner。
+- 全套執行期間重跑 runner 也會刪掉 `full-suite:test` tag，因為啟動清理 `cleanup_previous_runs` 會移除帶有該 label 的 image。之後需從新 runner 建出的測試 image 重新加上 `full-suite:test` tag。
 - JUnit 的 `skipped` 包含 incomplete。第 17 輪是 3 個略過加 54 個 incomplete，共 57 個。
 - 最慢的是跑 migration 的 CustomField 測試，瓶頸在資料庫。

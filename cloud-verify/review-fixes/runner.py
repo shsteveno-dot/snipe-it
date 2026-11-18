@@ -388,9 +388,7 @@ def parse_junit(path, label):
                               'status': status, 'message': message[:500],
                               'round_a_expectation': expectation, 'expected_status': expected_status,
                               'matches_expectation': matched})
-        if status == 'error':
-            data['errors'].append(label + ': JUnit error in ' + name)
-        elif not matched:
+        if status != 'error' and not matched:
             data['errors'].append(label + ': unexpected result in ' + name)
 
 def phpunit(test, args, extra, file, label):
@@ -638,6 +636,17 @@ finally:
     for case in data['tests']:
         counts[case['status']] = counts.get(case['status'], 0) + 1
     data['counts'] = counts
+    error_groups, error_messages = {}, {}
+    for case in data['tests']:
+        if case['status'] == 'error':
+            message = case['message']
+            error_groups.setdefault((case['run'], message), []).append(case)
+            error_messages[message] = error_messages.get(message, 0) + 1
+    for (label, message), cases in error_groups.items():
+        data['errors'].append(f"{label}: {len(cases)} JUnit error(s): {message[:300] or '(no message)'} (e.g. {cases[0]['name']})")
+    if error_messages:
+        message = max(error_messages, key=error_messages.get)
+        data['errors'].insert(0, f"summary: {counts['error']} of {len(data['tests'])} tests errored; most common ({error_messages[message]}): {message[:300] or '(no message)'}")
     if ROUND in ('A', 'B', 'final'):
         mutations = [case for case in data['tests'] if case['run'] == 'fr9_mutation']
         data['probes']['fr9_mutation_red'] = {
@@ -645,7 +654,11 @@ finally:
             'tests_found': len(mutations),
         }
         if not mutations:
-            data['errors'].append('FR-9 mutation produced no test result')
+            baseline = [case for case in data['tests'] if case['run'] == 'fr9_original']
+            if not baseline or any(case['status'] != 'passed' for case in baseline):
+                data['errors'].append('FR-9 mutation skipped because the unmodified FR-9 test did not pass')
+            else:
+                data['errors'].append('FR-9 mutation produced no test result')
         elif not data['probes']['fr9_mutation_red']['passed']:
             data['errors'].append('FR-9 mutation did not fail for the expected assertion')
     if ROUND != 'A' and any(case['status'] != 'passed' for case in data['tests'] if case['run'] != 'fr9_mutation'):

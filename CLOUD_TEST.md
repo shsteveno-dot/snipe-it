@@ -8,6 +8,28 @@
 
 ## 這次的重點
 
+第 19 輪：**確認第 18 輪的修正**。第 18 輪結果在 `edb4b1c5f2`（沒通過：上游 `a9e8743cfe` 的 `MySqlDatabaseSnapshot::isSupported()` 在沒有 shell 的 chiseled 測試 image 走到 `exec('command -v -- mysql')`，所有用到資料庫的測試都 error；關掉 `exec` 的診斷跑法則全部正常）。
+
+這次的變化（照你第 18 輪的建議 1–5）：
+- `all-changes` 現在是 `4c18a78d0b`（基準一樣是官方 master `0a9db6d485`）：
+  - `tests/Support/MySqlDatabaseSnapshot.php`：POSIX 系統上沒有 `/bin/sh` 時 `isSupported()` 回傳 false，改用一般的 migration。
+  - Chiseled Go init（`docker/snipeit-runtime/internal/startup/startup.go`）：啟動時把已經存在的 `oauth-public.key` 設成 0660、`oauth-private.key` 設成 0600（對齊上游 `startup.sh`）；runtime 不是 root，遇到無法 chmod（別的 uid 的檔案）只印警告、不中斷啟動。`startup_test.go` 加了 `TestKeyPermissionsAt`。
+- 工具：
+  - `runner.py`：`errors` 不再每個 JUnit error 一行，改成依（run、訊息）合併，第一行是「最常見原因」的摘要；FR-9 原版沒通過時，突變版那行改成「因為原版沒通過而略過」。
+  - `cloud-verify/full-suite/` 的三個腳本支援 `PHPUNIT_PHP_ARGS` 和 `PHPUNIT_INI`（見 README），README 補了重跑 runner 會刪掉 `full-suite:test` tag 的注意事項。
+- 「已知狀況」拿掉 `will_encrypt_custom_fields`（上游 `b1515e794d` 修好了），補上 chiseled 會略過的 `MySqlDatabaseSnapshotTest`。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。所有背景指令都要設足夠長的時限（runner 至少 2 小時，全套測試 3 小時）。
+2. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`，**不要關掉 `exec`**。要求：exit 0、`errors` 是空的、除了 FR-9 突變版以外 0 失敗、0 略過；`shellless_order`、FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都通過。
+3. 全套測試：照 `cloud-verify/full-suite/README.md`，**不要設 `PHPUNIT_PHP_ARGS` 或 `PHPUNIT_INI`**（要證明不需要關掉 `exec`）。預期只剩缺 `intl` 的 8 個和上游的 `ListLicensesToolTest`；`LdapFunctionMockingTest` 要通過；略過 4 個（3 個程式碼本來就標記的，加 `MySqlDatabaseSnapshotTest`）。其他失敗都要列出來並判斷原因（到官方 master `0a9db6d485` 重跑相關測試檔對照）。
+4. 如果容器裡有 Go：在 `docker/snipeit-runtime` 跑 `go test ./...`，回報結果（沒有 Go 就寫「未執行」，不要另外安裝）。
+5. 清理（含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
+
+回報：commit `results-B.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。第 2 步全部符合、第 3 步沒有未解釋的失敗時，報告開頭寫「第 19 輪通過」。也請看一下新的 `errors` 摘要格式好不好讀。腳本有需要改的地方寫在修改建議，不要直接改。
+
+---
+
 第 18 輪：**rebase 到最新官方 master 之後的 `all-changes`**。第 17 輪結果在 `de1069d9e8`（通過）。
 
 這次的變化：
@@ -259,11 +281,11 @@
 
 ## 已知狀況
 
-- `Tests\Feature\Importing\ImportAssetsTest::will_encrypt_custom_fields`：上游 develop 也會失敗。
 - `Tests\Feature\Mcp\ListLicensesToolTest::test_offset_skips_results_for_pagination`：上游只依 `created_at` 排序，在 MySQL 8.4 上會失敗。
 - AppleBusinessManager 的 SyncAdapters 測試會實際請求 `api-business.apple.com`，沒有網路時每個測試約需 64 秒。
 - `Tests\Feature\Livewire\ImporterMutexTest::test_locks_are_scoped_per_file_so_a_second_file_can_still_start`：平行模式下偶發失敗（共用 file cache + 各 process 的 Import ID 重複），上游也有同樣風險。乾淨 cache 單獨跑會過。第 2–4 輪都沒有重現。
 - 程式碼本來就標記跳過的 3 個（上游也有）：`ApiRateLimitTest` 兩個、`DeleteAssetsTest::test_cannot_delete_asset_that_is_checked_out`。
+- chiseled 測試 image 沒有 shell，`MySqlDatabaseSnapshotTest` 會略過（不能用 MySQL 測試快取，改用一般 migration），所以 chiseled 全套共略過 4 個。
 - 容器沒有 DNS 時（`getent ahosts example.com` 沒有輸出），`ExternalUrl` 相關的 14 個測試會失敗，上游也一樣：`SyncAdapters\GroupCompanyMappingTest`、`Intune\IntuneSettingsPageTest`、`Kandji\KandjiSettingsPageTest`、`AssetTagPatternTest`、`Fleet\FleetLicenseTierTest`、`Fleet\FleetSettingsPageTest`、`CompanyWebhooksTest::test_can_filter_companies_with_webhooks`、`WebhookEndpointSsrfTest::test_api_accepts_a_public_https_webhook_endpoint_from_superuser`。要讓它們通過，跑測試前暫時把 `example.com graph.microsoft.com graph.microsoft.us example.api.kandji.io hooks.slack.com` 加進 `/etc/hosts`（對應任一公開 IP），跑完還原。
 - 本機（非 UTC 時區、不同 intl 版本）才會失敗的 `CustomFieldTest` 和 `ExtraFieldMappingTest`，在 UTC 的雲端環境應該會過。
 

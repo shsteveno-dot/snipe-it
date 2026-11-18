@@ -68,7 +68,13 @@ The results file is
 runtime comparison, per-test status and first-line failure messages, counts,
 skips, probe outcomes, and setup errors. A failed assertion is recorded as a
 test or probe result; a setup failure is recorded under `errors` and makes
-the runner exit non-zero. Round A contains expected failures: examine the
+the runner exit non-zero. JUnit errors in `errors` are grouped by run label and
+redacted message, with a count and the first affected test as an example.
+Messages are truncated to 300 characters; empty messages appear as `(no message)`.
+When any tests error, the first entry summarizes the total and most common cause.
+Per-test details remain in `tests`. If the unmodified FR-9 test did not pass,
+missing mutation results are reported as skipped because the baseline did not pass.
+Round A contains expected failures: examine the
 individual outcomes and causes instead of treating a zero runner exit as
 feature success. Report missing JUnit, skips, setup errors, and unexpected
 failures to the orchestrator; do not change runtime extensions or use a
