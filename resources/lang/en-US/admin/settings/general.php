@@ -349,6 +349,8 @@ return [
     'saml_slo_label' => 'SAML Single Log Out',
     'saml_slo' => 'Send a LogoutRequest to IdP on Logout',
     'saml_slo_help' => 'This will cause the user to be first redirected to the IdP on logout. Leave unchecked if the IdP doesn\'t correctly support SP-initiated SAML SLO.',
+    'saml_auto_create_users' => 'Create users on first SAML login',
+    'saml_auto_create_users_help' => 'When a SAML login matches no user, create an activated user with no permissions from the SAML claims. Only enable this if your IdP restricts who can obtain an assertion for Snipe-IT. Usernames belonging to deactivated or deleted users are never re-created.',
     'saml_custom_settings' => 'SAML Custom Settings',
     'saml_custom_settings_help' => 'You can specify additional settings to the onelogin/php-saml library. Use at your own risk.',
     'saml_download' => 'Download Metadata',
@@ -443,6 +445,8 @@ return [
     'require_accept_signature_help_text' => 'When enabled, users must provide a signature to accept an item, in addition to clicking accept. This only applies when the item\'s category has "Require acceptance" turned on. It does not send acceptance requests on its own.',
     'require_checkinout_notes' => 'Require Notes on Checkin/Checkout',
     'require_checkinout_notes_help_text' => 'Enabling this feature will require the note fields to be populated when checking in or checking out an asset.',
+    'require_adjust_quantity_notes' => 'Require Notes on Quantity Adjustments',
+    'require_adjust_quantity_notes_help_text' => 'When enabled, the Adjust Quantity modal on accessories, consumables, and components requires a note on every submission. Turn off to make the note optional.',
     'left' => 'left',
     'right' => 'right',
     'top' => 'top',
@@ -647,7 +651,7 @@ return [
     ],
 
     'legends' => [
-        'checkin' => 'Checkin Preferences',
+        'notes' => 'Notes Preferences',
         'colors' => 'Colors & Skins',
         'dashboard' => 'Login & Dashboard Preferences',
         'email' => 'Email Preferences',

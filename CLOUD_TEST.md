@@ -8,6 +8,29 @@
 
 ## 這次的重點
 
+第 18 輪：**rebase 到最新官方 master 之後的 `all-changes`**。第 17 輪結果在 `de1069d9e8`（通過）。
+
+這次的變化：
+- `all-changes` 改以官方 master `0a9db6d485` 為基準（比上一輪多 74 個上游 commit，上游改了 226 個檔案），現在是 `d39f54466f`。rebase 沒有衝突。
+- 我們的 SMTP commit（`MAIL_EHLO_DOMAIN`）已經被上游 merge（PR #19971），rebase 時自動略過。
+- 上游改了 `composer.lock`（`laravel/framework` 12.73.0、Boost 改成 dev 套件），Chiseled input lock 已 repin（`d39f54466f`）。
+- 工具：`runner.py` 第 B 輪新增 `shellless_order`（同一個 phpunit process 依序跑 `ShelllessSchedulerTest`、`ShelllessOptInTest`、`RestoreToRemoteDiskTest`，全部要通過），這是第一次在雲端跑。全套測試的腳本已經在 `cloud-verify/full-suite/`（見它的 README）。
+- 要特別注意的上游改動：
+  - `94e5c754b4`：middleware 和 kernel 改成 Laravel 新的自動載入方式（`bootstrap/app.php`、`app/Http/Kernel.php` 大改）。我們的 `app/Console/Kernel.php`、shell-less scheduler 綁定（`AppServiceProvider`）和 `ShelllessSchedulerTest`（會載入 `bootstrap/app.php`）要確認還正常。
+  - `0cc4341a9b`：Passport 13 的 OAuth 金鑰權限。Chiseled 的 `oauth-*.key` 是指到 `/var/lib/snipeit/keys/` 的 symlink，要確認 init 和權限沒問題。
+  - `2ddfd10b5c`、`b7fa94e9a7`：LDAP mock 改用共用的 test helper，可能和我們 `LdapWizardTest`、`LdapTest` 的 php-mock 用法衝突。
+  - `b1515e794d`：可能修好了 `will_encrypt_custom_fields`；`a9e8743cfe`：MySQL 測試快取初始 schema，可能讓全套測試變快。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。所有背景指令都要設足夠長的時限（runner 至少 2 小時，全套測試 3 小時）。
+2. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`。要求同第 17 輪，另外 `shellless_order` 要全部通過。
+3. 全套測試：用 `cloud-verify/full-suite/` 的腳本（照它的 README），在 runner 建出的測試 image 裡跑。已知會失敗的：缺 `intl` 的 8 個、上游的 `ListLicensesToolTest`（以及 `will_encrypt_custom_fields`，如果上游沒修好）。其他失敗都要列出來，判斷是我們的改動、rebase、還是上游本來就有（到官方 master `0a9db6d485` 重跑相關測試檔對照）。
+4. 清理（含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
+
+回報：commit `results-B.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。第 2 步全部符合、第 3 步沒有未解釋的失敗時，報告開頭寫「第 18 輪通過」。腳本有需要改的地方寫在修改建議，不要直接改。
+
+---
+
 第 17 輪：**確認 `ShelllessSchedulerTest` 的隔離修正**。第 16 輪結果在 `6e2638deba`（第 16 輪通過，但全套測試有 18 個 `RestoreToRemoteDiskTest` error，原因是 `ShelllessSchedulerTest::tearDown()` 清掉了 `SNIPEIT_SHELLLESS`）。
 
 這次的變化：

@@ -266,6 +266,9 @@ install_snipeit () {
     chmod -R 775 "$chmod_dir"
   done
 
+  [ -f "$APP_PATH/storage/oauth-public.key" ] && chmod 660 "$APP_PATH/storage/oauth-public.key"
+  [ -f "$APP_PATH/storage/oauth-private.key" ] && chmod 600 "$APP_PATH/storage/oauth-private.key"
+
   chown -R "$APP_USER":"$apache_group" "$APP_PATH"
   chmod 640 "$APP_PATH/.env"
 
@@ -609,7 +612,11 @@ case $distro in
         # Install for Ubuntu 23.04 and above
         set_fqdn
         set_dbpass
-        tzone=$(cat /etc/timezone)
+        if [ "${version//./}" -ge "2604" ]; then
+            tzone=$(timedatectl show -p Timezone --value)
+        else
+            tzone=$(cat /etc/timezone)
+        fi
 
         echo -n "* Updating installed packages."
         log "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y upgrade" & pid=$!
@@ -1013,7 +1020,7 @@ EOL
         # Install for CentOS/Alma/Redhat 10
         set_fqdn
         set_dbpass
-        tzone=$(timedatectl | grep "Time zone" | awk 'BEGIN { FS"("}; {print $3}');
+        tzone=$(timedatectl show -p Timezone --value);
 
         echo "* Adding EPEL-release repository."
         log "dnf -y install wget epel-release" & pid=$!
@@ -1066,6 +1073,15 @@ EOL
     echo "Your OS was not detected correctly."
     exit 1
 esac
+
+if [[ -z "$tzone" ]]; then
+    echo
+    echo "WARNING: Timezone not detected. Defaulting to UTC. Change it in .env later."
+    echo
+    echo "Press Enter to continue..."
+    read t
+    tzone=UTC
+fi
 
 setupmail=default
 until [[ $setupmail == "yes" ]] || [[ $setupmail == "no" ]]; do

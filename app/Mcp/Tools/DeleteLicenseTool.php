@@ -3,8 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
 use App\Mcp\Traits\ResolvesForeignKeyByName;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\Depreciation;
@@ -42,8 +42,19 @@ use Throwable;
 #[Description('Soft-delete one license by identifier, several by identifier array, or many by filter. Licenses must have no seats currently assigned to users or assets. Filter and array shapes default to dry_run=true for preview-first safety.')]
 class DeleteLicenseTool extends Tool
 {
-    use HasMcpScope;
     use ResolvesForeignKeyByName;
+    use SnipeMcpTool;
+
+    /**
+     * @var list<array{0: string, 1: string, 2: class-string<\Illuminate\Database\Eloquent\Model>}>
+     */
+    protected array $foreignKeys = [
+        ['company_id', 'company_name', Company::class],
+        ['category_id', 'category_name', Category::class],
+        ['manufacturer_id', 'manufacturer_name', Manufacturer::class],
+        ['supplier_id', 'supplier_name', Supplier::class],
+        ['depreciation_id', 'depreciation_name', Depreciation::class],
+    ];
 
     public function handle(Request $request): ResponseFactory
     {
@@ -90,22 +101,7 @@ class DeleteLicenseTool extends Tool
             return $this->handleSingle($request);
         }
 
-        $fkMap = [
-            ['company_id', 'company_name', Company::class],
-            ['category_id', 'category_name', Category::class],
-            ['manufacturer_id', 'manufacturer_name', Manufacturer::class],
-            ['supplier_id', 'supplier_name', Supplier::class],
-            ['depreciation_id', 'depreciation_name', Depreciation::class],
-        ];
-        foreach ($fkMap as [$idField, $nameField, $modelClass]) {
-            $resolved = $this->resolveFkByName($request, $idField, $nameField, $modelClass);
-            if ($this->fkResolutionFailed($resolved)) {
-                return Response::make(Response::error($this->fkErrorMessage($resolved)));
-            }
-            if ($resolved !== null) {
-                $request->merge([$idField => $resolved]);
-            }
-        }
+        $request->merge($this->resolveForeignKeys($request));
 
         $targets = $shape === 'array'
             ? $this->resolveByArray($request)
@@ -195,13 +191,14 @@ class DeleteLicenseTool extends Tool
 
         $this->clearSeatsAndDelete($license);
 
-        return Response::make(
-            Response::text(trans('mcp.license_deleted', ['name' => $name]))
-        )->withStructuredContent([
-            'success' => true,
-            'message' => trans('mcp.license_deleted', ['name' => $name]),
-            'name' => $name,
-        ]);
+        return $this->structuredResponse(
+            trans('mcp.license_deleted', ['name' => $name]),
+            [
+                'success' => true,
+                'message' => trans('mcp.license_deleted', ['name' => $name]),
+                'name' => $name,
+            ]
+        );
     }
 
     private function resolveSingle(Request $request): ?License
@@ -292,20 +289,21 @@ class DeleteLicenseTool extends Tool
             'reason' => trans('admin/licenses/message.delete.bulk_checkout_warning', ['license_name' => $l->name]),
         ])->values()->all();
 
-        return Response::make(
-            Response::text(trans('mcp.bulk_dry_run_summary', [
+        return $this->structuredResponse(
+            trans('mcp.bulk_dry_run_summary', [
                 'total' => $targets->count(),
                 'deletable' => $deletable->count(),
-            ]))
-        )->withStructuredContent([
-            'success' => true,
-            'dry_run' => true,
-            'total_matched' => $targets->count(),
-            'will_delete' => $deletable->count(),
-            'undeletable_count' => $undeletable->count(),
-            'sample_rows' => $sampleRows,
-            'undeletable_matches' => $undeletableMatches,
-        ]);
+            ]),
+            [
+                'success' => true,
+                'dry_run' => true,
+                'total_matched' => $targets->count(),
+                'will_delete' => $deletable->count(),
+                'undeletable_count' => $undeletable->count(),
+                'sample_rows' => $sampleRows,
+                'undeletable_matches' => $undeletableMatches,
+            ]
+        );
     }
 
     private function commitBulkDelete(Collection $deletable): ResponseFactory
@@ -335,17 +333,18 @@ class DeleteLicenseTool extends Tool
             ])));
         }
 
-        return Response::make(
-            Response::text(trans('mcp.bulk_delete_completed', [
+        return $this->structuredResponse(
+            trans('mcp.bulk_delete_completed', [
                 'count' => $deletedCount,
-            ]))
-        )->withStructuredContent([
-            'success' => true,
-            'dry_run' => false,
-            'deleted_count' => $deletedCount,
-            'failed_count' => count($failures),
-            'failures' => $failures,
-        ]);
+            ]),
+            [
+                'success' => true,
+                'dry_run' => false,
+                'deleted_count' => $deletedCount,
+                'failed_count' => count($failures),
+                'failures' => $failures,
+            ]
+        );
     }
 
     /**
@@ -368,7 +367,7 @@ class DeleteLicenseTool extends Tool
         return [
             // Single-identifier shape
             'id' => $schema->number()->description('Numeric license ID (single-target shape).'),
-            'name' => $schema->string()->description('License name (single-target shape). Alternative: pass names array for multiple.'),
+            'name' => $schema->string()->description('License name (single-target shape). Alternative: pass names array for multiple.')->nullable(),
 
             // Array shape
             'ids' => $schema->array()->description('Array of numeric IDs. Defaults to dry_run=true, pass dry_run=false to commit.'),
@@ -406,15 +405,15 @@ class DeleteLicenseTool extends Tool
             'success' => $schema->boolean()->description('True if the deletion (or preview) succeeded'),
             'message' => $schema->string()->description('Human-readable result message')->required(),
             'dry_run' => $schema->boolean()->description('True when the response is a preview, false when it is a commit result'),
-            'name' => $schema->string()->description('Name of the deleted license (single-target shape only)'),
-            'total_matched' => $schema->number()->description('How many rows matched (bulk preview only)'),
-            'will_delete' => $schema->number()->description('How many rows would actually delete (bulk preview only)'),
-            'undeletable_count' => $schema->number()->description('How many rows match but fail isDeletable (bulk preview only)'),
-            'sample_rows' => $schema->array()->description('First 10 matched rows with id + name (bulk preview only)'),
-            'undeletable_matches' => $schema->array()->description('First 10 undeletable rows with reason (bulk preview only)'),
-            'deleted_count' => $schema->number()->description('How many rows were deleted (bulk commit only)'),
-            'failed_count' => $schema->number()->description('How many rows failed at commit (bulk commit only)'),
-            'failures' => $schema->array()->description('Per-row failure messages (bulk commit only)'),
+            'name' => $schema->string()->description('Name of the deleted license (single-target shape only)')->nullable(),
+            'total_matched' => $schema->number()->description('How many rows matched (bulk preview only)')->nullable(),
+            'will_delete' => $schema->number()->description('How many rows would actually delete (bulk preview only)')->nullable(),
+            'undeletable_count' => $schema->number()->description('How many rows match but fail isDeletable (bulk preview only)')->nullable(),
+            'sample_rows' => $schema->array()->description('First 10 matched rows with id + name (bulk preview only)')->nullable(),
+            'undeletable_matches' => $schema->array()->description('First 10 undeletable rows with reason (bulk preview only)')->nullable(),
+            'deleted_count' => $schema->number()->description('How many rows were deleted (bulk commit only)')->nullable(),
+            'failed_count' => $schema->number()->description('How many rows failed at commit (bulk commit only)')->nullable(),
+            'failures' => $schema->array()->description('Per-row failure messages (bulk commit only)')->nullable(),
         ];
     }
 }

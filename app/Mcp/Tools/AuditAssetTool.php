@@ -3,7 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Asset;
 use App\Models\Setting;
 use Carbon\Carbon;
@@ -22,7 +22,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Record an audit for a Snipe-IT asset, updating the last audit date and optionally the location')]
 class AuditAssetTool extends Tool
 {
-    use HasMcpScope;
+    use SnipeMcpTool;
 
     public function handle(Request $request): ResponseFactory
     {
@@ -67,16 +67,17 @@ class AuditAssetTool extends Tool
         if ($asset->isValid() && $asset->save()) {
             $asset->logAudit($request->get('note'), $request->get('location_id'), null, $originalValues);
 
-            return Response::make(
-                Response::text(trans('mcp.asset_audited', ['asset_tag' => $asset->asset_tag]))
-            )->withStructuredContent([
-                'success' => true,
-                'message' => trans('mcp.asset_audited', ['asset_tag' => $asset->asset_tag]),
-                'asset_tag' => $asset->asset_tag,
-                'last_audit_date' => $asset->last_audit_date,
-                'next_audit_date' => $asset->next_audit_date,
-                'location' => $asset->location?->name,
-            ]);
+            return $this->structuredResponse(
+                trans('mcp.asset_audited', ['asset_tag' => $asset->asset_tag]),
+                [
+                    'success' => true,
+                    'message' => trans('mcp.asset_audited', ['asset_tag' => $asset->asset_tag]),
+                    'asset_tag' => $asset->asset_tag,
+                    'last_audit_date' => $asset->last_audit_date,
+                    'next_audit_date' => $asset->next_audit_date,
+                    'location' => $asset->location?->name,
+                ]
+            );
         }
 
         return Response::make(Response::error(trans('mcp.audit_failed', ['error' => $asset->getErrors()->first()])));
@@ -113,12 +114,12 @@ class AuditAssetTool extends Tool
     {
         return [
             'success' => $schema->boolean()->description('True if the audit succeeded'),
-            'error' => $schema->boolean()->description('True if the audit failed'),
+            'error' => $schema->boolean()->description('True if the audit failed')->nullable(),
             'message' => $schema->string()->description('Human-readable result message')->required(),
             'asset_tag' => $schema->string()->description('Asset tag of the audited asset'),
-            'last_audit_date' => $schema->string()->description('Timestamp of the audit just recorded'),
-            'next_audit_date' => $schema->string()->description('Date of the next scheduled audit'),
-            'location' => $schema->string()->description('Location name where the asset was found'),
+            'last_audit_date' => $schema->string()->description('Timestamp of the audit just recorded')->nullable(),
+            'next_audit_date' => $schema->string()->description('Date of the next scheduled audit')->nullable(),
+            'location' => $schema->string()->description('Location name where the asset was found')->nullable(),
         ];
     }
 }

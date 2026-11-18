@@ -167,6 +167,7 @@ class SettingsController extends Controller
         $setting->dash_chart_type = $request->input('dash_chart_type');
         $setting->profile_edit = $request->input('profile_edit', 0);
         $setting->require_checkinout_notes = $request->input('require_checkinout_notes', 0);
+        $setting->require_adjust_quantity_notes = $request->input('require_adjust_quantity_notes', 0);
         $setting->manager_view_enabled = $request->input('manager_view_enabled', 0);
 
         if ($request->input('per_page') != '') {
@@ -838,6 +839,7 @@ class SettingsController extends Controller
         $setting->saml_attr_mapping_username = $request->input('saml_attr_mapping_username');
         $setting->saml_forcelogin = $request->input('saml_forcelogin', '0');
         $setting->saml_slo = $request->input('saml_slo', '0');
+        $setting->saml_auto_create_users = $request->input('saml_auto_create_users', '0');
         if (! empty($request->input('saml_sp_privatekey'))) {
             $setting->saml_sp_x509cert = $request->input('saml_sp_x509cert');
             $setting->saml_sp_privatekey = $request->input('saml_sp_privatekey');

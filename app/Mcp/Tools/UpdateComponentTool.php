@@ -3,8 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
 use App\Mcp\Traits\ResolvesForeignKeyByName;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\Component;
@@ -28,8 +28,19 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Update fields on a Snipe-IT component identified by numeric ID or name')]
 class UpdateComponentTool extends Tool
 {
-    use HasMcpScope;
     use ResolvesForeignKeyByName;
+    use SnipeMcpTool;
+
+    /**
+     * @var list<array{0: string, 1: string, 2: class-string<\Illuminate\Database\Eloquent\Model>}>
+     */
+    protected array $foreignKeys = [
+        ['category_id', 'category_name', Category::class],
+        ['manufacturer_id', 'manufacturer_name', Manufacturer::class],
+        ['supplier_id', 'supplier_name', Supplier::class],
+        ['location_id', 'location_name', Location::class],
+        ['company_id', 'company_name', Company::class],
+    ];
 
     public function handle(Request $request): ResponseFactory
     {
@@ -52,24 +63,7 @@ class UpdateComponentTool extends Tool
             return Response::make(Response::error(trans('general.generic_model_not_found', ['model' => trans('general.component')])));
         }
 
-        $fkMap = [
-            ['category_id', 'category_name', Category::class],
-            ['manufacturer_id', 'manufacturer_name', Manufacturer::class],
-            ['supplier_id', 'supplier_name', Supplier::class],
-            ['location_id', 'location_name', Location::class],
-            ['company_id', 'company_name', Company::class],
-        ];
-
-        $resolvedFks = [];
-        foreach ($fkMap as [$idField, $nameField, $modelClass]) {
-            $resolved = $this->resolveFkByName($request, $idField, $nameField, $modelClass);
-            if ($this->fkResolutionFailed($resolved)) {
-                return Response::make(Response::error($this->fkErrorMessage($resolved)));
-            }
-            if ($resolved !== null) {
-                $resolvedFks[$idField] = $resolved;
-            }
-        }
+        $resolvedFks = $this->resolveForeignKeys($request);
 
         // supplier_id / purchase_cost forward to default_*, new_name
         // renames via name. Intersect with model rules so partial
@@ -99,14 +93,15 @@ class UpdateComponentTool extends Tool
         }
 
         if ($component->save()) {
-            return Response::make(
-                Response::text(trans('mcp.component_updated', ['name' => $component->name]))
-            )->withStructuredContent([
-                'success' => true,
-                'message' => trans('mcp.component_updated', ['name' => $component->name]),
-                'id' => $component->id,
-                'name' => $component->name,
-            ]);
+            return $this->structuredResponse(
+                trans('mcp.component_updated', ['name' => $component->name]),
+                [
+                    'success' => true,
+                    'message' => trans('mcp.component_updated', ['name' => $component->name]),
+                    'id' => $component->id,
+                    'name' => $component->name,
+                ]
+            );
         }
 
         return Response::make(Response::error(trans('mcp.update_failed', ['error' => $component->getErrors()->first()])));

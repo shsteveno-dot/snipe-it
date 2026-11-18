@@ -3,8 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
 use App\Mcp\Traits\ResolvesForeignKeyByName;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\Consumable;
@@ -28,8 +28,19 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Create a new Snipe-IT consumable')]
 class CreateConsumableTool extends Tool
 {
-    use HasMcpScope;
     use ResolvesForeignKeyByName;
+    use SnipeMcpTool;
+
+    /**
+     * @var list<array{0: string, 1: string, 2: class-string<\Illuminate\Database\Eloquent\Model>}>
+     */
+    protected array $foreignKeys = [
+        ['category_id', 'category_name', Category::class],
+        ['manufacturer_id', 'manufacturer_name', Manufacturer::class],
+        ['supplier_id', 'supplier_name', Supplier::class],
+        ['location_id', 'location_name', Location::class],
+        ['company_id', 'company_name', Company::class],
+    ];
 
     public function handle(Request $request): ResponseFactory
     {
@@ -47,24 +58,7 @@ class CreateConsumableTool extends Tool
         // non-superuser in a locked-down FMCS install gets a not-found
         // error for a name that only exists in a tenant they cannot
         // see, matching the UI's "that record does not exist" posture.
-        $fkMap = [
-            ['category_id', 'category_name', Category::class],
-            ['manufacturer_id', 'manufacturer_name', Manufacturer::class],
-            ['supplier_id', 'supplier_name', Supplier::class],
-            ['location_id', 'location_name', Location::class],
-            ['company_id', 'company_name', Company::class],
-        ];
-
-        $resolvedFks = [];
-        foreach ($fkMap as [$idField, $nameField, $modelClass]) {
-            $resolved = $this->resolveFkByName($request, $idField, $nameField, $modelClass);
-            if ($this->fkResolutionFailed($resolved)) {
-                return Response::make(Response::error($this->fkErrorMessage($resolved)));
-            }
-            if ($resolved !== null) {
-                $resolvedFks[$idField] = $resolved;
-            }
-        }
+        $resolvedFks = $this->resolveForeignKeys($request);
 
         // supplier_id and purchase_cost moved to default_* templates.
         // Per-acquisition data (order_number, purchase_date) lives on
@@ -91,16 +85,17 @@ class CreateConsumableTool extends Tool
         $consumable->created_by = auth()->id();
 
         if ($consumable->save()) {
-            return Response::make(
-                Response::text(trans('mcp.consumable_created', ['name' => $consumable->name]))
-            )->withStructuredContent([
-                'success' => true,
-                'message' => trans('mcp.consumable_created', ['name' => $consumable->name]),
-                'id' => $consumable->id,
-                'name' => $consumable->name,
-                'qty' => $consumable->qty,
-                'category_id' => $consumable->category_id,
-            ]);
+            return $this->structuredResponse(
+                trans('mcp.consumable_created', ['name' => $consumable->name]),
+                [
+                    'success' => true,
+                    'message' => trans('mcp.consumable_created', ['name' => $consumable->name]),
+                    'id' => $consumable->id,
+                    'name' => $consumable->name,
+                    'qty' => $consumable->qty,
+                    'category_id' => $consumable->category_id,
+                ]
+            );
         }
 
         return Response::make(Response::error(trans('mcp.create_failed', ['error' => $consumable->getErrors()->first()])));

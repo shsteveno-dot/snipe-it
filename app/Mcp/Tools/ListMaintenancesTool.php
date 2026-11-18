@@ -4,8 +4,8 @@ namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
 use App\Http\Requests\MaintenanceIndexRequest;
-use App\Mcp\Traits\HasMcpScope;
 use App\Mcp\Traits\ResolvesForeignKeyByName;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Asset;
 use App\Models\Maintenance;
 use App\Models\Supplier;
@@ -24,8 +24,15 @@ use Laravel\Mcp\Server\Tool;
 #[Description('List asset maintenances with optional filtering by asset and pagination')]
 class ListMaintenancesTool extends Tool
 {
-    use HasMcpScope;
     use ResolvesForeignKeyByName;
+    use SnipeMcpTool;
+
+    /**
+     * @var list<array{0: string, 1: string, 2: class-string<\Illuminate\Database\Eloquent\Model>}>
+     */
+    protected array $foreignKeys = [
+        ['supplier_id', 'supplier_name', Supplier::class],
+    ];
 
     public function handle(Request $request): ResponseFactory
     {
@@ -57,20 +64,7 @@ class ListMaintenancesTool extends Tool
         // request so the existing filled() read below keeps working
         // unchanged. asset_id / asset_tag already have a name path and
         // are handled in their own block below.
-        $fkMap = [
-            ['supplier_id', 'supplier_name', Supplier::class],
-        ];
-
-        $resolvedFks = [];
-        foreach ($fkMap as [$idField, $nameField, $modelClass]) {
-            $resolved = $this->resolveFkByName($request, $idField, $nameField, $modelClass);
-            if ($this->fkResolutionFailed($resolved)) {
-                return Response::make(Response::error($this->fkErrorMessage($resolved)));
-            }
-            if ($resolved !== null) {
-                $resolvedFks[$idField] = $resolved;
-            }
-        }
+        $resolvedFks = $this->resolveForeignKeys($request);
         $request->merge($resolvedFks);
 
         // The maintenances table went polymorphic after this tool was
@@ -155,14 +149,15 @@ class ListMaintenancesTool extends Tool
             'notes' => $maintenance->notes,
         ])->values()->all();
 
-        return Response::make(
-            Response::text(trans('mcp.list_maintenances', ['total' => $total, 'count' => count($maintenancesData)]))
-        )->withStructuredContent([
-            'total' => $total,
-            'offset' => $offset,
-            'limit' => $limit,
-            'maintenances' => $maintenancesData,
-        ]);
+        return $this->structuredResponse(
+            trans('mcp.list_maintenances', ['total' => $total, 'count' => count($maintenancesData)]),
+            [
+                'total' => $total,
+                'offset' => $offset,
+                'limit' => $limit,
+                'maintenances' => $maintenancesData,
+            ]
+        );
     }
 
     public function schema(JsonSchema $schema): array

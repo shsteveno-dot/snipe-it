@@ -3,7 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Supplier;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Gate;
@@ -20,7 +20,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Show details of a Snipe-IT supplier identified by numeric ID or name')]
 class ShowSupplierTool extends Tool
 {
-    use HasMcpScope;
+    use SnipeMcpTool;
 
     public function handle(Request $request): ResponseFactory
     {
@@ -49,28 +49,29 @@ class ShowSupplierTool extends Tool
 
         $supplier->loadCount('assets as assets_count', 'licenses as licenses_count');
 
-        return Response::make(
-            Response::text(trans('mcp.supplier_found', ['name' => $supplier->name]))
-        )->withStructuredContent([
-            'id' => $supplier->id,
-            'name' => $supplier->name,
-            'address' => $supplier->address,
-            'address2' => $supplier->address2,
-            'city' => $supplier->city,
-            'state' => $supplier->state,
-            'country' => $supplier->country,
-            'zip' => $supplier->zip,
-            'phone' => $supplier->phone,
-            'fax' => $supplier->fax,
-            'email' => $supplier->email,
-            'url' => $supplier->url,
-            'contact' => $supplier->contact,
-            'notes' => $supplier->notes,
-            'assets_count' => $supplier->assets_count,
-            'licenses_count' => $supplier->licenses_count,
-            'created_at' => $supplier->created_at?->toISOString(),
-            'updated_at' => $supplier->updated_at?->toISOString(),
-        ]);
+        return $this->structuredResponse(
+            trans('mcp.supplier_found', ['name' => $supplier->name]),
+            [
+                'id' => $supplier->id,
+                'name' => $supplier->name,
+                'address' => $supplier->address,
+                'address2' => $supplier->address2,
+                'city' => $supplier->city,
+                'state' => $supplier->state,
+                'country' => $supplier->country,
+                'zip' => $supplier->zip,
+                'phone' => $supplier->phone,
+                'fax' => $supplier->fax,
+                'email' => $supplier->email,
+                'url' => $supplier->url,
+                'contact' => $supplier->contact,
+                'notes' => $supplier->notes,
+                'assets_count' => $supplier->assets_count,
+                'licenses_count' => $supplier->licenses_count,
+                'created_at' => $supplier->created_at?->toISOString(),
+                'updated_at' => $supplier->updated_at?->toISOString(),
+            ]
+        );
     }
 
     private function resolveSupplier(Request $request): ?Supplier
@@ -98,22 +99,22 @@ class ShowSupplierTool extends Tool
         return [
             'id' => $schema->number()->description('Numeric ID of the supplier'),
             'name' => $schema->string()->description('Supplier name')->required(),
-            'address' => $schema->string()->description('Address line 1'),
-            'address2' => $schema->string()->description('Address line 2'),
-            'city' => $schema->string()->description('City'),
-            'state' => $schema->string()->description('State'),
-            'country' => $schema->string()->description('Country'),
-            'zip' => $schema->string()->description('Postal code'),
-            'phone' => $schema->string()->description('Phone number'),
-            'fax' => $schema->string()->description('Fax number'),
-            'email' => $schema->string()->description('Email address'),
-            'url' => $schema->string()->description('Website URL'),
-            'contact' => $schema->string()->description('Contact name'),
-            'notes' => $schema->string()->description('Notes'),
+            'address' => $schema->string()->description('Address line 1')->nullable(),
+            'address2' => $schema->string()->description('Address line 2')->nullable(),
+            'city' => $schema->string()->description('City')->nullable(),
+            'state' => $schema->string()->description('State')->nullable(),
+            'country' => $schema->string()->description('Country')->nullable(),
+            'zip' => $schema->string()->description('Postal code')->nullable(),
+            'phone' => $schema->string()->description('Phone number')->nullable(),
+            'fax' => $schema->string()->description('Fax number')->nullable(),
+            'email' => $schema->string()->description('Email address')->nullable(),
+            'url' => $schema->string()->description('Website URL')->nullable(),
+            'contact' => $schema->string()->description('Contact name')->nullable(),
+            'notes' => $schema->string()->description('Notes')->nullable(),
             'assets_count' => $schema->number()->description('Number of assets from this supplier'),
             'licenses_count' => $schema->number()->description('Number of licenses from this supplier'),
-            'created_at' => $schema->string()->description('Creation timestamp'),
-            'updated_at' => $schema->string()->description('Last update timestamp'),
+            'created_at' => $schema->string()->description('Creation timestamp')->nullable(),
+            'updated_at' => $schema->string()->description('Last update timestamp')->nullable(),
         ];
     }
 }

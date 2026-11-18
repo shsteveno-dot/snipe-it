@@ -3,8 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
 use App\Mcp\Traits\ResolvesForeignKeyByName;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\Location;
@@ -41,8 +41,17 @@ use Throwable;
 #[Description('Soft-delete one user by identifier, several by identifier array, or many by filter. User(s) must have no assigned assets, licenses, accessories, or consumables. Filter and array shapes default to dry_run=true for preview-first safety.')]
 class DeleteUserTool extends Tool
 {
-    use HasMcpScope;
     use ResolvesForeignKeyByName;
+    use SnipeMcpTool;
+
+    /**
+     * @var list<array{0: string, 1: string, 2: class-string<\Illuminate\Database\Eloquent\Model>}>
+     */
+    protected array $foreignKeys = [
+        ['company_id', 'company_name', Company::class],
+        ['department_id', 'department_name', Department::class],
+        ['location_id', 'location_name', Location::class],
+    ];
 
     public function handle(Request $request): ResponseFactory
     {
@@ -88,20 +97,7 @@ class DeleteUserTool extends Tool
             return $this->handleSingle($request);
         }
 
-        $fkMap = [
-            ['company_id', 'company_name', Company::class],
-            ['department_id', 'department_name', Department::class],
-            ['location_id', 'location_name', Location::class],
-        ];
-        foreach ($fkMap as [$idField, $nameField, $modelClass]) {
-            $resolved = $this->resolveFkByName($request, $idField, $nameField, $modelClass);
-            if ($this->fkResolutionFailed($resolved)) {
-                return Response::make(Response::error($this->fkErrorMessage($resolved)));
-            }
-            if ($resolved !== null) {
-                $request->merge([$idField => $resolved]);
-            }
-        }
+        $request->merge($this->resolveForeignKeys($request));
 
         $targets = $shape === 'array'
             ? $this->resolveByArray($request)
@@ -196,13 +192,14 @@ class DeleteUserTool extends Tool
         $username = $user->username;
 
         if ($user->delete()) {
-            return Response::make(
-                Response::text(trans('mcp.user_deleted', ['username' => $username]))
-            )->withStructuredContent([
-                'success' => true,
-                'message' => trans('mcp.user_deleted', ['username' => $username]),
-                'username' => $username,
-            ]);
+            return $this->structuredResponse(
+                trans('mcp.user_deleted', ['username' => $username]),
+                [
+                    'success' => true,
+                    'message' => trans('mcp.user_deleted', ['username' => $username]),
+                    'username' => $username,
+                ]
+            );
         }
 
         return Response::make(Response::error(trans('mcp.delete_failed_error', ['error' => $user->getErrors()->first()])));
@@ -296,20 +293,21 @@ class DeleteUserTool extends Tool
             'reason' => trans('mcp.user_has_items'),
         ])->values()->all();
 
-        return Response::make(
-            Response::text(trans('mcp.bulk_dry_run_summary', [
+        return $this->structuredResponse(
+            trans('mcp.bulk_dry_run_summary', [
                 'total' => $targets->count(),
                 'deletable' => $deletable->count(),
-            ]))
-        )->withStructuredContent([
-            'success' => true,
-            'dry_run' => true,
-            'total_matched' => $targets->count(),
-            'will_delete' => $deletable->count(),
-            'undeletable_count' => $undeletable->count(),
-            'sample_rows' => $sampleRows,
-            'undeletable_matches' => $undeletableMatches,
-        ]);
+            ]),
+            [
+                'success' => true,
+                'dry_run' => true,
+                'total_matched' => $targets->count(),
+                'will_delete' => $deletable->count(),
+                'undeletable_count' => $undeletable->count(),
+                'sample_rows' => $sampleRows,
+                'undeletable_matches' => $undeletableMatches,
+            ]
+        );
     }
 
     private function commitBulkDelete(Collection $deletable): ResponseFactory
@@ -342,17 +340,18 @@ class DeleteUserTool extends Tool
             ])));
         }
 
-        return Response::make(
-            Response::text(trans('mcp.bulk_delete_completed', [
+        return $this->structuredResponse(
+            trans('mcp.bulk_delete_completed', [
                 'count' => $deletedCount,
-            ]))
-        )->withStructuredContent([
-            'success' => true,
-            'dry_run' => false,
-            'deleted_count' => $deletedCount,
-            'failed_count' => count($failures),
-            'failures' => $failures,
-        ]);
+            ]),
+            [
+                'success' => true,
+                'dry_run' => false,
+                'deleted_count' => $deletedCount,
+                'failed_count' => count($failures),
+                'failures' => $failures,
+            ]
+        );
     }
 
     public function schema(JsonSchema $schema): array
@@ -360,7 +359,7 @@ class DeleteUserTool extends Tool
         return [
             // Single-identifier shape
             'id' => $schema->number()->description('Numeric user ID (single-target shape).'),
-            'username' => $schema->string()->description('Username (single-target shape). Alternative: pass usernames array for multiple.'),
+            'username' => $schema->string()->description('Username (single-target shape). Alternative: pass usernames array for multiple.')->nullable(),
             'email' => $schema->string()->description('Email address (single-target shape).'),
 
             // Array shape
@@ -396,15 +395,15 @@ class DeleteUserTool extends Tool
             'success' => $schema->boolean()->description('True if the deletion (or preview) succeeded'),
             'message' => $schema->string()->description('Human-readable result message')->required(),
             'dry_run' => $schema->boolean()->description('True when the response is a preview, false when it is a commit result'),
-            'username' => $schema->string()->description('Username of the deleted user (single-target shape only)'),
-            'total_matched' => $schema->number()->description('How many rows matched the filter / array (bulk preview only)'),
-            'will_delete' => $schema->number()->description('How many rows would actually delete (bulk preview only)'),
-            'undeletable_count' => $schema->number()->description('How many rows match but fail isDeletable (bulk preview only)'),
-            'sample_rows' => $schema->array()->description('First 10 matched rows with id + username (bulk preview only)'),
-            'undeletable_matches' => $schema->array()->description('First 10 undeletable rows with reason (bulk preview only)'),
-            'deleted_count' => $schema->number()->description('How many rows were deleted (bulk commit only)'),
-            'failed_count' => $schema->number()->description('How many rows failed at commit (bulk commit only)'),
-            'failures' => $schema->array()->description('Per-row failure messages (bulk commit only)'),
+            'username' => $schema->string()->description('Username of the deleted user (single-target shape only)')->nullable(),
+            'total_matched' => $schema->number()->description('How many rows matched the filter / array (bulk preview only)')->nullable(),
+            'will_delete' => $schema->number()->description('How many rows would actually delete (bulk preview only)')->nullable(),
+            'undeletable_count' => $schema->number()->description('How many rows match but fail isDeletable (bulk preview only)')->nullable(),
+            'sample_rows' => $schema->array()->description('First 10 matched rows with id + username (bulk preview only)')->nullable(),
+            'undeletable_matches' => $schema->array()->description('First 10 undeletable rows with reason (bulk preview only)')->nullable(),
+            'deleted_count' => $schema->number()->description('How many rows were deleted (bulk commit only)')->nullable(),
+            'failed_count' => $schema->number()->description('How many rows failed at commit (bulk commit only)')->nullable(),
+            'failures' => $schema->array()->description('Per-row failure messages (bulk commit only)')->nullable(),
         ];
     }
 }

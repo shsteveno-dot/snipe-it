@@ -3,8 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
 use App\Mcp\Traits\ResolvesForeignKeyByName;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Asset;
 use App\Models\AssetModel;
 use App\Models\Company;
@@ -28,8 +28,20 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Create a new Snipe-IT asset')]
 class CreateAssetTool extends Tool
 {
-    use HasMcpScope;
     use ResolvesForeignKeyByName;
+    use SnipeMcpTool;
+
+    /**
+     * @var list<array{0: string, 1: string, 2: class-string<\Illuminate\Database\Eloquent\Model>}>
+     */
+    protected array $foreignKeys = [
+        ['model_id', 'model_name', AssetModel::class],
+        ['status_id', 'status_name', Statuslabel::class],
+        ['company_id', 'company_name', Company::class],
+        ['location_id', 'location_name', Location::class],
+        ['rtd_location_id', 'rtd_location_name', Location::class],
+        ['supplier_id', 'supplier_name', Supplier::class],
+    ];
 
     public function handle(Request $request): ResponseFactory
     {
@@ -47,25 +59,7 @@ class CreateAssetTool extends Tool
         // non-superuser in a locked-down FMCS install gets a not-found
         // error for a name that only exists in a tenant they cannot
         // see, matching the UI's "that record does not exist" posture.
-        $fkMap = [
-            ['model_id', 'model_name', AssetModel::class],
-            ['status_id', 'status_name', Statuslabel::class],
-            ['company_id', 'company_name', Company::class],
-            ['location_id', 'location_name', Location::class],
-            ['rtd_location_id', 'rtd_location_name', Location::class],
-            ['supplier_id', 'supplier_name', Supplier::class],
-        ];
-
-        $resolvedFks = [];
-        foreach ($fkMap as [$idField, $nameField, $modelClass]) {
-            $resolved = $this->resolveFkByName($request, $idField, $nameField, $modelClass);
-            if ($this->fkResolutionFailed($resolved)) {
-                return Response::make(Response::error($this->fkErrorMessage($resolved)));
-            }
-            if ($resolved !== null) {
-                $resolvedFks[$idField] = $resolved;
-            }
-        }
+        $resolvedFks = $this->resolveForeignKeys($request);
 
         $input = array_merge($request->all(), $resolvedFks);
 
@@ -80,15 +74,16 @@ class CreateAssetTool extends Tool
         $asset->created_by = auth()->id();
 
         if ($asset->save()) {
-            return Response::make(
-                Response::text(trans('mcp.asset_created', ['asset_tag' => $asset->asset_tag]))
-            )->withStructuredContent([
-                'success' => true,
-                'message' => trans('mcp.asset_created', ['asset_tag' => $asset->asset_tag]),
-                'id' => $asset->id,
-                'asset_tag' => $asset->asset_tag,
-                'name' => $asset->name,
-            ]);
+            return $this->structuredResponse(
+                trans('mcp.asset_created', ['asset_tag' => $asset->asset_tag]),
+                [
+                    'success' => true,
+                    'message' => trans('mcp.asset_created', ['asset_tag' => $asset->asset_tag]),
+                    'id' => $asset->id,
+                    'asset_tag' => $asset->asset_tag,
+                    'name' => $asset->name,
+                ]
+            );
         }
 
         return Response::make(Response::error(trans('mcp.create_failed', ['error' => $asset->getErrors()->first()])));
@@ -128,7 +123,7 @@ class CreateAssetTool extends Tool
             'message' => $schema->string()->description('Human-readable result message')->required(),
             'id' => $schema->number()->description('Numeric ID of the new asset'),
             'asset_tag' => $schema->string()->description('Asset tag of the new asset'),
-            'name' => $schema->string()->description('Display name of the new asset'),
+            'name' => $schema->string()->description('Display name of the new asset')->nullable(),
         ];
     }
 }

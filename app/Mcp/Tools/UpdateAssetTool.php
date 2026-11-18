@@ -3,8 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
 use App\Mcp\Traits\ResolvesForeignKeyByName;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Asset;
 use App\Models\AssetModel;
 use App\Models\Location;
@@ -27,8 +27,19 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Update fields on a Snipe-IT asset identified by asset tag, serial, or numeric ID')]
 class UpdateAssetTool extends Tool
 {
-    use HasMcpScope;
     use ResolvesForeignKeyByName;
+    use SnipeMcpTool;
+
+    /**
+     * @var list<array{0: string, 1: string, 2: class-string<\Illuminate\Database\Eloquent\Model>}>
+     */
+    protected array $foreignKeys = [
+        ['model_id', 'model_name', AssetModel::class],
+        ['status_id', 'status_name', Statuslabel::class],
+        ['location_id', 'location_name', Location::class],
+        ['rtd_location_id', 'rtd_location_name', Location::class],
+        ['supplier_id', 'supplier_name', Supplier::class],
+    ];
 
     public function handle(Request $request): ResponseFactory
     {
@@ -52,24 +63,7 @@ class UpdateAssetTool extends Tool
             return Response::make(Response::error(trans('general.generic_model_not_found', ['model' => trans('general.asset')])));
         }
 
-        $fkMap = [
-            ['model_id', 'model_name', AssetModel::class],
-            ['status_id', 'status_name', Statuslabel::class],
-            ['location_id', 'location_name', Location::class],
-            ['rtd_location_id', 'rtd_location_name', Location::class],
-            ['supplier_id', 'supplier_name', Supplier::class],
-        ];
-
-        $resolvedFks = [];
-        foreach ($fkMap as [$idField, $nameField, $modelClass]) {
-            $resolved = $this->resolveFkByName($request, $idField, $nameField, $modelClass);
-            if ($this->fkResolutionFailed($resolved)) {
-                return Response::make(Response::error($this->fkErrorMessage($resolved)));
-            }
-            if ($resolved !== null) {
-                $resolvedFks[$idField] = $resolved;
-            }
-        }
+        $resolvedFks = $this->resolveForeignKeys($request);
 
         // new_asset_tag / new_serial let callers change the identifiers
         // without conflicting with the asset_tag/serial used to look up
@@ -95,14 +89,15 @@ class UpdateAssetTool extends Tool
         $asset->fill(array_merge($input, $validated));
 
         if ($asset->save()) {
-            return Response::make(
-                Response::text(trans('mcp.asset_updated', ['asset_tag' => $asset->asset_tag]))
-            )->withStructuredContent([
-                'success' => true,
-                'message' => trans('mcp.asset_updated', ['asset_tag' => $asset->asset_tag]),
-                'asset_tag' => $asset->asset_tag,
-                'id' => $asset->id,
-            ]);
+            return $this->structuredResponse(
+                trans('mcp.asset_updated', ['asset_tag' => $asset->asset_tag]),
+                [
+                    'success' => true,
+                    'message' => trans('mcp.asset_updated', ['asset_tag' => $asset->asset_tag]),
+                    'asset_tag' => $asset->asset_tag,
+                    'id' => $asset->id,
+                ]
+            );
         }
 
         return Response::make(Response::error(trans('mcp.update_failed', ['error' => $asset->getErrors()->first()])));
@@ -159,7 +154,7 @@ class UpdateAssetTool extends Tool
     {
         return [
             'success' => $schema->boolean()->description('True if the update succeeded'),
-            'error' => $schema->boolean()->description('True if the update failed'),
+            'error' => $schema->boolean()->description('True if the update failed')->nullable(),
             'message' => $schema->string()->description('Human-readable result message')->required(),
             'asset_tag' => $schema->string()->description('Asset tag of the updated asset'),
             'id' => $schema->number()->description('Numeric ID of the updated asset'),

@@ -3,8 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Enums\McpScope;
-use App\Mcp\Traits\HasMcpScope;
 use App\Mcp\Traits\ResolvesForeignKeyByName;
+use App\Mcp\Traits\SnipeMcpTool;
 use App\Models\Location;
 use App\Models\Setting;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -24,8 +24,15 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Update the authenticated user\'s own profile information')]
 class UpdateProfileTool extends Tool
 {
-    use HasMcpScope;
     use ResolvesForeignKeyByName;
+    use SnipeMcpTool;
+
+    /**
+     * @var list<array{0: string, 1: string, 2: class-string<\Illuminate\Database\Eloquent\Model>}>
+     */
+    protected array $foreignKeys = [
+        ['location_id', 'location_name', Location::class],
+    ];
 
     public function handle(Request $request): ResponseFactory
     {
@@ -33,20 +40,7 @@ class UpdateProfileTool extends Tool
             return $denied;
         }
 
-        $fkMap = [
-            ['location_id', 'location_name', Location::class],
-        ];
-
-        $resolvedFks = [];
-        foreach ($fkMap as [$idField, $nameField, $modelClass]) {
-            $resolved = $this->resolveFkByName($request, $idField, $nameField, $modelClass);
-            if ($this->fkResolutionFailed($resolved)) {
-                return Response::make(Response::error($this->fkErrorMessage($resolved)));
-            }
-            if ($resolved !== null) {
-                $resolvedFks[$idField] = $resolved;
-            }
-        }
+        $resolvedFks = $this->resolveForeignKeys($request);
 
         $input = array_merge($request->all(), $resolvedFks);
 
@@ -98,18 +92,19 @@ class UpdateProfileTool extends Tool
         }
 
         if ($user->save()) {
-            return Response::make(
-                Response::text(trans('mcp.profile_updated'))
-            )->withStructuredContent([
-                'success' => true,
-                'message' => trans('mcp.profile_updated'),
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'phone' => $user->phone,
-                'website' => $user->website,
-                'locale' => $user->locale,
-                'location_id' => $user->location_id,
-            ]);
+            return $this->structuredResponse(
+                trans('mcp.profile_updated'),
+                [
+                    'success' => true,
+                    'message' => trans('mcp.profile_updated'),
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'phone' => $user->phone,
+                    'website' => $user->website,
+                    'locale' => $user->locale,
+                    'location_id' => $user->location_id,
+                ]
+            );
         }
 
         return Response::make(Response::error(trans('mcp.update_failed', ['error' => $user->getErrors()->first()])));
@@ -136,11 +131,11 @@ class UpdateProfileTool extends Tool
             'success' => $schema->boolean()->description('True if the update succeeded'),
             'message' => $schema->string()->description('Human-readable result message')->required(),
             'first_name' => $schema->string()->description('Updated first name'),
-            'last_name' => $schema->string()->description('Updated last name'),
-            'phone' => $schema->string()->description('Updated phone number'),
-            'website' => $schema->string()->description('Updated website URL'),
-            'locale' => $schema->string()->description('Updated locale'),
-            'location_id' => $schema->number()->description('Updated location ID'),
+            'last_name' => $schema->string()->description('Updated last name')->nullable(),
+            'phone' => $schema->string()->description('Updated phone number')->nullable(),
+            'website' => $schema->string()->description('Updated website URL')->nullable(),
+            'locale' => $schema->string()->description('Updated locale')->nullable(),
+            'location_id' => $schema->number()->description('Updated location ID')->nullable(),
         ];
     }
 }

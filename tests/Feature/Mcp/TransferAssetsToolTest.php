@@ -6,6 +6,7 @@ use App\Mcp\Tools\TransferAssetsTool;
 use App\Models\Accessory;
 use App\Models\AccessoryCheckout;
 use App\Models\Asset;
+use App\Models\Company;
 use App\Models\License;
 use App\Models\LicenseSeat;
 use App\Models\User;
@@ -91,6 +92,95 @@ class TransferAssetsToolTest extends TestCase
         $this->handle(['from_username' => 'leaver', 'to_username' => 'receiver', 'dry_run' => false]);
 
         $this->assertSame($to->id, $checkout->fresh()->assigned_to);
+    }
+
+    public function test_rejects_cross_company_asset_transfer_under_fmcs()
+    {
+        // Same bug class as the asset-model bulk-fulfill route a
+        // reporter filed: the per-asset checkOut() needs a
+        // canCheckoutTo() guard under FMCS strict mode so a
+        // company-A asset doesn't land on a user who only belongs
+        // to company B.
+        [$from, $to, $operator] = $this->fmcsFixture($companyA, $companyB);
+        $this->actingAs($operator);
+
+        $asset = Asset::factory()->assignedToUser($from)->create(['company_id' => $companyA->id]);
+
+        $this->handle(['from_username' => 'leaver', 'to_username' => 'receiver', 'dry_run' => false]);
+
+        $this->assertSame($from->id, (int) $asset->fresh()->assigned_to, 'FMCS cross-company transfer must leave the asset with the source user.');
+    }
+
+    public function test_rejects_cross_company_accessory_transfer_under_fmcs()
+    {
+        // Accessory branch of the tool was reassigning the
+        // AccessoryCheckout row directly, with no FMCS guard. Per-
+        // type test (no asset or license fixtures) so the
+        // transaction-wide rollback from an asset-guard failure
+        // doesn't mask a missing accessory guard.
+        [$from, $to, $operator] = $this->fmcsFixture($companyA, $companyB);
+        $this->actingAs($operator);
+
+        $accessory = Accessory::factory()->for($companyA, 'company')->create();
+        $checkout = AccessoryCheckout::factory()->create([
+            'accessory_id' => $accessory->id,
+            'assigned_type' => User::class,
+            'assigned_to' => $from->id,
+        ]);
+
+        $this->handle(['from_username' => 'leaver', 'to_username' => 'receiver', 'dry_run' => false]);
+
+        $this->assertSame($from->id, (int) $checkout->fresh()->assigned_to, 'FMCS cross-company transfer must leave the accessory checkout with the source user.');
+    }
+
+    public function test_rejects_cross_company_license_seat_transfer_under_fmcs()
+    {
+        // License-seat branch had the same missing guard: the seat's
+        // assigned_to was being rewritten directly without checking
+        // whether the license's company allowed the target user.
+        [$from, $to, $operator] = $this->fmcsFixture($companyA, $companyB);
+        $this->actingAs($operator);
+
+        $license = License::factory()->for($companyA, 'company')->create();
+        $seat = LicenseSeat::factory()->create([
+            'license_id' => $license->id,
+            'assigned_to' => $from->id,
+        ]);
+
+        $this->handle(['from_username' => 'leaver', 'to_username' => 'receiver', 'dry_run' => false]);
+
+        $this->assertSame($from->id, (int) $seat->fresh()->assigned_to, 'FMCS cross-company transfer must leave the license seat with the source user.');
+    }
+
+    /**
+     * Shared fixture for the per-type FMCS tests. Enables FMCS,
+     * builds two companies, a source user in A, a target user in
+     * only B, and a non-superuser operator with the per-item
+     * checkin / checkout permissions (superusers bypass FMCS by
+     * design so canCheckoutTo would always allow them).
+     *
+     * @return array{0: User, 1: User, 2: User}
+     */
+    private function fmcsFixture(?Company &$companyA, ?Company &$companyB): array
+    {
+        $this->settings->enableMultipleFullCompanySupport();
+        [$companyA, $companyB] = Company::factory()->count(2)->create();
+
+        $from = User::factory()->forCompany($companyA)->create(['username' => 'leaver']);
+        $from->companies()->sync([$companyA->id]);
+        $to = User::factory()->forCompany($companyB)->create(['username' => 'receiver']);
+        $to->companies()->sync([$companyB->id]);
+
+        $operator = User::factory()
+            ->forCompany($companyA)
+            ->checkinAssets()
+            ->checkoutAssets()
+            ->checkoutAccessories()
+            ->checkoutLicenses()
+            ->create();
+        $operator->companies()->sync([$companyA->id, $companyB->id]);
+
+        return [$from, $to, $operator];
     }
 
     public function test_rejects_same_user_transfer()
