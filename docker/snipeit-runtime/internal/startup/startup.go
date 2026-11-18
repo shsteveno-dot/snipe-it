@@ -166,8 +166,7 @@ func KeyPermissionsAt(dir string) error {
 			// The runtime is not root: a key owned by another uid cannot be
 			// changed here, so warn instead of refusing to start.
 			if errors.Is(err, os.ErrPermission) {
-				fmt.Fprintf(os.Stderr, "warning: cannot set mode %04o on %s: %v
-", key.mode, path, err)
+				fmt.Fprintf(os.Stderr, "warning: cannot set mode %04o on %s: %v\n", key.mode, path, err)
 				continue
 			}
 			return err
