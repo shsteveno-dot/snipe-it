@@ -8,6 +8,25 @@
 
 ## 這次的重點
 
+第 17 輪：**確認 `ShelllessSchedulerTest` 的隔離修正**。第 16 輪結果在 `6e2638deba`（第 16 輪通過，但全套測試有 18 個 `RestoreToRemoteDiskTest` error，原因是 `ShelllessSchedulerTest::tearDown()` 清掉了 `SNIPEIT_SHELLLESS`）。
+
+這次的變化：
+- `all-changes` 現在是 `4525efb404`：`ShelllessSchedulerTest` 在 `setUp()` 記下 `SNIPEIT_SHELLLESS`（環境變數、`$_ENV`、`$_SERVER`）原本的狀態，`tearDown()` 照原樣還原（照你第 16 輪的建議）。
+- 其他程式碼、工具和第 16 輪相同。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。**所有背景指令都要設足夠長的時限（runner 至少 2 小時）**，第 16 輪 runner 被 30 分鐘的背景時限中斷過。
+2. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`。要求同第 16 輪。
+3. 全套測試：照第 16 輪的方式（13 個容器平行、`dataDirs` 初始化 volume、DNS 用 `--add-host`）。預期：
+   - `RestoreToRemoteDiskTest` 的 18 個 error 消失。
+   - 再做一次第 16 輪的順序驗證：`ShelllessSchedulerTest` → `RestoreToRemoteDiskTest` 要全部通過。
+   - 只剩已知的失敗：缺 `intl` 的 8 個、上游的 `will_encrypt_custom_fields` 和 `ListLicensesToolTest`。其他失敗都要列出來並判斷原因。
+4. 清理（含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
+
+回報：commit `results-B.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。第 2 步全部符合、第 3 步沒有未解釋的失敗時，報告開頭寫「第 17 輪通過」。
+
+---
+
 第 16 輪：**rebase 到官方 master 之後的 `all-changes`，加上第 15 輪的兩個修正**。第 15 輪結果在 `1f28d8b71f`（第 B 輪和第 14 輪相同；全套的失敗都已有解釋）。
 
 這次的變化：
