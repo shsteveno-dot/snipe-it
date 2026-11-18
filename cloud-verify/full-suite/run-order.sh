@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# usage: run-full.sh IMAGE OUTDIR SHARD... ; runs each shard in its own container in parallel
+set -u
+IMG=$1; OUT=$2; shift 2
+HERE=$(cd "$(dirname "$0")" && pwd)
+NET=r17o-net; DB=r17o-db; PASS=$(head -c16 /dev/urandom | od -An -tx1 | tr -d ' \n'); KEY="base64:$(head -c32 /dev/urandom | base64)"
+mkdir -p "$OUT"; chmod 777 "$OUT"
+docker network inspect $NET >/dev/null 2>&1 || docker network create --internal $NET >/dev/null
+docker rm -f $DB >/dev/null 2>&1
+docker run -d --name $DB --network $NET -e MYSQL_ROOT_PASSWORD=$PASS -e MYSQL_ROOT_HOST=% mysql:8.4 >/dev/null
+for i in $(seq 120); do docker exec $DB mysqladmin ping -h127.0.0.1 -uroot -p$PASS --silent >/dev/null 2>&1 && break; sleep 3; done
+sleep 5
+HOSTS=""; for h in example.com graph.microsoft.com graph.microsoft.us example.api.kandji.io hooks.slack.com; do HOSTS="$HOSTS --add-host $h:93.184.215.14"; done
+run_shard() {
+  s=$1; db="t_$s"; vol="r17o-vol-$s"
+  docker exec $DB mysql -uroot -p$PASS -e "DROP DATABASE IF EXISTS $db; CREATE DATABASE $db" 2>/dev/null
+  docker volume rm $vol >/dev/null 2>&1; docker volume create $vol >/dev/null
+  common="--rm --network $NET $HOSTS -v $vol:/var/lib/snipeit -v $OUT:/results -v $HERE/full/$s.xml:/var/www/html/phpunit-shard.xml:ro -v $HERE/full/init.php:/probe/init.php:ro
+   -e APP_KEY=$KEY -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_CONNECTION=mysql -e DB_HOST=$DB -e DB_PORT=3306 -e DB_DATABASE=$db -e DB_USERNAME=root -e DB_PASSWORD=$PASS -e DB_DUMP_PATH=/usr/bin -e CACHE_DRIVER=array -e SESSION_DRIVER=array -e QUEUE_CONNECTION=sync -e MAIL_MAILER=array -e IMPORT_MEMORY_LIMIT=2G -e LDAP_MEM_LIM=2G --entrypoint /usr/bin/php"
+  docker run $common --user 0:0 $IMG /probe/init.php
+  docker run $common $IMG artisan migrate --force --no-interaction >/dev/null
+  docker run $common $IMG artisan passport:keys --force --no-interaction >/dev/null
+  t0=$(date +%s)
+  docker run --name r17o-$s $common $IMG -d memory_limit=2G vendor/bin/phpunit -c phpunit-shard.xml --colors=never --display-skipped --display-incomplete --log-junit /results/$s.xml > "$OUT/$s.txt" 2>&1
+  rc=$?
+  echo "$s exit=$rc seconds=$(( $(date +%s) - t0 ))" | tee -a "$OUT/summary.txt"
+}
+date -u +"Started %H:%M:%S UTC" | tee -a "$OUT/summary.txt"
+for s in "$@"; do run_shard $s & done
+wait
+date -u +"Finished %H:%M:%S UTC" | tee -a "$OUT/summary.txt"
