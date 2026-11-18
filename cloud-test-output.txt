@@ -1,0 +1,1076 @@
+# Cloud round 16 output (cloud-test f286a9d352, all-changes 4c1f2c64f8 on upstream master 9f32b39aea)
+
+## 0. Environment
+nproc=4; dockerd 29.9.2 started as root with HTTP(S)_PROXY=$HTTPS_PROXY; docker run --rm hello-world OK (08:30 UTC)
+
+## 1a. Runner run 1 (08:30:5x-~09:01 UTC) -- INTERRUPTED by the session's 30-min background-job limit (operator error, not a tool error)
+It had completed: input lock check, candidate sha256:fb6fe718a65c..., test image sha256:7a53415a204f..., php comparison, Go unit, all 7 phpunit runs, fr9-original; it was in the FR-8 Apache probes when killed. Leftover containers/volumes/network/tmp dir of review-3354915761ca removed by hand; the rerun's own startup cleanup removed its labelled images.
+ run1 fr9-original.xml tests=1 non-pass=[]
+ run1 ldap-selected.xml tests=7 non-pass=[]
+ run1 ldap-suite.xml tests=35 non-pass=[]
+ run1 s3-selected.xml tests=16 non-pass=[]
+ run1 s3-suite.xml tests=103 non-pass=[]
+ run1 wizard-selected.xml tests=3 non-pass=[]
+ run1 wizard-suite.xml tests=57 non-pass=[]
+### exit=0 python3 -I docker/chiseled/repin_app_inputs.py --check
+locks are up to date
+### exit=0 docker run --rm --label review-fixes.run=review-3354915761ca --entrypoint /usr/bin/php sha256:fb6fe718a65cccbb60007ae9878b0ddf648d2ee9430546f303a5d39bd6d79a4b -r echo hash_file('sha256', '/usr/bin/php');
+7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7
+### exit=0 docker run --rm --label review-fixes.run=review-3354915761ca --entrypoint /usr/bin/php sha256:7a53415a204f444b824a1dc813ca796a749f84a19c813692f08d66f499aefd63 -r echo hash_file('sha256', '/usr/bin/php');
+7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7
+### exit=0 docker run --rm --label review-fixes.run=review-3354915761ca --entrypoint /usr/bin/php sha256:d55e4f9af972904a7f2f89fd8bf5694cbcbee90d4c444663fc7e36f92c0be0c5 -r echo hash_file('sha256', '/usr/bin/php');
+7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7
+### exit=0 docker run --rm --label review-fixes.run=review-3354915761ca --entrypoint /usr/bin/php sha256:0ce30f4010c7b05528e73a5288030a923453a94ccf59de40e7e1a73cc3ec8c7e -r echo hash_file('sha256', '/usr/bin/php');
+7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7
+
+## 1b. Runner run 2: bash cloud-verify/review-fixes/run.sh "$PWD" B  (start 09:41:49 UTC)
+runner exit=0
+09:48:45
+
+round "B"
+run_id "review-15fc30b41b6f"
+commit "f286a9d352a15b0ac4be880c333dbc7044b01c11"
+candidate_image_id "sha256:328ff444b81fc870888bf2c96e28a05d6179d3253d0c7fc3b6b567ecffd8a39e"
+test_image_id "sha256:4d6c75f5048a129b9cd16ed4b276f6da12b13566d4a61a36c753426ffb4049aa"
+php_comparison {"version": {"equal": true}, "modules": {"equal": true}, "sha256": {"equal": true, "sha256": "7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7"}}
+counts {"passed": 222, "failure": 1}
+errors []
+skipped_summary {"ldap_selected": "", "ldap_suite": "", "s3_selected": "", "s3_suite": "", "wizard_selected": "", "wizard_suite": "", "fr9_original": "", "fr9_mutation": ""}
+probe chiseled_input_locks {"passed": true, "exit_code": 0}
+probe candidate_proxy_ca_absent {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
+probe fr8_go_unit {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
+probe ldap_selected_exit 0
+probe ldap_suite_exit 0
+probe s3_selected_exit 0
+probe s3_suite_exit 0
+probe wizard_selected_exit 0
+probe wizard_suite_exit 0
+probe fr2_chiseled {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
+probe fr2_regular {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
+probe fr2_prepare_app {"passed": true, "marker_directory_present": false, "expected_status": "pass", "matches_expectation": true}
+probe fr8_valid {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
+probe fr8_empty {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
+probe fr8_unset {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
+probe fr8_invalid {"passed": true, "running": false, "exit_code": 1, "expected_status": "pass", "matches_expectation": true}
+probe fr9_original_exit 0
+probe fr9_mutation_exit 1
+probe fr9_mutation_red {"passed": true, "tests_found": 1}
+non-pass {"run": "fr9_mutation", "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping", "status": "failure", "message": "Finding 9: safety backup omitted remote files.", "round_a_expectation": "red", "expected_status": "failure", "matches_expectation": true}
+
+## 2. Full tests/ in the runner's test image (round16-full:test = sha256:7a53415a204f444b824a1dc813ca796a749f84a19c813692f08d66f499aefd63), mysql:8.4
+Sharding: 4 shards (non-SyncAdapters, balanced by file size) + syncrest (SyncAdapters except ABM) + 8 ABM files, one container each, all in parallel.
+Volume init: init.php generated from startup.go dataDirs (same parser as runner.py); --add-host for example.com graph.microsoft.com graph.microsoft.us example.api.kandji.io hooks.slack.com -> 93.184.215.14
+Started 08:53:11 UTC
+
+shard0 exit=2 seconds=2257
+shard1 exit=0 seconds=2734
+shard2 exit=1 seconds=1178
+shard3 exit=1 seconds=1435
+syncrest exit=0 seconds=1452
+abm0 exit=0 seconds=470
+abm1 exit=0 seconds=729
+abm2 exit=0 seconds=848
+abm3 exit=0 seconds=1288
+abm4 exit=0 seconds=146
+abm5 exit=0 seconds=923
+abm6 exit=0 seconds=603
+abm7 exit=0 seconds=146
+
+### shard0
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 37:33.123, Memory: 90.50 MB
+
+There were 18 errors:
+
+1) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::files_are_written_to_the_configured_remote_disks_with_matching_bytes
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:169
+
+2) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::nested_paths_are_preserved_and_do_not_overwrite_each_other
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:191
+
+3) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::objects_on_a_remote_disk_that_are_not_in_the_backup_are_left_alone
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:209
+
+4) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::local_disks_are_pruned_and_written_as_before_with_nested_paths_kept
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:233
+
+5) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::an_archive_without_remote_files_leaves_the_remote_disks_untouched_and_warns
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:328
+
+6) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::a_restore_follows_the_manifest_even_when_the_filename_says_otherwise
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:349
+
+7) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::an_archive_without_a_manifest_restores_with_a_warning
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:363
+
+8) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::a_write_failure_after_the_restore_started_is_reported_and_puts_the_app_in_maintenance
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:382
+
+9) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::an_object_that_reads_back_differently_fails_the_restore
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:398
+
+10) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:489
+
+11) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::local_copies_in_a_backup_do_not_overwrite_objects_on_a_remote_disk
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:538
+
+12) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::a_local_copy_without_an_object_on_the_remote_disk_is_still_restored
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:577
+
+13) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::local_copies_from_a_local_install_backup_are_still_moved_to_the_remote_disk
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:599
+
+14) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale last" (false, false)
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:647
+
+15) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last" (true, false)
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:647
+
+16) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale first control" (false, true)
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:647
+
+17) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale first control" (true, true)
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:647
+
+18) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:262
+/var/www/html/app/Console/Commands/RestoreFromBackup.php:602
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+/var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php:799
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+/var/www/html/vendor/symfony/console/Command/Command.php:341
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+/var/www/html/vendor/symfony/console/Application.php:1104
+/var/www/html/vendor/symfony/console/Application.php:357
+/var/www/html/vendor/symfony/console/Application.php:196
+/var/www/html/vendor/laravel/framework/src/Illuminate/Console/Application.php:165
+/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:447
+/var/www/html/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:363
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:137
+/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php:719
+
+--
+
+There were 9 incomplete tests:
+
+1) Tests\Feature\Checkouts\Api\AssetCheckoutTest::test_license_seats_are_assigned_to_user_upon_checkout
+This is not implemented
+
+/var/www/html/tests/Feature/Checkouts/Api/AssetCheckoutTest.php:440
+
+2) Tests\Feature\Console\FixupAssignedToAssignedTypeTest::test_invalid_assigned_to
+/var/www/html/tests/Feature/Console/FixupAssignedToAssignedTypeTest.php:28
+
+3) Tests\Feature\CustomFields\Api\CustomFieldsPaginationTest::test_fields_endpoint_paginates_rows_and_reports_accurate_metadata
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFields/Api/CustomFieldsPaginationTest.php:18
+
+4) Tests\Feature\CustomFields\Api\CustomFieldsPaginationTest::test_fields_endpoint_last_page_returns_remainder_and_no_next_url
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFields/Api/CustomFieldsPaginationTest.php:39
+
+5) Tests\Feature\CustomFields\Api\CustomFieldsPaginationTest::test_fields_endpoint_offset_param_also_works
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFields/Api/CustomFieldsPaginationTest.php:58
+
+6) Tests\Feature\CustomFieldsets\Api\FieldsWithDefaultValuesTest::test_returns_fields_with_resolved_default_values_for_the_given_model
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/FieldsWithDefaultValuesTest.php:16
+
+7) Tests\Feature\CustomFieldsets\Api\FieldsWithDefaultValuesTest::test_does_not_lazy_load_default_values_per_field
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/FieldsWithDefaultValuesTest.php:60
+
+8) Tests\Feature\Settings\BrandingSettingsTest::test_favicon_can_be_uploaded
+This fails mimetype validation on the mock
+
+/var/www/html/tests/Feature/Settings/BrandingSettingsTest.php:398
+
+9) Tests\Feature\Settings\BrandingSettingsTest::test_favicon_can_be_deleted
+This fails mimetype validation on the mock
+
+/var/www/html/tests/Feature/Settings/BrandingSettingsTest.php:419
+
+ERRORS!
+Tests: 1648, Assertions: 5273, Errors: 18, Incomplete: 9.
+### shard0 exit=2 seconds=2257
+
+### shard1
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 45:31.234, Memory: 176.50 MB
+
+There were 15 incomplete tests:
+
+1) Tests\Feature\Assets\Api\AssetHistoryTest::test_encrypted_custom_field_values_are_visible_to_users_with_encrypted_field_permission
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/AssetHistoryTest.php:43
+
+2) Tests\Feature\Assets\Api\AssetHistoryTest::test_encrypted_custom_field_values_are_masked_for_users_without_encrypted_field_permission
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/AssetHistoryTest.php:65
+
+3) Tests\Feature\Assets\Api\UpdateAssetTest::test_encrypted_custom_field_can_be_updated
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/UpdateAssetTest.php:371
+
+4) Tests\Feature\Assets\Api\UpdateAssetTest::test_permission_needed_to_update_encrypted_field
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/UpdateAssetTest.php:391
+
+5) Tests\Feature\Assets\Api\UpdateAssetTest::test_updating_an_unrelated_attribute_does_not_disclose_encrypted_fields
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/UpdateAssetTest.php:417
+
+6) Tests\Feature\Assets\Api\UpdateAssetTest::test_custom_field_cannot_be_updated_if_not_on_current_asset_model
+Custom Field Tests do not work in MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/UpdateAssetTest.php:700
+
+7) Tests\Feature\Assets\Ui\BulkEditAssetsTest::test_bulk_edit_assets_accepts_and_updates_unencrypted_custom_fields
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/BulkEditAssetsTest.php:268
+
+8) Tests\Feature\Assets\Ui\BulkEditAssetsTest::test_bulk_edit_assets_nulls_custom_fields_if_selected
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/BulkEditAssetsTest.php:300
+
+9) Tests\Feature\Assets\Ui\BulkEditAssetsTest::test_bulk_edit_assets_accepts_and_updates_encrypted_custom_fields
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/BulkEditAssetsTest.php:392
+
+10) Tests\Feature\Assets\Ui\BulkEditAssetsTest::test_bulk_edit_assets_requires_admin_to_update_encrypted_custom_fields
+Custom Fields tests do not work on mysql
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/BulkEditAssetsTest.php:416
+
+11) Tests\Feature\Categories\Api\IndexCategoriesTest::test_category_index_returns_expected_categories
+Not sure why the category factory is generating one more than expected here.
+
+/var/www/html/tests/Feature/Categories/Api/IndexCategoriesTest.php:45
+
+12) Tests\Feature\CustomFields\Api\DeleteCustomFieldsTest::test_requires_permission
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFields/Api/DeleteCustomFieldsTest.php:15
+
+13) Tests\Feature\CustomFields\Api\DeleteCustomFieldsTest::test_custom_fields_cannot_be_deleted_if_they_have_associated_fieldsets
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFields/Api/DeleteCustomFieldsTest.php:28
+
+14) Tests\Feature\CustomFields\Api\DeleteCustomFieldsTest::test_custom_fields_can_be_deleted
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFields/Api/DeleteCustomFieldsTest.php:44
+
+15) Tests\Feature\Settings\ShowSetUpPageTest::test_invalid_tls_certs_ok_when_checking_for_env_file
+Not yet sure how to write this test, it requires messing with .env ...
+
+/var/www/html/tests/Feature/Settings/ShowSetUpPageTest.php:307
+
+OK, but there were issues!
+Tests: 1593, Assertions: 4984, Incomplete: 15.
+### shard1 exit=0 seconds=2734
+
+### shard2
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 19:34.681, Memory: 82.50 MB
+
+There were 2 failures:
+
+1) Tests\Feature\Importing\Api\ImportAssetsTest::will_encrypt_custom_fields
+Failed asserting that 'D5:20:B3:F5:CE:58' is not equal to 'D5:20:B3:F5:CE:58'.
+
+/var/www/html/tests/Feature/Importing/Api/ImportAssetsTest.php:834
+
+2) Tests\Feature\Mcp\ListLicensesToolTest::test_offset_skips_results_for_pagination
+Failed asserting that an array is empty.
+
+/var/www/html/tests/Feature/Mcp/ListLicensesToolTest.php:74
+
+--
+
+There were 7 incomplete tests:
+
+1) Tests\Feature\AssetModels\Ui\UpdateAssetModelsTest::test_default_values_remain_unchanged_after_validation_error_occurs
+Custom Field Tests do not work in MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/AssetModels/Ui/UpdateAssetModelsTest.php:101
+
+2) Tests\Feature\AssetModels\Ui\UpdateAssetModelsTest::test_default_values_can_be_updated
+Custom Field Tests do not work in MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/AssetModels/Ui/UpdateAssetModelsTest.php:134
+
+3) Tests\Feature\CustomFieldsets\Api\CustomFieldsetsPaginationTest::test_fieldsets_endpoint_paginates_rows_and_reports_accurate_metadata
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/CustomFieldsetsPaginationTest.php:18
+
+4) Tests\Feature\CustomFieldsets\Api\CustomFieldsetsPaginationTest::test_fieldsets_endpoint_last_page_returns_remainder_and_no_next_url
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/CustomFieldsetsPaginationTest.php:39
+
+5) Tests\Feature\CustomFieldsets\Api\CustomFieldsetsPaginationTest::test_fieldsets_endpoint_offset_param_also_works
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/CustomFieldsetsPaginationTest.php:58
+
+6) Tests\Feature\Settings\PostRestoreDataLossGuardsTest::test_schema_out_of_date_after_migrate_redirects_to_login_with_error
+Sanity check is source-verified in SettingsController::postRestore after migrate.
+
+/var/www/html/tests/Feature/Settings/PostRestoreDataLossGuardsTest.php:77
+
+7) Tests\Feature\Settings\PostRestoreDataLossGuardsTest::test_missing_zip_extension_aborts_before_wiping_database
+ZipArchive is loaded in the PHP test image; guard is source-verified in SettingsController::postRestore.
+
+/var/www/html/tests/Feature/Settings/PostRestoreDataLossGuardsTest.php:91
+
+--
+
+There were 2 skipped tests:
+
+1) Tests\Feature\ApiRateLimitTest::test_rate_limit_decreases_remaining
+This test is flappy and keeps screwing up the test results.
+
+2) Tests\Feature\ApiRateLimitTest::test_rate_limit_decreases_remaining_over_sixty
+This test is flappy and keeps screwing up the test results.
+
+FAILURES!
+Tests: 1535, Assertions: 5103, Failures: 2, Skipped: 2, Incomplete: 7.
+### shard2 exit=1 seconds=1178
+
+### shard3
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 23:54.923, Memory: 74.50 MB
+
+There were 8 failures:
+
+1) Tests\Unit\CustomFieldTest::test_db_name_chinese
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'_snipeit__1337'
++'_snipeit_aecsae0ase1eaeaeoees_1337'
+
+/var/www/html/tests/Unit/CustomFieldTest.php:47
+
+2) Tests\Unit\CustomFieldTest::test_db_name_japanese
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'_snipeit__1337'
++'_snipeit_caafafafaafcafafae0aaaaaaa_1337'
+
+/var/www/html/tests/Unit/CustomFieldTest.php:59
+
+3) Tests\Unit\CustomFieldTest::test_db_name_korean
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'_snipeit__1337'
++'_snipeit_e_ie2ieiises_izieoe_e0e_i0_iziis_1337'
+
+/var/www/html/tests/Unit/CustomFieldTest.php:71
+
+4) Tests\Unit\CustomFieldTest::test_db_name_non_latin_euro
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'_snipeit_moj_poduszkowiec_jest_pelen_wegorzy_1337'
++'_snipeit_ma3j_poduszkowiec_jest_peaen_waegorzy_1337'
+
+/var/www/html/tests/Unit/CustomFieldTest.php:84
+
+5) Tests\Unit\CustomFieldTest::test_db_name_turkish
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'_snipeit_hoverkraftim_yilan_baligi_dolu_1337'
++'_snipeit_hoverkraftaem_yaelan_balaeaeyae_dolu_1337'
+
+/var/www/html/tests/Unit/CustomFieldTest.php:97
+
+6) Tests\Unit\CustomFieldTest::test_db_name_arabic
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'_snipeit_hoamty_mmtly_banklyson_1337'
++'_snipeit_ouzuuouoaus_uuuuoauuooc_ououzuuuuzuuzusuo_1337'
+
+/var/www/html/tests/Unit/CustomFieldTest.php:109
+
+7) Tests\Unit\Importer\ImporterEncodingTest::test_non_utf8_input_becomes_valid_utf8_output
+Cell not UTF-8: café
+Failed asserting that false is true.
+
+/var/www/html/tests/Unit/Importer/ImporterEncodingTest.php:62
+
+8) Tests\Unit\Importer\ImporterEncodingTest::test_gbk_input_becomes_valid_utf8_output
+Cell not UTF-8: ÄãºÃÄãºÃÄãºÃÄãºÃÄãºÃÄãºÃÄãºÃÄãºÃ
+Failed asserting that false is true.
+
+/var/www/html/tests/Unit/Importer/ImporterEncodingTest.php:83
+
+--
+
+There were 23 incomplete tests:
+
+1) Tests\Feature\Assets\Api\BulkUpdateAssetsTest::test_custom_field_can_be_updated_across_assets_sharing_a_model
+Custom Field Tests do not work in MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/BulkUpdateAssetsTest.php:182
+
+2) Tests\Feature\Assets\Api\BulkUpdateAssetsTest::test_custom_field_absent_from_some_models_is_silently_ignored_on_those_rows
+Custom Field Tests do not work in MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/BulkUpdateAssetsTest.php:211
+
+3) Tests\Feature\Assets\Api\BulkUpdateAssetsTest::test_unknown_custom_field_column_is_still_a_request_level_validation_error
+Custom Field Tests do not work in MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/BulkUpdateAssetsTest.php:236
+
+4) Tests\Feature\Assets\Api\StoreAssetTest::test_asset_store_does_not_lazy_load_custom_field_default_values_per_field
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/StoreAssetTest.php:787
+
+5) Tests\Feature\Assets\Api\StoreAssetTest::test_encrypted_custom_field_can_be_stored
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/StoreAssetTest.php:841
+
+6) Tests\Feature\Assets\Api\StoreAssetTest::test_encrypted_custom_field_validation_passes
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/StoreAssetTest.php:866
+
+7) Tests\Feature\Assets\Api\StoreAssetTest::test_encrypted_custom_field_validation_fails
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Api/StoreAssetTest.php:897
+
+8) Tests\Feature\Assets\Api\StoreAssetTest::test_permission_needed_to_store_encrypted_field
+/var/www/html/tests/Feature/Assets/Api/StoreAssetTest.php:923
+
+9) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_edit_form_masks_encrypted_custom_field_for_user_without_view_encrypted with data set "textarea" (['textarea'], 'SECRET-INSIDE-TEXTAREA')
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:30
+
+10) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_edit_form_masks_encrypted_custom_field_for_user_without_view_encrypted with data set "markdown-textarea" (['markdown-textarea'], 'SECRET-INSIDE-MARKDOWN-TEXTAREA')
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:30
+
+11) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_edit_form_masks_encrypted_custom_field_for_user_without_view_encrypted with data set "date_picker" (['date_picker'], '1899-06-15')
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:30
+
+12) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_edit_form_masks_encrypted_custom_field_for_user_without_view_encrypted with data set "datetime_picker" (['datetime_picker'], '1899-06-15 03:14:15')
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:30
+
+13) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_edit_form_shows_encrypted_custom_field_plaintext_for_superuser with data set "textarea" (['textarea'], 'SECRET-INSIDE-TEXTAREA')
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:46
+
+14) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_edit_form_shows_encrypted_custom_field_plaintext_for_superuser with data set "markdown-textarea" (['markdown-textarea'], 'SECRET-INSIDE-MARKDOWN-TEXTAREA')
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:46
+
+15) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_edit_form_shows_encrypted_custom_field_plaintext_for_superuser with data set "date_picker" (['date_picker'], '1899-06-15')
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:46
+
+16) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_edit_form_shows_encrypted_custom_field_plaintext_for_superuser with data set "datetime_picker" (['datetime_picker'], '1899-06-15 03:14:15')
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:46
+
+17) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_checkin_form_masks_encrypted_custom_field_for_user_without_view_encrypted
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:60
+
+18) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_checkout_form_masks_encrypted_custom_field_for_user_without_view_encrypted
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:80
+
+19) Tests\Feature\Assets\Ui\EncryptedCustomFieldFormDisclosureTest::test_audit_form_masks_encrypted_custom_field_for_user_without_view_encrypted
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/Assets/Ui/EncryptedCustomFieldFormDisclosureTest.php:97
+
+20) Tests\Feature\CustomFieldsets\Api\DeleteCustomFieldsetsTest::test_requires_permission
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/DeleteCustomFieldsetsTest.php:16
+
+21) Tests\Feature\CustomFieldsets\Api\DeleteCustomFieldsetsTest::test_cannot_delete_custom_fieldset_with_associated_fields
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/DeleteCustomFieldsetsTest.php:29
+
+22) Tests\Feature\CustomFieldsets\Api\DeleteCustomFieldsetsTest::test_cannot_delete_custom_fieldset_with_associated_models
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/DeleteCustomFieldsetsTest.php:45
+
+23) Tests\Feature\CustomFieldsets\Api\DeleteCustomFieldsetsTest::test_can_delete_custom_fieldsets
+Custom Fields tests do not work on MySQL
+
+/var/www/html/tests/Support/CanSkipTests.php:10
+/var/www/html/tests/Feature/CustomFieldsets/Api/DeleteCustomFieldsetsTest.php:58
+
+--
+
+There was 1 skipped test:
+
+1) Tests\Feature\Assets\Api\DeleteAssetsTest::test_cannot_delete_asset_that_is_checked_out
+This behavior is not functioning yet.
+
+FAILURES!
+Tests: 1763, Assertions: 4894, Failures: 8, Skipped: 1, Incomplete: 23.
+### shard3 exit=1 seconds=1435
+
+### syncrest
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 24:10.279, Memory: 52.00 MB
+
+OK (483 tests, 1622 assertions)
+### syncrest exit=0 seconds=1452
+
+### abm0
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 07:49.384, Memory: 30.00 MB
+
+OK (5 tests, 18 assertions)
+### abm0 exit=0 seconds=470
+
+### abm1
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 12:07.590, Memory: 32.00 MB
+
+OK (14 tests, 37 assertions)
+### abm1 exit=0 seconds=729
+
+### abm2
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 14:07.424, Memory: 32.00 MB
+
+OK (7 tests, 15 assertions)
+### abm2 exit=0 seconds=848
+
+### abm3
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 21:27.093, Memory: 32.00 MB
+
+OK (9 tests, 20 assertions)
+### abm3 exit=0 seconds=1288
+
+### abm4
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 02:25.076, Memory: 30.00 MB
+
+OK (5 tests, 17 assertions)
+### abm4 exit=0 seconds=146
+
+### abm5
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 15:22.144, Memory: 32.00 MB
+
+OK (12 tests, 27 assertions)
+### abm5 exit=0 seconds=923
+
+### abm6
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 10:00.766, Memory: 32.00 MB
+
+OK (7 tests, 7 assertions)
+### abm6 exit=0 seconds=603
+
+### abm7
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
+
+
+Time: 02:24.445, Memory: 30.00 MB
+
+OK (5 tests, 6 assertions)
+### abm7 exit=0 seconds=146
+
+## 3. Bisect of shard0 RestoreToRemoteDiskTest errors (same image, fresh DB/volume each)
+### biA: ./tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php 
+OK (31 tests, 133 assertions)
+
+### biB: ./tests/Feature/Console/ShelllessOptInTest.php ./tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php 
+OK (37 tests, 141 assertions)
+
+### biC: ./tests/Feature/Console/ShelllessSchedulerTest.php ./tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php 
+Tests: 39, Assertions: 100, Errors: 18.
+1) Tests\Feature\S3Compatibility\RestoreToRemoteDiskTest::files_are_written_to_the_configured_remote_disks_with_matching_bytes
+ErrorException: proc_open(): posix_spawn() failed: No such file or directory
+

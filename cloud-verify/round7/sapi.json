@@ -1,0 +1,32 @@
+{
+  "round7": {
+    "image": "snipeit-chiseled:round7",
+    "image_id": "sha256:d02ae35f18058c6fba6e42c995a27d7d53275962a8fe5f5739416c95458eb18a",
+    "cli": {
+      "zend_modules_lists_opcache": true,
+      "version_mentions_opcache": true,
+      "opcache_enabled": true,
+      "jit_off": true,
+      "file_cache_empty": true
+    },
+    "apache": {
+      "sapi_is_apache": true,
+      "opcache_enabled": true,
+      "hits_after_20_requests": true,
+      "jit_off": true,
+      "file_cache_empty": true,
+      "no_opcache_errors_in_log": true
+    },
+    "apache_probe": {
+      "sapi": "apache2handler",
+      "loaded": true,
+      "enabled": true,
+      "hits": 23,
+      "jit": "",
+      "file_cache": "",
+      "memory_consumption": "128"
+    },
+    "opcache_log_errors": [],
+    "result": "pass"
+  }
+}
