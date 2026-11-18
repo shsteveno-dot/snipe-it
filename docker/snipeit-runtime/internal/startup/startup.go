@@ -44,6 +44,9 @@ func Initialize(makeCommand CommandFactory) (bool, error) {
 			return false, err
 		}
 	}
+	if err := KeyPermissions(); err != nil {
+		return false, err
+	}
 	if err := os.MkdirAll("/run/snipeit/php", 0755); err != nil {
 		return false, err
 	}
@@ -137,6 +140,40 @@ func forwardedHeaderConfig(header string) (string, error) {
 		}
 	}
 	return fmt.Sprintf("SetEnvIfNoCase ^%s$ \"^(.+)$\" REMOTE_USER=$1\n", regexp.QuoteMeta(header)), nil
+}
+
+// KeyPermissions applies the key modes Passport 13 requires, like docker/startup.sh.
+func KeyPermissions() error {
+	return KeyPermissionsAt("/var/lib/snipeit/keys")
+}
+
+func KeyPermissionsAt(dir string) error {
+	for _, key := range []struct {
+		name string
+		mode os.FileMode
+	}{
+		{"oauth-public.key", 0660},
+		{"oauth-private.key", 0600},
+	} {
+		path := filepath.Join(dir, key.name)
+		if _, err := os.Stat(path); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return err
+		}
+		if err := os.Chmod(path, key.mode); err != nil {
+			// The runtime is not root: a key owned by another uid cannot be
+			// changed here, so warn instead of refusing to start.
+			if errors.Is(err, os.ErrPermission) {
+				fmt.Fprintf(os.Stderr, "warning: cannot set mode %04o on %s: %v
+", key.mode, path, err)
+				continue
+			}
+			return err
+		}
+	}
+	return nil
 }
 
 func MigrationFiles() error {
