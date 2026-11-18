@@ -8,6 +8,26 @@
 
 ## 這次的重點
 
+第 20 輪：**確認第 19 輪的兩個修正（只跑相關的測試）**。第 19 輪結果在 `e12bc9022c`（沒通過：`startup.go` 字串裡的 `\n` 變成真的換行、編譯不過；`/bin/sh` 檢查讓上游 `Unit\Support\MySqlDatabaseSnapshotTest` 失敗 2 個。只改一個字元的診斷跑法：runner 全部通過，全套只多那 2 個）。
+
+這次的變化（`all-changes` `d667502e3c`）：
+- `startup.go`：警告字串改回 `\n`，其他和第 19 輪相同。
+- **沒有採用**你第 19 輪建議 2（把檢查移到 `TestCase`）：上游的 `Feature\Support\MySqlDatabaseSnapshotTest` 也會直接呼叫 `isSupported()`，檢查移走後它在 chiseled 又會走到 `exec()` 而 error。改成：檢查留在 `isSupported()`，上游的 `Unit\Support\MySqlDatabaseSnapshotTest` 在沒有 `/bin/sh` 時，把預期 true 的 2 個 data set 標成略過（假的 `mysql`/`mysqldump` 本來就是 `#!/bin/sh` 腳本）。
+- 工具：新增 `cloud-verify/full-suite/full/snapshot.xml`（只有上面兩個測試檔）。
+
+為什麼不跑全套：第 19 輪診斷的全套用的程式和這次只差上面兩處（Go 字串、單元測試的略過），全套其他部分都已經確認過。
+
+要做的：
+1. 啟動 dockerd，用當下的 `$HTTPS_PROXY`。所有背景指令都要設足夠長的時限（runner 至少 2 小時）。
+2. 在 `docker/snipeit-runtime` 跑 `gofmt -l . && go vet ./... && go test ./...`（`gofmt -l` 要沒有輸出）。
+3. 原樣執行 `bash cloud-verify/review-fixes/run.sh "$PWD" B`，不要關掉 `exec`。要求同第 19 輪：exit 0、`errors` 是空的、除了 FR-9 突變版以外 0 失敗、0 略過；`shellless_order`、FR-2、FR-8、FR-9、`candidate_proxy_ca_absent`、input lock 都通過。
+4. 照 `cloud-verify/full-suite/README.md` 從 runner 的測試 image tag 出 `full-suite:test`，然後只跑 snapshot 這組：`cd cloud-verify/full-suite && ./run-order.sh full-suite:test "$PWD/out-snapshot" snapshot`（不要設 `PHPUNIT_PHP_ARGS` 或 `PHPUNIT_INI`）。預期：0 失敗、0 error；略過 3 個（單元測試 2 個 data set、Feature 的 1 個），其他 4 個 data set 通過。
+5. 清理（含 `docker image prune -af`、`docker buildx prune -af`），停掉 dockerd。
+
+回報：commit `results-B.json`、`CLOUD_TEST_RESULT.md`、`cloud-test-output.txt`。第 2–4 步全部符合時，報告開頭寫「第 20 輪通過」。腳本有需要改的地方寫在修改建議，不要直接改。
+
+---
+
 第 19 輪：**確認第 18 輪的修正**。第 18 輪結果在 `edb4b1c5f2`（沒通過：上游 `a9e8743cfe` 的 `MySqlDatabaseSnapshot::isSupported()` 在沒有 shell 的 chiseled 測試 image 走到 `exec('command -v -- mysql')`，所有用到資料庫的測試都 error；關掉 `exec` 的診斷跑法則全部正常）。
 
 這次的變化（照你第 18 輪的建議 1–5）：
@@ -262,6 +282,13 @@
 
 之前的結果在這個分支的歷史裡：第 1–8 輪 `a3611109df`、`ed51bd3f4f`、`8e930e5a00`、`ea0fc2c737`、`ea5bed8301`、`6bfd75f067`、`f72e861960`、`2e55131084`（`CLOUD_TEST_RESULT.md`）。
 
+## 測試範圍
+
+每一輪不一定跑全套，只跑改動需要的部分（每一輪的「要做的」會寫清楚）：
+- **全套**（`cloud-verify/full-suite/`，約 45 分鐘）：rebase 到新的上游、`composer.lock` 有變、改到共用的測試基礎（`tests/Support/`、`tests/TestCase.php`、`tests/Concerns/`、`phpunit.xml`、`bootstrap/`）、改到 chiseled image 的建置或 init 的行為，或上一輪全套有還沒解釋的失敗。
+- **其他修正**：runner（`run.sh B`，每一輪都跑）加上受影響的測試檔。
+- **只改工具**（`cloud-verify/`）：只跑 runner。
+
 ## 步驟
 
 先做這三件事，可以省掉上次浪費的約 15 分鐘：
@@ -285,7 +312,7 @@
 - AppleBusinessManager 的 SyncAdapters 測試會實際請求 `api-business.apple.com`，沒有網路時每個測試約需 64 秒。
 - `Tests\Feature\Livewire\ImporterMutexTest::test_locks_are_scoped_per_file_so_a_second_file_can_still_start`：平行模式下偶發失敗（共用 file cache + 各 process 的 Import ID 重複），上游也有同樣風險。乾淨 cache 單獨跑會過。第 2–4 輪都沒有重現。
 - 程式碼本來就標記跳過的 3 個（上游也有）：`ApiRateLimitTest` 兩個、`DeleteAssetsTest::test_cannot_delete_asset_that_is_checked_out`。
-- chiseled 測試 image 沒有 shell，`MySqlDatabaseSnapshotTest` 會略過（不能用 MySQL 測試快取，改用一般 migration），所以 chiseled 全套共略過 4 個。
+- chiseled 測試 image 沒有 shell，`Feature\Support\MySqlDatabaseSnapshotTest` 會略過 1 個（不能用 MySQL 測試快取，改用一般 migration），`Unit\Support\MySqlDatabaseSnapshotTest` 會略過 2 個 data set（假的 client 是 `#!/bin/sh` 腳本），所以 chiseled 全套共略過 6 個。
 - 容器沒有 DNS 時（`getent ahosts example.com` 沒有輸出），`ExternalUrl` 相關的 14 個測試會失敗，上游也一樣：`SyncAdapters\GroupCompanyMappingTest`、`Intune\IntuneSettingsPageTest`、`Kandji\KandjiSettingsPageTest`、`AssetTagPatternTest`、`Fleet\FleetLicenseTierTest`、`Fleet\FleetSettingsPageTest`、`CompanyWebhooksTest::test_can_filter_companies_with_webhooks`、`WebhookEndpointSsrfTest::test_api_accepts_a_public_https_webhook_endpoint_from_superuser`。要讓它們通過，跑測試前暫時把 `example.com graph.microsoft.com graph.microsoft.us example.api.kandji.io hooks.slack.com` 加進 `/etc/hosts`（對應任一公開 IP），跑完還原。
 - 本機（非 UTC 時區、不同 intl 版本）才會失敗的 `CustomFieldTest` 和 `ExtraFieldMappingTest`，在 UTC 的雲端環境應該會過。
 
