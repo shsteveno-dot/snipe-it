@@ -31,6 +31,12 @@ class MySqlDatabaseSnapshotTest extends TestCase
     #[DataProvider('client_availability')]
     public function test_snapshot_support_requires_a_supported_driver_and_both_clients(string $driver, array $tools, bool $expected): void
     {
+        // The fake clients are #!/bin/sh scripts, and isSupported() returns false
+        // without a shell (e.g. the shell-less Chiseled image).
+        if ($expected && DIRECTORY_SEPARATOR === '/' && ! is_executable('/bin/sh')) {
+            $this->markTestSkipped('Snapshot support requires /bin/sh.');
+        }
+
         $directory = sys_get_temp_dir().'/snipe-snapshot-clients-'.bin2hex(random_bytes(16));
         mkdir($directory, 0700);
         $originalPath = getenv('PATH');
