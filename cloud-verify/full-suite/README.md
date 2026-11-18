@@ -33,6 +33,8 @@ docker tag "$(docker images --format '{{.Repository}}:{{.Tag}}' | grep -E '^revi
 cd cloud-verify/full-suite && python3 -I prep.py ../.. full
 ```
 
+三個執行腳本都會在建立網路或啟動容器前，檢查 `full/init.php` 和所有指定的 `full/<shard>.xml` 是否為一般檔案；缺少時會提示執行 `prep.py` 或檢查 shard 名稱，並以狀態碼 1 退出。`run-control.sh` 也會檢查 `old-ShelllessSchedulerTest.php`，缺少時會提示使用下方「反證」的 `git show` 指令建立。
+
 全套大約 45 分鐘。放在背景執行時，時限至少要設 2 小時：
 
 ```bash
@@ -69,6 +71,7 @@ cd cloud-verify/full-suite && git show 4525efb^:tests/Feature/Console/ShelllessS
 
 ## 注意
 
+- 三個腳本的 MySQL 資料目錄 `/var/lib/mysql` 都使用 tmpfs，資料放在記憶體中，容器停止後不會保留；跑完整套測試需要為它預留幾 GB RAM。
 - 腳本結束後會留下資料庫容器、網路和 volume，要手動刪除：`r17-db`、`r17-net`、`r17-vol-*`；順序驗證用的是 `r17o-*`。phpunit 容器用 `--rm` 啟動，跑完會自動刪除。
 - 從 runner 的測試 image 啟動的容器會繼承 `review-fixes.run` label。runner 開始時會刪掉帶這個 label 的容器，所以全套還在跑的時候不要重跑 runner。
 - 全套執行期間重跑 runner 也會刪掉 `full-suite:test` tag，因為啟動清理 `cleanup_previous_runs` 會移除帶有該 label 的 image。之後需從新 runner 建出的測試 image 重新加上 `full-suite:test` tag。

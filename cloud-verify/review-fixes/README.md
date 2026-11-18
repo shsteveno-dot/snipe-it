@@ -20,6 +20,7 @@ image from its immutable image ID. It checks PHP version, module list and PHP
 binary hash before running. A per-run private network and MySQL 8.4 fixture,
 synthetic credentials, isolated volumes and temporary diagnostics are removed
 when the run finishes. No host-wide Docker cleanup or prune is performed.
+The runner's MySQL data directory uses tmpfs, so its data is held in memory and discarded when the container stops.
 
 The runner executes the selected regressions and the full LDAP,
 S3Compatibility and LDAP wizard test files with JUnit, then exercises the

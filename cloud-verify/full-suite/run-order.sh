@@ -12,11 +12,21 @@ if [[ -n "${PHPUNIT_INI:-}" ]]; then
   php_ini_dir=$(cd "$(dirname "$PHPUNIT_INI")" && pwd) || exit 1
   php_ini_args=(-v "$php_ini_dir:/php-extra:ro" -e PHP_INI_SCAN_DIR=:/php-extra)
 fi
+if [[ ! -f "$HERE/full/init.php" ]]; then
+  printf 'full/init.php is missing; run: python3 -I prep.py ../.. full\n' >&2
+  exit 1
+fi
+for shard in "$@"; do
+  if [[ ! -f "$HERE/full/$shard.xml" ]]; then
+    printf 'full/%s.xml is missing; run prep.py or check the shard name\n' "$shard" >&2
+    exit 1
+  fi
+done
 NET=r17o-net; DB=r17o-db; PASS=$(head -c16 /dev/urandom | od -An -tx1 | tr -d ' \n'); KEY="base64:$(head -c32 /dev/urandom | base64)"
 mkdir -p "$OUT"; chmod 777 "$OUT"
 docker network inspect $NET >/dev/null 2>&1 || docker network create --internal $NET >/dev/null
 docker rm -f $DB >/dev/null 2>&1
-docker run -d --name $DB --network $NET -e MYSQL_ROOT_PASSWORD=$PASS -e MYSQL_ROOT_HOST=% mysql:8.4 >/dev/null
+docker run -d --name $DB --network $NET --tmpfs /var/lib/mysql:rw -e MYSQL_ROOT_PASSWORD=$PASS -e MYSQL_ROOT_HOST=% mysql:8.4 >/dev/null
 for i in $(seq 120); do docker exec $DB mysqladmin ping -h127.0.0.1 -uroot -p$PASS --silent >/dev/null 2>&1 && break; sleep 3; done
 sleep 5
 HOSTS=""; for h in example.com graph.microsoft.com graph.microsoft.us example.api.kandji.io hooks.slack.com; do HOSTS="$HOSTS --add-host $h:93.184.215.14"; done

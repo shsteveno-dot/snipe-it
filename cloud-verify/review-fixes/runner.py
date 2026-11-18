@@ -317,6 +317,7 @@ def volume(name):
 def db_start(net):
     name = RUN + '-db'
     docker('run', '-d', '--name', name, '--label', LABEL, '--network', net,
+           '--tmpfs', '/var/lib/mysql:rw',
            '-e', 'MYSQL_ROOT_PASSWORD=' + dbpass, '-e', 'MYSQL_ROOT_HOST=%',
            '-e', 'MYSQL_DATABASE=snipeit', 'mysql:8.4')
     CONTAINERS.append(name)
