@@ -30,6 +30,14 @@ A it also removes the safety-backup option in a separate temporary snapshot,
 builds a separate image, and records the endpoint test's mutation result. The
 actual checkout and production Dockerfiles are never modified by the runner.
 
+After the LDAP/S3/wizard runs, rounds other than A also run `shellless_order`
+in one PHPUnit process: `ShelllessSchedulerTest.php`, `ShelllessOptInTest.php`,
+then `RestoreToRemoteDiskTest.php`. Locked PHPUnit 11.5.55 accepts multiple
+file arguments in order; `--order-by default,no-depends` prevents reordering.
+The run uses the project's `phpunit.xml` (bootstrap and PHP/env settings,
+`processIsolation="false"`, no random execution order). Every test must pass;
+JUnit errors, failures and skips are errors, as for the other required runs.
+
 At startup the runner removes resources carrying the review-fixes.run label
 from interrupted runs. Do not run two instances concurrently: they share that
 label. Git mirrors persist under ~/.cache/review-fixes/mirrors; set

@@ -504,6 +504,14 @@ def main():
         phpunit(test, ['--filter', selector, testpath], common, label + '-selected.xml', label + '_selected')
         phpunit(test, [testpath], common, label + '-suite.xml', label + '_suite')
 
+    if ROUND != 'A':
+        # PHPUnit 11.5 accepts multiple files in argument order; disable reordering.
+        phpunit(test, ['--configuration', '/var/www/html/phpunit.xml', '--order-by', 'default,no-depends',
+                       '/var/www/html/tests/Feature/Console/ShelllessSchedulerTest.php',
+                       '/var/www/html/tests/Feature/Console/ShelllessOptInTest.php',
+                       '/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php'],
+                common, 'shellless-order.xml', 'shellless_order')
+
     # Synthetic marker builds use a separate context, never real uploads.
     marked = TMP / 'marked'
     make_context(marked)
