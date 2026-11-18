@@ -1,66 +1,37 @@
-# Cloud round 19 output (cloud-test a360f7022f, all-changes 4c18a78d0b, upstream master 0a9db6d485)
-nproc=4; 15 GB RAM; dockerd 29.10.0 as root with HTTP(S)_PROXY=$HTTPS_PROXY; hello-world OK (06:32 UTC)
+# Cloud round 20 output (cloud-test 12edd151d6, all-changes d667502e3c, upstream master 0a9db6d485)
+nproc=4; dockerd 29.10.0 as root with HTTP(S)_PROXY=$HTTPS_PROXY (07:53 UTC).
+First hello-world pull: 429 Too Many Requests from registry-1.docker.io; plain retry seconds later succeeded (Hello from Docker!).
 
-## 1. runner AS-IS: bash cloud-verify/review-fixes/run.sh "$PWD" B (06:32:19-06:34:22 UTC, background timeout 2h, exec NOT disabled)
-runner exit=1
-commit a360f7022fd69cddad44c50baa5502f27e1438ee candidate None test None
-counts {} tests 0
-probes {"chiseled_input_locks": {"passed": true, "exit_code": 0}, "fr9_mutation_red": {"passed": false, "tests_found": 0}}
-errors:
-   command failed: docker buildx (exit 1)
-   FR-9 mutation skipped because the unmodified FR-9 test did not pass
-   fr9_mutation_red probe failed
-### candidate build failure (runner debug log)
-### exit=1 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-15cced5974ae -t review-15cced5974ae:candidate -f /tmp/review-15cced5974ae-fd5bpuua/context/Dockerfile.chiseled --build-context composercache=/tmp/review-15cced5974ae-fd5bpuua/composer-cache --
-#17 [entrypoint 4/4] RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /snipeit-init ./cmd/init     && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /snipeit-supervisor ./cmd/supervisor
-#17 4.215 # snipeit-runtime/internal/startup
-#17 4.215 internal/startup/startup.go:169:68: newline in string
-#17 4.215 internal/startup/startup.go:169:68: syntax error: unexpected newline in argument list; possibly missing comma or )
-#17 4.215 internal/startup/startup.go:170:24: newline in string
-#17 4.215 internal/startup/startup.go:171:5: syntax error: unexpected keyword continue at end of statement
-#17 ERROR: process "/bin/sh -c CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags='-s -w' -o /snipeit-init ./cmd/init     && CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags='-s -w' -o /snipeit-supervisor ./cmd/supervisor" did not complete 
-4.215 internal/startup/startup.go:169:68: newline in string
-4.215 internal/startup/startup.go:169:68: syntax error: unexpected newline in argument list; possibly missing comma or )
-4.215 internal/startup/startup.go:170:24: newline in string
-4.215 internal/startup/startup.go:171:5: syntax error: unexpected keyword continue at end of statement
-ERROR: failed to build: failed to solve: process "/bin/sh -c CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags='-s -w' -o /snipeit-init ./cmd/init     && CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags='-s -w' -o /snipeit-supervisor ./cmd
+## step 2: docker/snipeit-runtime (host go, go.mod toolchain go1.26.10)
+$ gofmt -l .
+gofmt exit=0
+$ go vet ./...
+vet exit=0
+$ go test ./...
+ok  	snipeit-runtime/cmd/init	0.012s
+?   	snipeit-runtime/cmd/supervisor	[no test files]
+ok  	snipeit-runtime/internal/handoff	(cached)
+ok  	snipeit-runtime/internal/startup	0.011s
+ok  	snipeit-runtime/internal/supervisor	(cached)
+test exit=0
+$ go test -v -run TestKeyPermissionsAt ./internal/startup/
+--- PASS: TestKeyPermissionsAt (0.00s)
+PASS
+ok  	snipeit-runtime/internal/startup	0.003s
+### startup.go:164-172
+		}
+		if err := os.Chmod(path, key.mode); err != nil {
+			// The runtime is not root: a key owned by another uid cannot be
+			// changed here, so warn instead of refusing to start.
+			if errors.Is(err, os.ErrPermission) {
+				fmt.Fprintf(os.Stderr, "warning: cannot set mode %04o on %s: %v\n", key.mode, path, err)
+				continue
+			}
+			return err
 
-## 2. go test ./... in docker/snipeit-runtime on a360f7022f (host go1.24.7; go.mod requests go1.26.10, which GOTOOLCHAIN=auto downloaded automatically)
-# snipeit-runtime/internal/startup
-internal/startup/startup.go:169:68: newline in string
-internal/startup/startup.go:169:68: syntax error: unexpected newline in argument list; possibly missing comma or )
-internal/startup/startup.go:170:24: newline in string
-internal/startup/startup.go:171:5: syntax error: unexpected keyword continue at end of statement
-FAIL snipeit-runtime/cmd/init [build failed]; ok internal/handoff; FAIL internal/startup [build failed]; ok internal/supervisor; exit=1
-### startup.go:166-172 (cat -A)
-^I^I^I// The runtime is not root: a key owned by another uid cannot be$
-^I^I^I// changed here, so warn instead of refusing to start.$
-^I^I^Iif errors.Is(err, os.ErrPermission) {$
-^I^I^I^Ifmt.Fprintf(os.Stderr, "warning: cannot set mode %04o on %s: %v$
-", key.mode, path, err)$
-^I^I^I^Icontinue$
-^I^I^I}$
-
-## 3. DIAGNOSTIC: one-character fix in a scratchpad git worktree (local commit 421a6f39a5, not pushed, deleted afterwards)
-diff --git a/docker/snipeit-runtime/internal/startup/startup.go b/docker/snipeit-runtime/internal/startup/startup.go
-index 50044a367a..dd70934ca0 100644
---- a/docker/snipeit-runtime/internal/startup/startup.go
-+++ b/docker/snipeit-runtime/internal/startup/startup.go
-@@ -166,8 +166,7 @@ func KeyPermissionsAt(dir string) error {
- 			// The runtime is not root: a key owned by another uid cannot be
- 			// changed here, so warn instead of refusing to start.
- 			if errors.Is(err, os.ErrPermission) {
--				fmt.Fprintf(os.Stderr, "warning: cannot set mode %04o on %s: %v
--", key.mode, path, err)
-+				fmt.Fprintf(os.Stderr, "warning: cannot set mode %04o on %s: %v\n", key.mode, path, err)
- 				continue
- 			}
- 			return err
-go vet ./...: no output; go test ./...: ok cmd/init, ok internal/handoff, ok internal/startup, ok internal/supervisor; TestKeyPermissionsAt PASS
-
-## 4. DIAGNOSTIC runner: the worktree's unmodified run.sh/runner.py (06:34:57-06:47:07 UTC, exec NOT disabled)
-diag runner exit=0
-commit 421a6f39a555a7a1ebaa10f77c7553938563ca5a candidate sha256:ade1783968670abed375e38b8515f48e782e643e58ea48618e90fc4b1625d552 test sha256:287fe33c67beffcf833a5b087cf96a6dbe96ba6a7199c028c764dd4c1bab4580
+## step 3: bash cloud-verify/review-fixes/run.sh "$PWD" B (07:53:44-08:07:46 UTC, background timeout 2h, exec NOT disabled)
+runner exit=0
+commit 12edd151d6c3af88eae032d15f2707583170f56c candidate sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0 test sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2
 errors []
 counts {'passed': 267, 'failure': 1}
 php_comparison {"version": {"equal": true}, "modules": {"equal": true}, "sha256": {"equal": true, "sha256": "7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7"}}
@@ -74,6 +45,7 @@ php_comparison {"version": {"equal": true}, "modules": {"equal": true}, "sha256"
    ('wizard_selected', 'passed') 3
    ('wizard_suite', 'passed') 57
    chiseled_input_locks {"passed": true, "exit_code": 0}
+   go_checks {"passed": true, "exit_code": 0}
    candidate_proxy_ca_absent {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
    fr8_go_unit {"exit_code": 0, "passed": true, "expected_status": "pass", "matches_expectation": true}
    ldap_selected_exit 0
@@ -94,223 +66,154 @@ php_comparison {"version": {"equal": true}, "modules": {"equal": true}, "sha256"
    fr9_mutation_exit 1
    fr9_mutation_red {"passed": true, "tests_found": 1}
 skipped_summary non-empty: {}
-   shellless_order Tests.Feature.Console.ShelllessSchedulerTest::test_arguments_are_console_tokens_not_shell_instructions passed 
-   shellless_order Tests.Feature.Console.ShelllessSchedulerTest::test_mutex_identity_and_registration_match_laravel_exactly passed 
-   shellless_order Tests.Feature.Console.ShelllessSchedulerTest::test_real_child_argv_environment_and_merged_output_overwrite_append passed 
-   shellless_order Tests.Feature.Console.ShelllessSchedulerTest::test_without_overlapping_skips_held_lock_and_releases_on_completion_and_failure passed 
-   shellless_order Tests.Feature.Console.ShelllessSchedulerTest::test_nonzero_child_status_is_preserved_and_default_output_suppressed passed 
-   shellless_order Tests.Feature.Console.ShelllessSchedulerTest::test_natural_launch_failure_reports_failed_event_and_fail_not_done passed 
-   shellless_order Tests.Feature.Console.ShelllessSchedulerTest::test_non_due_event_does_not_execute passed 
-   shellless_order Tests.Feature.Console.ShelllessSchedulerTest::test_unwritable_output_and_changed_command_fail_visibly passed 
-   shellless_order Tests.Feature.Console.ShelllessOptInTest::test_shellless_is_off_by_default passed 
-   shellless_order Tests.Feature.Console.ShelllessOptInTest::test_scheduler_is_the_framework_one_by_default passed 
-   shellless_order Tests.Feature.Console.ShelllessOptInTest::test_scheduler_is_shellless_when_enabled passed 
-   shellless_order Tests.Feature.Console.ShelllessOptInTest::test_restore_uses_a_shell_command_line_by_default passed 
-   shellless_order Tests.Feature.Console.ShelllessOptInTest::test_restore_uses_an_argument_array_when_shellless passed 
-   shellless_order Tests.Feature.Console.ShelllessOptInTest::test_restore_argument_array_uses_the_socket_when_configured passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::files_are_written_to_the_configured_remote_disks_with_matching_bytes passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::nested_paths_are_preserved_and_do_not_overwrite_each_other passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::objects_on_a_remote_disk_that_are_not_in_the_backup_are_left_alone passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_disks_are_pruned_and_written_as_before_with_nested_paths_kept passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set "sha256 differs from the manifest" passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set "manifest lists a file that is not in the archive" passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set "unsafe path inside the archive" passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set "not a manifest-conformant size" passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_unreadable_archive_triggers_no_prune_and_a_non_zero_exit passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_archive_without_remote_files_leaves_the_remote_disks_untouched_and_warns passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_restore_follows_the_manifest_even_when_the_filename_says_otherwise passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_archive_without_a_manifest_restores_with_a_warning passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_write_failure_after_the_restore_started_is_reported_and_puts_the_app_in_maintenance passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_object_that_reads_back_differently_fails_the_restore passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_accepts_a_good_archive_and_changes_nothing passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_a_corrupted_database_dump passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_an_archive_whose_checksum_does_not_match passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_copies_in_a_backup_do_not_overwrite_objects_on_a_remote_disk passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_an_empty_database_dump passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_local_copy_without_an_object_on_the_remote_disk_is_still_restored passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_copies_from_a_local_install_backup_are_still_moved_to_the_remote_disk passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale last" passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale last" passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "local stale first control" passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set "remote stale first control" passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding4_validate_only_rejects_a_broken_central_directory passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding4_validate_only_checks_manifest_size_and_sha256 passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_a_truncated_zip_without_changing_the_database passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows passed 
-   shellless_order Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped passed 
    fr9_original Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping passed 
    fr9_mutation Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping failure Finding 9: safety backup omitted remote files.
+docker.sock in json: False
+### go_checks command and output (runner debug log)
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network none -v /tmp/review-RUN/context/docker/snipeit-runtime:/src:ro -w /src -e CGO_ENABLED=0 docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82 sh -c out=$(gofmt -l .) && [ -z "$out" ] || { echo "gofmt needs formatting: $out"; exit 1; }; go vet ./... && go test ./...
+ok  	snipeit-runtime/cmd/init	0.019s
+?   	snipeit-runtime/cmd/supervisor	[no test files]
+ok  	snipeit-runtime/internal/handoff	0.014s
+ok  	snipeit-runtime/internal/startup	0.018s
+ok  	snipeit-runtime/internal/supervisor	0.749s
 
-## 5. new errors format replayed on round 18's as-is results-B.json (same grouping code as runner.py)
-11 lines
-  summary: 258 of 267 tests errored; most common (243): ErrorException: exec(): Unable to fork [command -v -- 'mysql']
-  ldap_selected: 7 JUnit error(s): ErrorException: exec(): Unable to fork [command -v -- 'mysql'] (e.g. Tests.Unit.LdapTest::test_an_escaped_comma_in_a_name_is_not_a_dn_separator)
-  ldap_suite: 35 JUnit error(s): ErrorException: exec(): Unable to fork [command -v -- 'mysql'] (e.g. Tests.Unit.LdapTest::test_connect)
-  s3_selected: 16 JUnit error(s): ErrorException: exec(): Unable to fork [command -v -- 'mysql'] (e.g. Tests.Feature.S3Compatibility.MiscRemediationTest::import_locations_rejects_a_truncated_remote_csv_before_importing)
-  s3_suite: 87 JUnit error(s): ErrorException: exec(): Unable to fork [command -v -- 'mysql'] (e.g. Tests.Feature.S3Compatibility.AcceptanceAttachmentTest::attachment_bytes_come_from_the_configured_private_disk)
-  s3_suite: 12 JUnit error(s): Illuminate\Database\UniqueConstraintViolationException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'abm' for key 'sync_adapter_instances.sync_adapter_instances_slug_unique' (Connection: mysql, Host: revie
-  s3_suite: 3 JUnit error(s): Illuminate\Database\UniqueConstraintViolationException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'abm' for key 'sync_adapter_instances.sync_adapter_instances_slug_unique' (Connection: mysql, Host: review
-  wizard_selected: 3 JUnit error(s): ErrorException: exec(): Unable to fork [command -v -- 'mysql'] (e.g. Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set "time limit")
-  wizard_suite: 57 JUnit error(s): ErrorException: exec(): Unable to fork [command -v -- 'mysql'] (e.g. Tests.Feature.Settings.LdapWizardTest::test_mount_forbids_non_superadmin)
-  shellless_order: 37 JUnit error(s): ErrorException: exec(): Unable to fork [command -v -- 'mysql'] (e.g. Tests.Feature.Console.ShelllessOptInTest::test_shellless_is_off_by_default)
-  fr9_original: 1 JUnit error(s): ErrorException: exec(): Unable to fork [command -v -- 'mysql'] (e.g. Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping)
+### command list with exit codes (git mirror lines omitted)
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network none -v /tmp/review-17465b029080-_bolqa8l/context/docker/snipeit-runtime:/src:ro -w /src -e CGO_ENABLED=0 docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82 sh -c out=$(gof
+### exit=0 docker run --rm --network host --label review-fixes.run=review-17465b029080 -v /tmp/review-17465b029080-_bolqa8l/context:/app -v /tmp/review-17465b029080-_bolqa8l/composer-cache:/tmp/composer-cache -w /app -e COMPOSER_CACHE_DIR=/tmp/composer-cache -e COMPOSER_ALLOW_SUPERUSER=1 -e HTTPS_PR
+### exit=0 python3 /tmp/review-17465b029080-_bolqa8l/context/docker/snipeit-runtime/patch-dumper.py /tmp/review-17465b029080-_bolqa8l/context/vendor/spatie/db-dumper/src/Databases/MySql.php
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-17465b029080 -t review-17465b029080:candidate -f /tmp/review-17465b029080-_bolqa8l/context/Dockerfile.chiseled --build-context composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache --
+### exit=0 docker image inspect --format {{.Id}} review-17465b029080:candidate
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 -v /tmp/review-17465b029080-_bolqa8l/proxy-ca/agent-proxy-ca.crt:/probe/proxy-ca.crt:ro --entrypoint /usr/bin/php sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0 -r $pem=file_get_contents('/probe/proxy-ca
+### exit=0 docker buildx build --load --label review-fixes.run=review-17465b029080 --build-arg CANDIDATE=review-17465b029080:candidate@sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0 --build-context devvendor=/tmp/review-17465b029080-_bolqa8l/context/vendor -f /tmp/review-174
+### exit=0 docker image inspect --format {{.Id}} review-17465b029080:test
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0 -v
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2 -v
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0 -m
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2 -m
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0 -r echo hash_file('sha256', '/usr/bin/php');
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2 -r echo hash_file('sha256', '/usr/bin/php');
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network none -v /tmp/review-17465b029080-_bolqa8l/context/docker/snipeit-runtime:/src:ro -v /tmp/review-17465b029080-_bolqa8l/go-test:/out -w /src -e CGO_ENABLED=0 docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network none -v /tmp/review-17465b029080-_bolqa8l/go-test/startup.test:/probe/startup.test:ro --entrypoint /probe/startup.test sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2 -test.run=^TestForwardedHea
+### exit=0 docker network create --internal --label review-fixes.run=review-17465b029080 review-17465b029080-net
+### exit=0 docker volume create --label review-fixes.run=review-17465b029080 review-17465b029080-data
+### exit=0 docker run -d --name review-17465b029080-db --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -e MYSQL_ROOT_PASSWORD=[redacted] -e MYSQL_ROOT_HOST=% -e MYSQL_DATABASE=snipeit mysql:8.4
+### exit=1 docker exec review-17465b029080-db mysqladmin ping -h127.0.0.1 -uroot -p[redacted] --silent
+### exit=1 docker exec review-17465b029080-db mysqladmin ping -h127.0.0.1 -uroot -p[redacted] --silent
+### exit=1 docker exec review-17465b029080-db mysqladmin ping -h127.0.0.1 -uroot -p[redacted] --silent
+### exit=0 docker exec review-17465b029080-db mysqladmin ping -h127.0.0.1 -uroot -p[redacted] --silent
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-17465b029080 -t review-17465b029080:marked -f /tmp/review-17465b029080-_bolqa8l/marked/Dockerfile.chiseled --build-context composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache --buil
+### exit=0 docker image inspect --format {{.Id}} review-17465b029080:marked
+### exit=0 docker buildx build --load --label review-fixes.run=review-17465b029080 --build-arg CANDIDATE=review-17465b029080:marked@sha256:722ce38830ed3b927c86decf1b956f4763e1d0096e4c71eab1475ea19c9eac0f --build-context devvendor=/tmp/review-17465b029080-_bolqa8l/context/vendor -f /tmp/review-17465b
+### exit=0 docker image inspect --format {{.Id}} review-17465b029080:marked-test
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:722ce38830ed3b927c86decf1b956f4763e1d0096e4c71eab1475ea19c9eac0f -v
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:4c816fafeed259995a9b9640219824e62f0f70d30d8a17edfe22297355a06003 -v
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:722ce38830ed3b927c86decf1b956f4763e1d0096e4c71eab1475ea19c9eac0f -m
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:4c816fafeed259995a9b9640219824e62f0f70d30d8a17edfe22297355a06003 -m
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:722ce38830ed3b927c86decf1b956f4763e1d0096e4c71eab1475ea19c9eac0f -r echo hash_file('sha256', '/usr/bin/php');
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:4c816fafeed259995a9b9640219824e62f0f70d30d8a17edfe22297355a06003 -r echo hash_file('sha256', '/usr/bin/php');
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 -v /home/user/snipe-it/cloud-verify/review-fixes/staging-probe.php:/probe/staging-probe.php:ro --entrypoint /usr/bin/php sha256:4c816fafeed259995a9b9640219824e62f0f70d30d8a17edfe22297355a06003 /probe/staging-probe.php
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-17465b029080 -t review-17465b029080:regular -f /tmp/review-17465b029080-_bolqa8l/marked/Dockerfile --build-context composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache --build-contex
+### exit=0 docker image inspect --format {{.Id}} review-17465b029080:regular
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 -v /home/user/snipe-it/cloud-verify/review-fixes/staging-probe.php:/probe/staging-probe.php:ro --entrypoint /usr/bin/php sha256:707d7dfeb566be838e55b34df475528641ec86af16f49cdd868519ddaf2520f2 /probe/staging-probe.php
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-17465b029080 -t review-17465b029080:fixture -f /tmp/review-17465b029080-_bolqa8l/fixture-context/Dockerfile.chiseled --build-context composercache=/tmp/review-17465b029080-_bolqa8l/composer-ca
+### exit=0 docker image inspect --format {{.Id}} review-17465b029080:fixture
+### exit=0 docker create --label review-fixes.run=review-17465b029080 sha256:61efbd3c16c3d57e460c76f0141cc9f79dc49a0ba01f04b88d86b3e4e6516291
+### exit=1 docker cp c754e787d3a9da8df62d271ec0370c2eee7bc49a1ebdc5b4922e08c960d75dfd:/var/www/html/storage/framework/backup-staging /tmp/review-17465b029080-_bolqa8l/fixture-output
+### exit=0 docker volume create --label review-fixes.run=review-17465b029080 review-17465b029080-apache-valid
+### exit=0 docker run -d --name review-17465b029080-apache-valid --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-apache-valid:/var/lib/snipeit -v /home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-use
+### exit=2 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker volume create --label review-fixes.run=review-17465b029080 review-17465b029080-apache-empty
+### exit=0 docker run -d --name review-17465b029080-apache-empty --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-apache-empty:/var/lib/snipeit -v /home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-use
+### exit=2 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker volume create --label review-fixes.run=review-17465b029080 review-17465b029080-apache-unset
+### exit=0 docker run -d --name review-17465b029080-apache-unset --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-apache-unset:/var/lib/snipeit -v /home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-use
+### exit=2 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker volume create --label review-fixes.run=review-17465b029080 review-17465b029080-apache-invalid
+### exit=0 docker run -d --name review-17465b029080-apache-invalid --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-apache-invalid:/var/lib/snipeit -v /home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote
+### exit=0 docker inspect -f {{.State.Running}} review-17465b029080-apache-invalid
+### exit=0 docker inspect -f {{.State.ExitCode}} review-17465b029080-apache-invalid
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker buildx build --load --network host --platform linux/amd64 --label review-fixes.run=review-17465b029080 -t review-17465b029080:mutated -f /tmp/review-17465b029080-_bolqa8l/mutated/Dockerfile.chiseled --build-context composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache --bu
+### exit=0 docker image inspect --format {{.Id}} review-17465b029080:mutated
+### exit=0 docker buildx build --load --label review-fixes.run=review-17465b029080 --build-arg CANDIDATE=review-17465b029080:mutated@sha256:90faa4fb4f4707a1e8c597cedde0d6aab55e94aebdb503668d1508793872efe6 --build-context devvendor=/tmp/review-17465b029080-_bolqa8l/context/vendor -f /tmp/review-17465
+### exit=0 docker image inspect --format {{.Id}} review-17465b029080:mutated-test
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:90faa4fb4f4707a1e8c597cedde0d6aab55e94aebdb503668d1508793872efe6 -v
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:08ecaa9bbedd3bd46d83aefe47b05a7187574d179e389b2be68e58bb9244edcf -v
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:90faa4fb4f4707a1e8c597cedde0d6aab55e94aebdb503668d1508793872efe6 -m
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:08ecaa9bbedd3bd46d83aefe47b05a7187574d179e389b2be68e58bb9244edcf -m
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:90faa4fb4f4707a1e8c597cedde0d6aab55e94aebdb503668d1508793872efe6 -r echo hash_file('sha256', '/usr/bin/php');
+### exit=0 docker run --rm --label review-fixes.run=review-17465b029080 --entrypoint /usr/bin/php sha256:08ecaa9bbedd3bd46d83aefe47b05a7187574d179e389b2be68e58bb9244edcf -r echo hash_file('sha256', '/usr/bin/php');
+### exit=1 docker run --rm --label review-fixes.run=review-17465b029080 --network review-17465b029080-net -v review-17465b029080-data:/var/lib/snipeit -v /tmp/review-17465b029080-_bolqa8l/results:/results -e APP_KEY=[redacted] -e APP_ENV=testing -e APP_DEBUG=false -e APP_URL=http://localhost -e DB_C
+### exit=0 docker rm -f -v review-17465b029080-apache-invalid
+### exit=0 docker rm -f -v review-17465b029080-apache-unset
+### exit=0 docker rm -f -v review-17465b029080-apache-empty
+### exit=0 docker rm -f -v review-17465b029080-apache-valid
+### exit=0 docker rm -f -v c754e787d3a9da8df62d271ec0370c2eee7bc49a1ebdc5b4922e08c960d75dfd
+### exit=0 docker rm -f -v review-17465b029080-db
+### exit=0 docker volume rm review-17465b029080-apache-invalid
+### exit=0 docker volume rm review-17465b029080-apache-unset
+### exit=0 docker volume rm review-17465b029080-apache-empty
+### exit=0 docker volume rm review-17465b029080-apache-valid
+### exit=0 docker volume rm review-17465b029080-data
+### exit=0 docker network rm review-17465b029080-net
+### exit=0 docker image rm review-17465b029080:mutated-test
+### exit=0 docker image rm review-17465b029080:mutated
+### exit=0 docker image rm review-17465b029080:fixture
+### exit=0 docker image rm review-17465b029080:regular
+### exit=0 docker image rm review-17465b029080:marked-test
+### exit=0 docker image rm review-17465b029080:marked
+### exit=0 docker image rm review-17465b029080:test
+### exit=0 docker image rm review-17465b029080:candidate
 
-## 6. DIAGNOSTIC full suite: cloud-verify/full-suite/run-full.sh unmodified, PHPUNIT_PHP_ARGS/PHPUNIT_INI unset, image = diagnostic runner's test image
-Started 06:38:50 UTC
-abm7 exit=0 seconds=114
-abm4 exit=0 seconds=134
-abm0 exit=0 seconds=460
-abm6 exit=0 seconds=588
-abm1 exit=0 seconds=710
-abm2 exit=0 seconds=807
-abm5 exit=0 seconds=910
-abm3 exit=0 seconds=1291
-shard2 exit=0 seconds=1305
-syncrest exit=0 seconds=1379
-shard0 exit=1 seconds=1827
-shard1 exit=0 seconds=1997
-shard3 exit=1 seconds=2364
-Finished 07:20:43 UTC
---- shard0: Tests: 1608, Assertions: 4988, Failures: 3, Skipped: 2, Incomplete: 6.
---- shard1: Tests: 1668, Assertions: 4862, Skipped: 1, Incomplete: 16.
---- shard2: Tests: 1629, Assertions: 5529, Incomplete: 18.
---- shard3: Tests: 1712, Assertions: 5188, Failures: 8, Skipped: 1, Incomplete: 14.
---- syncrest: OK (488 tests, 1629 assertions)
---- abm0: OK (5 tests, 18 assertions)
---- abm1: OK (14 tests, 37 assertions)
---- abm2: OK (7 tests, 15 assertions)
---- abm3: OK (9 tests, 20 assertions)
---- abm4: OK (5 tests, 17 assertions)
---- abm5: OK (12 tests, 27 assertions)
---- abm6: OK (7 tests, 7 assertions)
---- abm7: OK (5 tests, 6 assertions)
-=== shard0 failures/skipped
-There were 3 failures:
+## step 4: docker tag <review test image> full-suite:test; ./run-order.sh full-suite:test "$PWD/out-snapshot" snapshot (PHPUNIT_PHP_ARGS/PHPUNIT_INI unset)
+full-suite:test = sha256:b6d8436bf878... (same as results-B.json test_image_id)
+full/init.php: left over (gitignored) from round 19's prep.py; byte-identical to a fresh prep.py run on 12edd151d6
+Started 08:01:01 UTC
+snapshot exit=0 seconds=15
+Finished 08:01:31 UTC
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
 
-1) Tests\Feature\Mcp\ListLicensesToolTest::test_offset_skips_results_for_pagination
-Failed asserting that an array is empty.
+Runtime:       PHP 8.3.6
+Configuration: /var/www/html/phpunit-shard.xml
 
-/var/www/html/tests/Feature/Mcp/ListLicensesToolTest.php:74
+....SSS.                                                            8 / 8 (100%)
 
-2) Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "MySQL with both tools" ('mysql', ['mysql', 'mysqldump'], true)
-Failed asserting that false is identical to true.
+Time: 00:13.781, Memory: 28.00 MB
 
-/var/www/html/tests/Unit/Support/MySqlDatabaseSnapshotTest.php:49
+There were 3 skipped tests:
 
-3) Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "MariaDB with both tools" ('mariadb', ['mysql', 'mysqldump'], true)
-Failed asserting that false is identical to true.
+1) Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "MySQL with both tools" ('mysql', ['mysql', 'mysqldump'], true)
+Snapshot support requires /bin/sh.
 
-/var/www/html/tests/Unit/Support/MySqlDatabaseSnapshotTest.php:49
+2) Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "MariaDB with both tools" ('mariadb', ['mysql', 'mysqldump'], true)
+Snapshot support requires /bin/sh.
 
---
-There were 2 skipped tests:
+3) Tests\Feature\Support\MySqlDatabaseSnapshotTest::test_restoring_the_baseline_removes_test_schema_and_data_but_preserves_migration_rows
+Snapshot restoration requires MySQL/MariaDB and the MySQL client tools.
 
-1) Tests\Feature\ApiRateLimitTest::test_rate_limit_decreases_remaining
-This test is flappy and keeps screwing up the test results.
+OK, but some tests were skipped!
+Tests: 8, Assertions: 7, Skipped: 3.
+   Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "SQLite uses normal migrations" passed
+   Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "no client tools" passed
+   Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "missing dump tool" passed
+   Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "missing load tool" passed
+   Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "MySQL with both tools" skipped
+   Tests\Unit\Support\MySqlDatabaseSnapshotTest::test_snapshot_support_requires_a_supported_driver_and_both_clients with data set "MariaDB with both tools" skipped
+   Tests\Feature\Support\MySqlDatabaseSnapshotTest::test_restoring_the_baseline_removes_test_schema_and_data_but_preserves_migration_rows skipped
+   Tests\Feature\Support\MySqlDatabaseSnapshotTest::test_file_cache_locks_do_not_leak_into_a_new_test_cache passed
 
-2) Tests\Feature\ApiRateLimitTest::test_rate_limit_decreases_remaining_over_sixty
-This test is flappy and keeps screwing up the test results.
-
-FAILURES!
-Tests: 1608, Assertions: 4988, Failures: 3, Skipped: 2, Incomplete: 6.
-=== shard1 failures/skipped
-There was 1 skipped test:
-
-1) Tests\Feature\Assets\Api\DeleteAssetsTest::test_cannot_delete_asset_that_is_checked_out
-This behavior is not functioning yet.
-
-OK, but there were issues!
-Tests: 1668, Assertions: 4862, Skipped: 1, Incomplete: 16.
-=== shard3 failures/skipped
-There were 8 failures:
-
-1) Tests\Unit\CustomFieldTest::test_db_name_chinese
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit__1337'
-+'_snipeit_aecsae0ase1eaeaeoees_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:47
-
-2) Tests\Unit\CustomFieldTest::test_db_name_japanese
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit__1337'
-+'_snipeit_caafafafaafcafafae0aaaaaaa_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:59
-
-3) Tests\Unit\CustomFieldTest::test_db_name_korean
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit__1337'
-+'_snipeit_e_ie2ieiises_izieoe_e0e_i0_iziis_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:71
-
-4) Tests\Unit\CustomFieldTest::test_db_name_non_latin_euro
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit_moj_poduszkowiec_jest_pelen_wegorzy_1337'
-+'_snipeit_ma3j_poduszkowiec_jest_peaen_waegorzy_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:84
-
-5) Tests\Unit\CustomFieldTest::test_db_name_turkish
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit_hoverkraftim_yilan_baligi_dolu_1337'
-+'_snipeit_hoverkraftaem_yaelan_balaeaeyae_dolu_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:97
-
-6) Tests\Unit\CustomFieldTest::test_db_name_arabic
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--'_snipeit_hoamty_mmtly_banklyson_1337'
-+'_snipeit_ouzuuouoaus_uuuuoauuooc_ououzuuuuzuuzusuo_1337'
-
-/var/www/html/tests/Unit/CustomFieldTest.php:109
-
-7) Tests\Unit\Importer\ImporterEncodingTest::test_non_utf8_input_becomes_valid_utf8_output
-Cell not UTF-8: caf
-Failed asserting that false is true.
-
-/var/www/html/tests/Unit/Importer/ImporterEncodingTest.php:62
-
-8) Tests\Unit\Importer\ImporterEncodingTest::test_gbk_input_becomes_valid_utf8_output
-Cell not UTF-8: 
-
-## 7. MySqlDatabaseSnapshotTest (Unit) in the same test image: current vs official master 0a9db6d485's tests/Support/MySqlDatabaseSnapshot.php mounted read-only
-current: ....FF  Tests: 6, Assertions: 6, Failures: 2 ('MySQL with both tools', 'MariaDB with both tools': Failed asserting that false is identical to true.)
-master:  .WWW..  OK, but there were issues! Tests: 6, Assertions: 6, Warnings: 2 (exec(): Unable to fork [command -v -- 'mysql'/'mysqldump'] in 3 data sets)
-
-## 8. order checks: run-order.sh unmodified, PHPUNIT_* unset
-Started 07:21:18 UTC
-order exit=0 seconds=20
-order3 exit=0 seconds=21
-Finished 07:21:57 UTC
-order: OK (39 tests, 164 assertions)
-order3: OK (45 tests, 172 assertions)
-
-## 9. KeyPermissions in the chiseled supervisor/init flow (diagnostic test image, entrypoint /snipeit-supervisor, internal network, no DB)
-before: oauth-private.key 644 uid=10000; oauth-public.key 644 uid=10000
-after:  oauth-private.key 600 uid=10000; oauth-public.key 660 uid=10000 (init then stops at the DB connection: getaddrinfo for nodb failed, expected)
-root-owned private key 644: 'warning: cannot set mode 0600 on /var/lib/snipeit/keys/oauth-private.key: chmod ...: operation not permitted', init continues to migrate (same DB error); key stays 644 uid=0
-(/snipeit-init started directly without the supervisor exits with 'inspect init result descriptor: bad file descriptor', by design)
-
-## 10. cleanup
-containers/volumes/networks removed; docker image prune -af (3.1GB); docker buildx prune -af (10.78GB); docker system prune -af --volumes; docker system df all 0; dockerd stopped; worktree removed; no /tmp/review-*
+## step 5: cleanup
+removed r17o-db, r17o-vol-snapshot, networks, full-suite:test; docker image prune -af (1.434GB); docker buildx prune -af (10.78GB); docker system prune -af --volumes; docker system df all 0; dockerd stopped; out-snapshot removed from the checkout (copy kept in scratchpad); no /tmp/review-*

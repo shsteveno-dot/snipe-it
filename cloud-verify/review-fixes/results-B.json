@@ -1,23 +1,2518 @@
 {
   "round": "B",
-  "run_id": "review-15cced5974ae",
-  "date_utc": "2026-11-18T06:32:19.667352+00:00",
-  "commit": "a360f7022fd69cddad44c50baa5502f27e1438ee",
+  "run_id": "review-17465b029080",
+  "date_utc": "2026-11-18T07:53:44.199315+00:00",
+  "commit": "12edd151d6c3af88eae032d15f2707583170f56c",
   "platform": "Linux-6.18.44-fc-v595-x86_64-with-glibc2.39",
   "target_platform": "linux/amd64",
-  "candidate_image_id": null,
-  "test_image_id": null,
-  "php_comparison": {},
-  "tests": [],
-  "counts": {},
+  "candidate_image_id": "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0",
+  "test_image_id": "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+  "php_comparison": {
+    "version": {
+      "equal": true
+    },
+    "modules": {
+      "equal": true
+    },
+    "sha256": {
+      "equal": true,
+      "sha256": "7f1ac2fe89d267364311651c0e7e6651d32ea006c9a701c0cab68eb2394a67d7"
+    }
+  },
+  "tests": [
+    {
+      "run": "ldap_selected",
+      "name": "Tests.Unit.LdapTest::test_an_escaped_comma_in_a_name_is_not_a_dn_separator",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_selected",
+      "name": "Tests.Unit.LdapTest::test_ou_search_rejects_a_partial_limited_result with data set \"time limit\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_selected",
+      "name": "Tests.Unit.LdapTest::test_ou_search_rejects_a_partial_limited_result with data set \"size limit\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_selected",
+      "name": "Tests.Unit.LdapTest::test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_selected",
+      "name": "Tests.Unit.LdapTest::test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_selected",
+      "name": "Tests.Unit.LdapTest::test_finding1_local_non_ldap_user_can_still_log_in",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_selected",
+      "name": "Tests.Unit.LdapTest::test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_connect",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_bind_admin",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_bind_bad",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_bind_error_returns_just_ldap_error_when_diagnostic_is_empty",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_anonymous_bind",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_bad_anonymous_bind",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_bad_encrypted_password",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_sasl_external_bind_when_cert_and_key_present_without_credentials",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_sasl_external_bind_failure_surfaces_error",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_sasl_external_falls_back_to_simple_bind_when_php_lacks_sasl_support",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_simple_bind_still_used_when_credentials_are_present",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_find_and_bind",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_find_and_bind_bad_password",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_find_and_bind_cannot_find_self",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_find_ldap_users",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_find_ldap_users_paginated",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_nonexistent_tls_file",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_stale_tls_file",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_fresh_tls_file",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_selected_ous_is_null_when_every_ou_is_in_scope",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_unreadable_selected_ous_select_nothing",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_dn_must_sit_directly_in_a_selected_ou",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_an_escaped_comma_in_a_name_is_not_a_dn_separator",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_ou_search_rejects_a_partial_limited_result with data set \"time limit\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_ou_search_rejects_a_partial_limited_result with data set \"size limit\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_dn_separator_after_even_backslashes_cannot_skip_a_deselected_ou",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_finding5_odd_backslashes_and_escaped_hex_preserve_parent_ou",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_finding1_local_non_ldap_user_can_still_log_in",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_ou_tree_is_depth_first_with_the_base_dn_on_top",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_find_ldap_users_keeps_only_entries_in_selected_ous",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_find_ldap_users_keeps_every_entry_when_every_ou_is_in_scope",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_login_endpoint_does_not_fall_back_to_synced_password_after_ou_rejection",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_login_is_refused_for_a_user_outside_the_selected_ous",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_login_is_refused_for_a_user_outside_the_selected_ous_on_the_legacy_path",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "ldap_suite",
+      "name": "Tests.Unit.LdapTest::test_login_works_for_a_user_in_a_selected_ou",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::import_locations_rejects_a_truncated_remote_csv_before_importing",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::finding7_remote_copy_and_size_failures_abort_location_import with data set \"read failure control\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::finding7_remote_copy_and_size_failures_abort_location_import with data set \"unavailable size\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::a_truncated_import_file_is_reported_instead_of_processed",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"local stale last\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"remote stale last\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"local stale first control\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"remote stale first control\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding4_validate_only_rejects_a_broken_central_directory",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding4_validate_only_checks_manifest_size_and_sha256",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_a_truncated_zip_without_changing_the_database",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_selected",
+      "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.AcceptanceAttachmentTest::attachment_bytes_come_from_the_configured_private_disk",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.AcceptanceAttachmentTest::missing_object_on_the_private_disk_fails_instead_of_sending_a_stale_local_file",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.AcceptanceAttachmentTest::local_default_disk_still_attaches_the_stored_pdf",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupDiskConsistencyTest::uploaded_backup_is_listed_downloadable_and_deletable",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupDiskConsistencyTest::api_lists_and_downloads_the_same_backups_as_the_web_ui",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupDiskConsistencyTest::api_latest_returns_404_when_there_are_no_backups",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupDiskConsistencyTest::api_latest_picks_the_newest_backup_with_a_stable_tie_break",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupDiskConsistencyTest::upload_reports_an_error_when_the_backup_disk_cannot_be_written",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupDiskConsistencyTest::default_local_backup_disk_still_uses_storage_app_backups",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupPageTest::remote_disks_show_both_choices_with_without_preselected_and_the_limits",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupPageTest::all_local_installs_see_no_new_option_or_notice",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupPageTest::marked_backups_keep_their_label_after_uploads_move_back_to_local_disks",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupPageTest::the_generate_button_passes_the_choice_on",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupPageTest::a_failed_backup_shows_the_reason_rather_than_a_progress_line",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupPageTest::backups_on_a_local_backup_disk_are_labelled_from_the_name_not_the_manifest",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupPageTest::backups_on_a_remote_backup_disk_are_labelled_from_the_name_without_downloading_them",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupPageTest::an_uploaded_copy_keeps_its_label",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::by_default_remote_files_are_neither_listed_nor_read_and_the_manifest_says_excluded",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::without_remote_files_flag_behaves_like_the_default",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::with_remote_files_flag_stages_the_objects_and_cleans_up",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::the_environment_setting_turns_remote_files_on_for_scheduled_backups",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::the_flags_override_the_environment_setting",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::the_two_flags_together_are_rejected",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::a_failure_while_staging_stops_the_backup_and_leaves_nothing_behind",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::a_failing_backup_run_fails_the_command_and_still_cleans_up",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::with_only_local_disks_nothing_changes",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::missing_include_paths_are_left_out_and_named_instead_of_failing_the_backup",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::missing_include_paths_are_left_out_on_an_all_local_install_too",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::a_scheduled_backup_gets_a_dated_name_with_the_marker",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::a_given_filename_gets_the_marker_and_a_wrong_marker_is_replaced",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::callers_are_told_the_name_the_backup_is_stored_under",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::a_failed_run_removes_its_incomplete_zip_from_a_local_backup_disk",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::an_all_local_install_keeps_its_filenames",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::the_pre_restore_check_finds_the_marked_backup_and_the_restore_goes_on",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::the_pre_restore_check_still_works_on_an_all_local_install",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.BackupRemoteOptionTest::callers_that_used_backup_run_directly_now_include_remote_files",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::s3_driver_disk_with_a_custom_name_redirects_to_a_presigned_url with data set \"profile route\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::s3_driver_disk_with_a_custom_name_redirects_to_a_presigned_url with data set \"action log route\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::s3_private_disk_name_still_redirects_to_a_presigned_url with data set \"profile route\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::s3_private_disk_name_still_redirects_to_a_presigned_url with data set \"action log route\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::local_disk_still_downloads_the_stored_file with data set \"profile route\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::local_disk_still_downloads_the_stored_file with data set \"action log route\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::inline_request_on_local_disk_still_serves_the_file_inline",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::users_without_permission_are_still_refused_on_a_custom_s3_disk with data set \"profile route\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.EulaDownloadTest::users_without_permission_are_still_refused_on_a_custom_s3_disk with data set \"action log route\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::import_locations_reads_the_csv_from_the_configured_private_disk",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::import_locations_rejects_a_truncated_remote_csv_before_importing",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::finding7_remote_copy_and_size_failures_abort_location_import with data set \"read failure control\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::finding7_remote_copy_and_size_failures_abort_location_import with data set \"unavailable size\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::import_locations_fails_when_the_file_is_missing",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::backup_disk_gains_the_s3_options_and_inherits_private_values",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::backup_overrides_win_and_do_not_mix_with_private_credentials",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::without_any_credentials_the_default_credential_chain_is_used",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::backup_monitor_watches_the_disk_and_name_the_backup_writes_to",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::snipeit_backup_passes_on_the_exit_code_of_backup_run",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::a_truncated_import_file_is_reported_instead_of_processed",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MiscRemediationTest::a_complete_import_file_is_still_processed",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::files_land_on_the_keys_the_application_reads",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::a_remote_public_disk_alone_is_enough_to_run",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::two_local_disks_are_still_refused",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::one_failed_write_keeps_every_source_and_fails_the_command",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::a_destination_that_reads_back_differently_keeps_every_source",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::an_existing_destination_with_different_content_is_a_conflict",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::an_existing_identical_destination_counts_as_verified",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::a_source_changed_after_it_was_copied_is_never_deleted",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.MoveUploadsToNewDiskTest::everything_verified_deletes_the_sources_and_succeeds",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::files_are_written_to_the_configured_remote_disks_with_matching_bytes",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::nested_paths_are_preserved_and_do_not_overwrite_each_other",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::objects_on_a_remote_disk_that_are_not_in_the_backup_are_left_alone",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_disks_are_pruned_and_written_as_before_with_nested_paths_kept",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set \"sha256 differs from the manifest\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set \"manifest lists a file that is not in the archive\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set \"unsafe path inside the archive\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set \"not a manifest-conformant size\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_unreadable_archive_triggers_no_prune_and_a_non_zero_exit",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_archive_without_remote_files_leaves_the_remote_disks_untouched_and_warns",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_restore_follows_the_manifest_even_when_the_filename_says_otherwise",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_archive_without_a_manifest_restores_with_a_warning",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_write_failure_after_the_restore_started_is_reported_and_puts_the_app_in_maintenance",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_object_that_reads_back_differently_fails_the_restore",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_accepts_a_good_archive_and_changes_nothing",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_a_corrupted_database_dump",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_an_archive_whose_checksum_does_not_match",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_copies_in_a_backup_do_not_overwrite_objects_on_a_remote_disk",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_an_empty_database_dump",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_local_copy_without_an_object_on_the_remote_disk_is_still_restored",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_copies_from_a_local_install_backup_are_still_moved_to_the_remote_disk",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"local stale last\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"remote stale last\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"local stale first control\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"remote stale first control\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding4_validate_only_rejects_a_broken_central_directory",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding4_validate_only_checks_manifest_size_and_sha256",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_a_truncated_zip_without_changing_the_database",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.StagingAssumptionsTest::restore_recognises_staged_paths_inside_the_archive",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.StagingAssumptionsTest::backup_run_honours_an_include_path_set_at_runtime",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.StagingAssumptionsTest::snipeit_backup_with_remote_files_puts_the_staged_copies_into_a_real_archive",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::finding4_web_restore_rejects_a_corrupted_stale_entry_before_wipe",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "s3_suite",
+      "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::an_archive_whose_manifest_does_not_match_is_refused_before_the_database_is_touched",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_selected",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set \"time limit\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_selected",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set \"size limit\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_selected",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set \"complete paginated\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_forbids_non_superadmin",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_allows_superadmin",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_hydrates_persisted_settings_into_props",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_never_hydrates_persisted_password",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_go_to_step_forward_blocked_past_highest_reached",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_go_to_step_backward_allowed",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_go_to_step_reverts_dirty_props_to_persisted",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_url_step_param_clamps_to_highest_reached_on_mount",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_lands_on_step_5_when_ldap_already_enabled",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_honors_explicit_url_step_when_ldap_enabled",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_starts_at_step_1_when_ldap_disabled",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_clamps_highest_step_when_persisted_server_is_blank",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_clamps_highest_step_when_persisted_basedn_is_blank",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_requires_ldap_server",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_ldap_server_must_start_with_ldap_scheme",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_ad_domain_required_when_is_ad_checked",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_unchecking_is_ad_clears_ad_domain",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_tls_pair_xor_key_without_cert_blocks_advance",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_tls_key_junk_pem_rejected",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_rejects_localhost_as_private_ip",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_rejects_rfc1918_address",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_rejects_cloud_metadata_address",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step1_rate_limit_blocks_after_ten_attempts",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_requires_bind_username_basedn_and_auth_filter",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_password_optional_when_uname_unchanged_and_persisted",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_password_required_when_uname_changed",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_base_dn_equal_to_bind_dn_rejected",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_base_dn_equal_to_bind_dn_normalizes_case_and_whitespace",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_base_dn_that_is_a_parent_of_bind_dn_is_allowed",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_filter_with_leading_paren_rejected",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step3_requires_username_and_first_name_mapping",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step3_username_field_rejects_camelcase_samaccountname",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step3_persists_blank_optional_mappings_as_null_not_empty_string",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step3_whitespace_only_optional_mapping_persists_as_null",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step3_populated_optional_mapping_is_preserved",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step4_forces_ldap_enabled_true_on_save",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step4_advances_to_completion_step_after_save",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step4_default_group_must_exist_in_permission_groups",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step4_default_group_accepts_real_group_id",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step4_custom_forgot_pass_url_must_be_valid_url",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_disable_ldap_flips_flag_and_redirects",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_disable_ldap_clears_wizard_progress_session_key",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_finish_wizard_clears_progress_and_redirects",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_test_run_writes_to_admin_log_channel_not_action_logs",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_updated_trims_whitespace_padded_values",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_updated_marks_wizard_dirty",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_mount_hydrates_ou_selection",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_turning_all_ous_off_starts_with_every_loaded_ou_checked",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_toggling_an_ou_cascades_down_but_not_up",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_toggling_an_ou_does_nothing_while_all_ous_is_on_or_for_an_unknown_row",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_rejects_an_empty_ou_selection",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_step2_rejects_selected_ous_outside_the_base_dn",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_changing_the_base_dn_clears_the_loaded_tree",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_ou_actions_are_blocked_in_read_only_mode",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set \"time limit\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set \"size limit\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "wizard_suite",
+      "name": "Tests.Feature.Settings.LdapWizardTest::test_finding6_ou_search_preserves_selection_and_reports_incomplete_results with data set \"complete paginated\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessSchedulerTest::test_arguments_are_console_tokens_not_shell_instructions",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessSchedulerTest::test_mutex_identity_and_registration_match_laravel_exactly",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessSchedulerTest::test_real_child_argv_environment_and_merged_output_overwrite_append",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessSchedulerTest::test_without_overlapping_skips_held_lock_and_releases_on_completion_and_failure",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessSchedulerTest::test_nonzero_child_status_is_preserved_and_default_output_suppressed",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessSchedulerTest::test_natural_launch_failure_reports_failed_event_and_fail_not_done",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessSchedulerTest::test_non_due_event_does_not_execute",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessSchedulerTest::test_unwritable_output_and_changed_command_fail_visibly",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessOptInTest::test_shellless_is_off_by_default",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessOptInTest::test_scheduler_is_the_framework_one_by_default",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessOptInTest::test_scheduler_is_shellless_when_enabled",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessOptInTest::test_restore_uses_a_shell_command_line_by_default",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessOptInTest::test_restore_uses_an_argument_array_when_shellless",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.Console.ShelllessOptInTest::test_restore_argument_array_uses_the_socket_when_configured",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::files_are_written_to_the_configured_remote_disks_with_matching_bytes",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::nested_paths_are_preserved_and_do_not_overwrite_each_other",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::objects_on_a_remote_disk_that_are_not_in_the_backup_are_left_alone",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_disks_are_pruned_and_written_as_before_with_nested_paths_kept",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set \"sha256 differs from the manifest\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set \"manifest lists a file that is not in the archive\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set \"unsafe path inside the archive\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_invalid_archive_changes_nothing with data set \"not a manifest-conformant size\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_unreadable_archive_triggers_no_prune_and_a_non_zero_exit",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_archive_without_remote_files_leaves_the_remote_disks_untouched_and_warns",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_restore_follows_the_manifest_even_when_the_filename_says_otherwise",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_archive_without_a_manifest_restores_with_a_warning",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_write_failure_after_the_restore_started_is_reported_and_puts_the_app_in_maintenance",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::an_object_that_reads_back_differently_fails_the_restore",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_accepts_a_good_archive_and_changes_nothing",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_a_corrupted_database_dump",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_staged_copy_is_validated_and_restored_when_a_stale_local_copy_follows_it",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_an_archive_whose_checksum_does_not_match",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_copies_in_a_backup_do_not_overwrite_objects_on_a_remote_disk",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_an_empty_database_dump",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::a_local_copy_without_an_object_on_the_remote_disk_is_still_restored",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_copies_from_a_local_install_backup_are_still_moved_to_the_remote_disk",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "existing",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"local stale last\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"remote stale last\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"local stale first control\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding3_restore_destination_prefers_staged_for_either_archive_order with data set \"remote stale first control\"",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding4_validate_only_rejects_a_broken_central_directory",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::finding4_validate_only_checks_manifest_size_and_sha256",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_rejects_a_truncated_zip_without_changing_the_database",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::local_destination_prefers_manifest_staged_copy_when_stale_copy_follows",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "shellless_order",
+      "name": "Tests.Feature.S3Compatibility.RestoreToRemoteDiskTest::validate_only_checks_crc_of_stale_copy_even_when_it_would_be_skipped",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "red",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "fr9_original",
+      "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping",
+      "status": "passed",
+      "message": "",
+      "round_a_expectation": "control",
+      "expected_status": "passed",
+      "matches_expectation": true
+    },
+    {
+      "run": "fr9_mutation",
+      "name": "Tests.Feature.S3Compatibility.WebRestoreValidatesBeforeWipeTest::web_restore_calls_the_safety_backup_with_remote_files_before_wiping",
+      "status": "failure",
+      "message": "Finding 9: safety backup omitted remote files.",
+      "round_a_expectation": "red",
+      "expected_status": "failure",
+      "matches_expectation": true
+    }
+  ],
+  "counts": {
+    "passed": 267,
+    "failure": 1
+  },
   "probes": {
     "chiseled_input_locks": {
       "passed": true,
       "exit_code": 0
     },
+    "go_checks": {
+      "passed": true,
+      "exit_code": 0
+    },
+    "candidate_proxy_ca_absent": {
+      "exit_code": 0,
+      "passed": true,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "fr8_go_unit": {
+      "exit_code": 0,
+      "passed": true,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "ldap_selected_exit": 0,
+    "ldap_suite_exit": 0,
+    "s3_selected_exit": 0,
+    "s3_suite_exit": 0,
+    "wizard_selected_exit": 0,
+    "wizard_suite_exit": 0,
+    "shellless_order_exit": 0,
+    "fr2_chiseled": {
+      "exit_code": 0,
+      "passed": true,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "fr2_regular": {
+      "exit_code": 0,
+      "passed": true,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "fr2_prepare_app": {
+      "passed": true,
+      "marker_directory_present": false,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "fr8_valid": {
+      "exit_code": 0,
+      "passed": true,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "fr8_empty": {
+      "exit_code": 0,
+      "passed": true,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "fr8_unset": {
+      "exit_code": 0,
+      "passed": true,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "fr8_invalid": {
+      "passed": true,
+      "running": false,
+      "exit_code": 1,
+      "expected_status": "pass",
+      "matches_expectation": true
+    },
+    "fr9_original_exit": 0,
+    "fr9_mutation_exit": 1,
     "fr9_mutation_red": {
-      "passed": false,
-      "tests_found": 0
+      "passed": true,
+      "tests_found": 1
     }
   },
   "commands": [
@@ -165,6 +2660,16 @@
         "linux/amd64",
         "composer:latest"
       ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "--platform",
+        "linux/amd64",
+        "composer:latest"
+      ],
       "exit_code": 0
     },
     {
@@ -204,6 +2709,26 @@
         "linux/amd64",
         "docker.io/library/composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac"
       ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "--platform",
+        "linux/amd64",
+        "docker.io/library/composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "--platform",
+        "linux/amd64",
+        "docker.io/library/composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac"
+      ],
       "exit_code": 0
     },
     {
@@ -223,6 +2748,26 @@
         "linux/amd64",
         "docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82"
       ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "--platform",
+        "linux/amd64",
+        "docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "--platform",
+        "linux/amd64",
+        "docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82"
+      ],
       "exit_code": 0
     },
     {
@@ -230,6 +2775,26 @@
         "docker",
         "image",
         "inspect",
+        "docker.io/library/ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "--platform",
+        "linux/amd64",
+        "docker.io/library/ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "--platform",
+        "linux/amd64",
         "docker.io/library/ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55"
       ],
       "exit_code": 1
@@ -268,6 +2833,16 @@
         "docker",
         "image",
         "inspect",
+        "mysql:8.4"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "--platform",
+        "linux/amd64",
         "mysql:8.4"
       ],
       "exit_code": 1
@@ -338,6 +2913,28 @@
         "image",
         "inspect",
         "ubuntu@sha256:73b999393d07f2bf65a40373778a44dc9a6d54ad7718d29247d8ff9413c4d6a8"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "none",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/context/docker/snipeit-runtime:/src:ro",
+        "-w",
+        "/src",
+        "-e",
+        "CGO_ENABLED=0",
+        "docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82",
+        "sh",
+        "-c",
+        "out=$(gofmt -l .) && [ -z \"$out\" ] || { echo \"gofmt needs formatting: $out\"; exit 1; }; go vet ./... && go test ./..."
       ],
       "exit_code": 0
     },
@@ -3088,11 +5685,11 @@
         "--network",
         "host",
         "--label",
-        "review-fixes.run=review-15cced5974ae",
+        "review-fixes.run=review-17465b029080",
         "-v",
-        "/tmp/review-15cced5974ae-fd5bpuua/context:/app",
+        "/tmp/review-17465b029080-_bolqa8l/context:/app",
         "-v",
-        "/tmp/review-15cced5974ae-fd5bpuua/composer-cache:/tmp/composer-cache",
+        "/tmp/review-17465b029080-_bolqa8l/composer-cache:/tmp/composer-cache",
         "-w",
         "/app",
         "-e",
@@ -3116,8 +5713,8 @@
     {
       "argv": [
         "python3",
-        "/tmp/review-15cced5974ae-fd5bpuua/context/docker/snipeit-runtime/patch-dumper.py",
-        "/tmp/review-15cced5974ae-fd5bpuua/context/vendor/spatie/db-dumper/src/Databases/MySql.php"
+        "/tmp/review-17465b029080-_bolqa8l/context/docker/snipeit-runtime/patch-dumper.py",
+        "/tmp/review-17465b029080-_bolqa8l/context/vendor/spatie/db-dumper/src/Databases/MySql.php"
       ],
       "exit_code": 0
     },
@@ -3132,28 +5729,2231 @@
         "--platform",
         "linux/amd64",
         "--label",
-        "review-fixes.run=review-15cced5974ae",
+        "review-fixes.run=review-17465b029080",
         "-t",
-        "review-15cced5974ae:candidate",
+        "review-17465b029080:candidate",
         "-f",
-        "/tmp/review-15cced5974ae-fd5bpuua/context/Dockerfile.chiseled",
+        "/tmp/review-17465b029080-_bolqa8l/context/Dockerfile.chiseled",
         "--build-context",
-        "composercache=/tmp/review-15cced5974ae-fd5bpuua/composer-cache",
+        "composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache",
         "--build-context",
-        "proxyca=/tmp/review-15cced5974ae-fd5bpuua/proxy-ca",
+        "proxyca=/tmp/review-17465b029080-_bolqa8l/proxy-ca",
         "--build-arg",
         "HTTPS_PROXY",
         "--build-arg",
         "NO_PROXY",
-        "/tmp/review-15cced5974ae-fd5bpuua/context"
+        "/tmp/review-17465b029080-_bolqa8l/context"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "review-17465b029080:candidate"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/proxy-ca/agent-proxy-ca.crt:/probe/proxy-ca.crt:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0",
+        "-r",
+        "$pem=file_get_contents('/probe/proxy-ca.crt');$bundle=@file_get_contents('/etc/ssl/certs/ca-certificates.crt');if($pem===false || strlen($pem)===0 || $bundle===false){exit(2);}if(file_exists('/usr/local/share/ca-certificates/agent-proxy-ca.crt')||file_exists('/etc/ssl/certs/agent-proxy-ca.pem')||($bundle!==false && strpos($bundle,$pem)!==false)){exit(1);}"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--load",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--build-arg",
+        "CANDIDATE=review-17465b029080:candidate@sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0",
+        "--build-context",
+        "devvendor=/tmp/review-17465b029080-_bolqa8l/context/vendor",
+        "-f",
+        "/tmp/review-17465b029080-_bolqa8l/context/cloud-verify/review-fixes/Dockerfile.test",
+        "-t",
+        "review-17465b029080:test",
+        "/tmp/review-17465b029080-_bolqa8l/context"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "review-17465b029080:test"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0",
+        "-m"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "-m"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0",
+        "-r",
+        "echo hash_file('sha256', '/usr/bin/php');"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "-r",
+        "echo hash_file('sha256', '/usr/bin/php');"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "none",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/context/docker/snipeit-runtime:/src:ro",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/go-test:/out",
+        "-w",
+        "/src",
+        "-e",
+        "CGO_ENABLED=0",
+        "docker.io/library/golang@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82",
+        "go",
+        "test",
+        "-c",
+        "-o",
+        "/out/startup.test",
+        "./internal/startup"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "none",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/go-test/startup.test:/probe/startup.test:ro",
+        "--entrypoint",
+        "/probe/startup.test",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "-test.run=^TestForwardedHeaderConfig$",
+        "-test.v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "create",
+        "--internal",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "review-17465b029080-net"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "create",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "review-17465b029080-data"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "review-17465b029080-db",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-e",
+        "MYSQL_ROOT_PASSWORD=[redacted]",
+        "-e",
+        "MYSQL_ROOT_HOST=%",
+        "-e",
+        "MYSQL_DATABASE=snipeit",
+        "mysql:8.4"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "review-17465b029080-db",
+        "mysqladmin",
+        "ping",
+        "-h127.0.0.1",
+        "-uroot",
+        "-p[redacted]",
+        "--silent"
       ],
       "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "review-17465b029080-db",
+        "mysqladmin",
+        "ping",
+        "-h127.0.0.1",
+        "-uroot",
+        "-p[redacted]",
+        "--silent"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "review-17465b029080-db",
+        "mysqladmin",
+        "ping",
+        "-h127.0.0.1",
+        "-uroot",
+        "-p[redacted]",
+        "--silent"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "review-17465b029080-db",
+        "mysqladmin",
+        "ping",
+        "-h127.0.0.1",
+        "-uroot",
+        "-p[redacted]",
+        "--silent"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--user",
+        "0:0",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "-r",
+        "foreach(json_decode('[\"\", \"data\", \"data/private_uploads\", \"data/private_uploads/assets\", \"data/private_uploads/accessories\", \"data/private_uploads/audits\", \"data/private_uploads/components\", \"data/private_uploads/consumables\", \"data/private_uploads/eula-pdfs\", \"data/private_uploads/imports\", \"data/private_uploads/models\", \"data/private_uploads/users\", \"data/private_uploads/licenses\", \"data/private_uploads/signatures\", \"data/uploads\", \"data/uploads/accessories\", \"data/uploads/assets\", \"data/uploads/avatars\", \"data/uploads/barcodes\", \"data/uploads/categories\", \"data/uploads/companies\", \"data/uploads/components\", \"data/uploads/consumables\", \"data/uploads/departments\", \"data/uploads/locations\", \"data/uploads/maintenances\", \"data/uploads/manufacturers\", \"data/uploads/models\", \"data/uploads/suppliers\", \"dumps\", \"keys\", \"ssl\"]') as $p){$d='/var/lib/snipeit'.($p?'/'.$p:'');@mkdir($d,0775,true);chown($d,10000);chgrp($d,50);}"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "artisan",
+        "migrate",
+        "--force",
+        "--no-interaction"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "artisan",
+        "passport:keys",
+        "--force",
+        "--no-interaction"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/ldap-selected.xml",
+        "--filter",
+        "finding|truncated|staged_copy|ou_rejection|ou_search|safety_backup|dn_separator|checks_crc",
+        "tests/Unit/LdapTest.php"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/ldap-suite.xml",
+        "tests/Unit/LdapTest.php"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/s3-selected.xml",
+        "--filter",
+        "finding|truncated|staged_copy|ou_rejection|ou_search|safety_backup|dn_separator|checks_crc",
+        "tests/Feature/S3Compatibility"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/s3-suite.xml",
+        "tests/Feature/S3Compatibility"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/wizard-selected.xml",
+        "--filter",
+        "finding|truncated|staged_copy|ou_rejection|ou_search|safety_backup|dn_separator|checks_crc",
+        "tests/Feature/Settings/LdapWizardTest.php"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/wizard-suite.xml",
+        "tests/Feature/Settings/LdapWizardTest.php"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/shellless-order.xml",
+        "--configuration",
+        "/var/www/html/phpunit.xml",
+        "--order-by",
+        "default,no-depends",
+        "/var/www/html/tests/Feature/Console/ShelllessSchedulerTest.php",
+        "/var/www/html/tests/Feature/Console/ShelllessOptInTest.php",
+        "/var/www/html/tests/Feature/S3Compatibility/RestoreToRemoteDiskTest.php"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--load",
+        "--network",
+        "host",
+        "--platform",
+        "linux/amd64",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "-t",
+        "review-17465b029080:marked",
+        "-f",
+        "/tmp/review-17465b029080-_bolqa8l/marked/Dockerfile.chiseled",
+        "--build-context",
+        "composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache",
+        "--build-context",
+        "proxyca=/tmp/review-17465b029080-_bolqa8l/proxy-ca",
+        "--build-arg",
+        "HTTPS_PROXY",
+        "--build-arg",
+        "NO_PROXY",
+        "/tmp/review-17465b029080-_bolqa8l/marked"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "review-17465b029080:marked"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--load",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--build-arg",
+        "CANDIDATE=review-17465b029080:marked@sha256:722ce38830ed3b927c86decf1b956f4763e1d0096e4c71eab1475ea19c9eac0f",
+        "--build-context",
+        "devvendor=/tmp/review-17465b029080-_bolqa8l/context/vendor",
+        "-f",
+        "/tmp/review-17465b029080-_bolqa8l/context/cloud-verify/review-fixes/Dockerfile.test",
+        "-t",
+        "review-17465b029080:marked-test",
+        "/tmp/review-17465b029080-_bolqa8l/context"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "review-17465b029080:marked-test"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:722ce38830ed3b927c86decf1b956f4763e1d0096e4c71eab1475ea19c9eac0f",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:4c816fafeed259995a9b9640219824e62f0f70d30d8a17edfe22297355a06003",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:722ce38830ed3b927c86decf1b956f4763e1d0096e4c71eab1475ea19c9eac0f",
+        "-m"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:4c816fafeed259995a9b9640219824e62f0f70d30d8a17edfe22297355a06003",
+        "-m"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:722ce38830ed3b927c86decf1b956f4763e1d0096e4c71eab1475ea19c9eac0f",
+        "-r",
+        "echo hash_file('sha256', '/usr/bin/php');"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:4c816fafeed259995a9b9640219824e62f0f70d30d8a17edfe22297355a06003",
+        "-r",
+        "echo hash_file('sha256', '/usr/bin/php');"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/staging-probe.php:/probe/staging-probe.php:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:4c816fafeed259995a9b9640219824e62f0f70d30d8a17edfe22297355a06003",
+        "/probe/staging-probe.php"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--load",
+        "--network",
+        "host",
+        "--platform",
+        "linux/amd64",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "-t",
+        "review-17465b029080:regular",
+        "-f",
+        "/tmp/review-17465b029080-_bolqa8l/marked/Dockerfile",
+        "--build-context",
+        "composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache",
+        "--build-context",
+        "gopear=/tmp/review-17465b029080-_bolqa8l/go-pear",
+        "--build-arg",
+        "HTTPS_PROXY",
+        "--build-arg",
+        "NO_PROXY",
+        "/tmp/review-17465b029080-_bolqa8l/marked"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "review-17465b029080:regular"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/staging-probe.php:/probe/staging-probe.php:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:707d7dfeb566be838e55b34df475528641ec86af16f49cdd868519ddaf2520f2",
+        "/probe/staging-probe.php"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--load",
+        "--network",
+        "host",
+        "--platform",
+        "linux/amd64",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "-t",
+        "review-17465b029080:fixture",
+        "-f",
+        "/tmp/review-17465b029080-_bolqa8l/fixture-context/Dockerfile.chiseled",
+        "--build-context",
+        "composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache",
+        "--build-context",
+        "proxyca=/tmp/review-17465b029080-_bolqa8l/proxy-ca",
+        "--target",
+        "application",
+        "--build-context",
+        "stagingfixture=/tmp/review-17465b029080-_bolqa8l/fixture",
+        "--build-arg",
+        "HTTPS_PROXY",
+        "--build-arg",
+        "NO_PROXY",
+        "/tmp/review-17465b029080-_bolqa8l/fixture-context"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "review-17465b029080:fixture"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "sha256:61efbd3c16c3d57e460c76f0141cc9f79dc49a0ba01f04b88d86b3e4e6516291"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "c754e787d3a9da8df62d271ec0370c2eee7bc49a1ebdc5b4922e08c960d75dfd:/var/www/html/storage/framework/backup-staging",
+        "/tmp/review-17465b029080-_bolqa8l/fixture-output"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "create",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "review-17465b029080-apache-valid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "review-17465b029080-apache-valid",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-apache-valid:/var/lib/snipeit",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-user.php:ro",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_URL=http://review-17465b029080-apache-valid:8080",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "REMOTE_LOGIN_FORWARDED_HEADER=X-Review-User",
+        "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/probe/apache-probe.php",
+        "http://review-17465b029080-apache-valid:8080/review-remote-user.php",
+        "review-user@example.invalid",
+        "review-user@example.invalid"
+      ],
+      "exit_code": 2
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/probe/apache-probe.php",
+        "http://review-17465b029080-apache-valid:8080/review-remote-user.php",
+        "review-user@example.invalid",
+        "review-user@example.invalid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "create",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "review-17465b029080-apache-empty"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "review-17465b029080-apache-empty",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-apache-empty:/var/lib/snipeit",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-user.php:ro",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_URL=http://review-17465b029080-apache-empty:8080",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "REMOTE_LOGIN_FORWARDED_HEADER=X-Review-User",
+        "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/probe/apache-probe.php",
+        "http://review-17465b029080-apache-empty:8080/review-remote-user.php",
+        "",
+        ""
+      ],
+      "exit_code": 2
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/probe/apache-probe.php",
+        "http://review-17465b029080-apache-empty:8080/review-remote-user.php",
+        "",
+        ""
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "create",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "review-17465b029080-apache-unset"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "review-17465b029080-apache-unset",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-apache-unset:/var/lib/snipeit",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-user.php:ro",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_URL=http://review-17465b029080-apache-unset:8080",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/probe/apache-probe.php",
+        "http://review-17465b029080-apache-unset:8080/review-remote-user.php",
+        "",
+        "review-user@example.invalid"
+      ],
+      "exit_code": 2
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/apache-probe.php:/probe/apache-probe.php:ro",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/probe/apache-probe.php",
+        "http://review-17465b029080-apache-unset:8080/review-remote-user.php",
+        "",
+        "review-user@example.invalid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "create",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "review-17465b029080-apache-invalid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "review-17465b029080-apache-invalid",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-apache-invalid:/var/lib/snipeit",
+        "-v",
+        "/home/user/snipe-it/cloud-verify/review-fixes/remote-user.php:/var/www/html/public/review-remote-user.php:ro",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_URL=http://review-17465b029080-apache-invalid:8080",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "REMOTE_LOGIN_FORWARDED_HEADER=Bad Header",
+        "sha256:98f152036b52432e53b61db3529a1c45164b71eb382bf19fc518c8d2e6630be0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "-f",
+        "{{.State.Running}}",
+        "review-17465b029080-apache-invalid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "-f",
+        "{{.State.ExitCode}}",
+        "review-17465b029080-apache-invalid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:b6d8436bf8789371b3d548fc0c34d73fc34068f8fbab89eb0f04c226fc1bdae2",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/fr9-original.xml",
+        "--filter",
+        "web_restore_calls_the_safety_backup_with_remote_files_before_wiping",
+        "tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--load",
+        "--network",
+        "host",
+        "--platform",
+        "linux/amd64",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "-t",
+        "review-17465b029080:mutated",
+        "-f",
+        "/tmp/review-17465b029080-_bolqa8l/mutated/Dockerfile.chiseled",
+        "--build-context",
+        "composercache=/tmp/review-17465b029080-_bolqa8l/composer-cache",
+        "--build-context",
+        "proxyca=/tmp/review-17465b029080-_bolqa8l/proxy-ca",
+        "--build-arg",
+        "HTTPS_PROXY",
+        "--build-arg",
+        "NO_PROXY",
+        "/tmp/review-17465b029080-_bolqa8l/mutated"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "review-17465b029080:mutated"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--load",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--build-arg",
+        "CANDIDATE=review-17465b029080:mutated@sha256:90faa4fb4f4707a1e8c597cedde0d6aab55e94aebdb503668d1508793872efe6",
+        "--build-context",
+        "devvendor=/tmp/review-17465b029080-_bolqa8l/context/vendor",
+        "-f",
+        "/tmp/review-17465b029080-_bolqa8l/context/cloud-verify/review-fixes/Dockerfile.test",
+        "-t",
+        "review-17465b029080:mutated-test",
+        "/tmp/review-17465b029080-_bolqa8l/context"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "review-17465b029080:mutated-test"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:90faa4fb4f4707a1e8c597cedde0d6aab55e94aebdb503668d1508793872efe6",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:08ecaa9bbedd3bd46d83aefe47b05a7187574d179e389b2be68e58bb9244edcf",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:90faa4fb4f4707a1e8c597cedde0d6aab55e94aebdb503668d1508793872efe6",
+        "-m"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:08ecaa9bbedd3bd46d83aefe47b05a7187574d179e389b2be68e58bb9244edcf",
+        "-m"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:90faa4fb4f4707a1e8c597cedde0d6aab55e94aebdb503668d1508793872efe6",
+        "-r",
+        "echo hash_file('sha256', '/usr/bin/php');"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:08ecaa9bbedd3bd46d83aefe47b05a7187574d179e389b2be68e58bb9244edcf",
+        "-r",
+        "echo hash_file('sha256', '/usr/bin/php');"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--label",
+        "review-fixes.run=review-17465b029080",
+        "--network",
+        "review-17465b029080-net",
+        "-v",
+        "review-17465b029080-data:/var/lib/snipeit",
+        "-v",
+        "/tmp/review-17465b029080-_bolqa8l/results:/results",
+        "-e",
+        "APP_KEY=[redacted]",
+        "-e",
+        "APP_ENV=testing",
+        "-e",
+        "APP_DEBUG=false",
+        "-e",
+        "APP_URL=http://localhost",
+        "-e",
+        "DB_CONNECTION=mysql",
+        "-e",
+        "DB_HOST=review-17465b029080-db",
+        "-e",
+        "DB_PORT=3306",
+        "-e",
+        "DB_DATABASE=snipeit",
+        "-e",
+        "DB_USERNAME=root",
+        "-e",
+        "DB_PASSWORD=[redacted]",
+        "-e",
+        "DB_DUMP_PATH=/usr/bin",
+        "-e",
+        "CACHE_DRIVER=array",
+        "-e",
+        "SESSION_DRIVER=array",
+        "-e",
+        "QUEUE_CONNECTION=sync",
+        "-e",
+        "MAIL_MAILER=array",
+        "-e",
+        "IMPORT_MEMORY_LIMIT=2G",
+        "-e",
+        "LDAP_MEM_LIM=2G",
+        "--entrypoint",
+        "/usr/bin/php",
+        "sha256:08ecaa9bbedd3bd46d83aefe47b05a7187574d179e389b2be68e58bb9244edcf",
+        "/var/www/html/vendor/bin/phpunit",
+        "--colors=never",
+        "--display-skipped",
+        "--display-incomplete",
+        "--log-junit",
+        "/results/fr9-mutation.xml",
+        "--filter",
+        "web_restore_calls_the_safety_backup_with_remote_files_before_wiping",
+        "tests/Feature/S3Compatibility/WebRestoreValidatesBeforeWipeTest.php"
+      ],
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "-v",
+        "review-17465b029080-apache-invalid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "-v",
+        "review-17465b029080-apache-unset"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "-v",
+        "review-17465b029080-apache-empty"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "-v",
+        "review-17465b029080-apache-valid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "-v",
+        "c754e787d3a9da8df62d271ec0370c2eee7bc49a1ebdc5b4922e08c960d75dfd"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "-v",
+        "review-17465b029080-db"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "rm",
+        "review-17465b029080-apache-invalid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "rm",
+        "review-17465b029080-apache-unset"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "rm",
+        "review-17465b029080-apache-empty"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "rm",
+        "review-17465b029080-apache-valid"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "rm",
+        "review-17465b029080-data"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "rm",
+        "review-17465b029080-net"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "review-17465b029080:mutated-test"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "review-17465b029080:mutated"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "review-17465b029080:fixture"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "review-17465b029080:regular"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "review-17465b029080:marked-test"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "review-17465b029080:marked"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "review-17465b029080:test"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "review-17465b029080:candidate"
+      ],
+      "exit_code": 0
     }
   ],
-  "skipped_summary": {},
-  "errors": [
-    "command failed: docker buildx (exit 1)",
-    "FR-9 mutation skipped because the unmodified FR-9 test did not pass",
-    "fr9_mutation_red probe failed"
-  ]
+  "skipped_summary": {
+    "ldap_selected": "",
+    "ldap_suite": "",
+    "s3_selected": "",
+    "s3_suite": "",
+    "wizard_selected": "",
+    "wizard_suite": "",
+    "shellless_order": "",
+    "fr9_original": "",
+    "fr9_mutation": ""
+  },
+  "errors": []
 }
