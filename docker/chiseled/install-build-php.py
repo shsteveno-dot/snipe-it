@@ -12,7 +12,7 @@ base = Path(__file__).resolve().parent
 _, lock, _ = load_lock(base, 'amd64')
 accepted = json.loads((base / 'accepted-inputs.json').read_text())
 snapshot = accepted['historical_snapshot_id']
-if snapshot != '20261022T020000Z':
+if snapshot != '20261122T130000Z':
     raise ValueError('build-tool snapshot mapping requires a reviewed update')
 for path in Path('/etc/apt/sources.list.d').iterdir():
     if path.is_file():

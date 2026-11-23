@@ -1,16 +1,16 @@
 {
   "lock_sha256": {
-    "amd64": "f620a6d393a1d817dfa813cbf55554217fb876088f1a19d4f14788216392b910",
+    "amd64": "ae0007ce7f9d47a033d4e8610d5f4f4acdfa599a0495de8d5be235be0aa56fbe",
     "arm64": "f834edfcd5f21a8209b26f3597c20d50038d024227215b16dab3cd86b3f450fb"
   },
-  "historical_snapshot_id": "20261022T020000Z",
+  "historical_snapshot_id": "20261122T130000Z",
   "build_tools_architecture": "amd64",
   "scope": "Preserved accepted AMD64 and ARM64 runtime locks; select by TARGETARCH. Build-only AMD64 PHP and retained Chisel remain excluded from final runtime.",
   "snapshot_ids": {
     "amd64": {
       "noble": "20261008T022632Z",
-      "noble-security": "20261030T020000Z",
-      "noble-updates": "20261030T020000Z"
+      "noble-security": "20261122T130000Z",
+      "noble-updates": "20261122T130000Z"
     },
     "arm64": {
       "noble": "20261008T042112Z",

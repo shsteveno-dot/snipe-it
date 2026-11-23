@@ -2,8 +2,8 @@
   "architecture": "amd64",
   "bootstrap": "docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
   "bootstrap_validation": "Bootstrap image pinned by digest (see BOOTSTRAP in capture_snapshot.py); the digest can be re-checked by pulling the image and comparing.",
-  "created_at": "2026-10-30T02:37:44.541487+00:00",
-  "finalized_at": "2026-10-30T02:50:27.455711+00:00",
+  "created_at": "2026-11-23T02:27:31.644680+00:00",
+  "finalized_at": "2026-11-23T02:31:30.972187+00:00",
   "format": 1,
   "identities": {
     "builder": "docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
@@ -71,47 +71,47 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "289d4b306cc0ab3db559e7b111cc3a1f1dec03b63a71bc5eb8096c190e1b8e1f",
-        "size": 90226
+        "sha256": "b508a0748b7d9e6f8f2fef9aa318f4c38ec50d967920d92238d3d09df5824b47",
+        "size": 90234
       },
       "component": "main",
-      "filename": "pool/main/a/apache2/apache2_2.4.58-1ubuntu8.17_amd64.deb",
+      "filename": "pool/main/a/apache2/apache2_2.4.58-1ubuntu8.19_amd64.deb",
       "name": "apache2",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "apache2",
-      "source_version": "2.4.58-1ubuntu8.17",
+      "source_version": "2.4.58-1ubuntu8.19",
       "suite": "noble-security",
-      "version": "2.4.58-1ubuntu8.17"
+      "version": "2.4.58-1ubuntu8.19"
     },
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "7c31f0e45695c1d0335d4bf654c644fc0977006bbefa22e1b2e0ef04d2e18744",
-        "size": 1337880
+        "sha256": "8eba6eb641e0d74f4b3aa85e85322df4bb0320200c0d02346053542bc8592ab2",
+        "size": 1338572
       },
       "component": "main",
-      "filename": "pool/main/a/apache2/apache2-bin_2.4.58-1ubuntu8.17_amd64.deb",
+      "filename": "pool/main/a/apache2/apache2-bin_2.4.58-1ubuntu8.19_amd64.deb",
       "name": "apache2-bin",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "apache2",
-      "source_version": "2.4.58-1ubuntu8.17",
+      "source_version": "2.4.58-1ubuntu8.19",
       "suite": "noble-security",
-      "version": "2.4.58-1ubuntu8.17"
+      "version": "2.4.58-1ubuntu8.19"
     },
     {
       "architecture": "all",
       "archive": {
-        "sha256": "aad82c20829ddbef9e868180b53a82470676966df1232f6eca1aa8526edada69",
-        "size": 163308
+        "sha256": "8ba97e7dcde79da4ee17645e46f23e345843a946dc5cadc811fad06aebc2087c",
+        "size": 163252
       },
       "component": "main",
-      "filename": "pool/main/a/apache2/apache2-data_2.4.58-1ubuntu8.17_all.deb",
+      "filename": "pool/main/a/apache2/apache2-data_2.4.58-1ubuntu8.19_all.deb",
       "name": "apache2-data",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "apache2",
-      "source_version": "2.4.58-1ubuntu8.17",
+      "source_version": "2.4.58-1ubuntu8.19",
       "suite": "noble-security",
-      "version": "2.4.58-1ubuntu8.17"
+      "version": "2.4.58-1ubuntu8.19"
     },
     {
       "architecture": "amd64",
@@ -146,17 +146,17 @@
     {
       "architecture": "all",
       "archive": {
-        "sha256": "8a0a754aaafed72cc8efb8c1731808133284a84fbfc76a4fcc73fce9e01b4187",
-        "size": 138884
+        "sha256": "f9fbacd417b515450b831032cc39d18059e9874e67525679a43c16071dabf9a0",
+        "size": 140064
       },
       "component": "main",
-      "filename": "pool/main/c/ca-certificates/ca-certificates_20260816ubuntu0.24.04.1_all.deb",
+      "filename": "pool/main/c/ca-certificates/ca-certificates_20260816ubuntu0.24.04.2_all.deb",
       "name": "ca-certificates",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "ca-certificates",
-      "source_version": "20260816ubuntu0.24.04.1",
+      "source_version": "20260816ubuntu0.24.04.2",
       "suite": "noble-security",
-      "version": "20260816ubuntu0.24.04.1"
+      "version": "20260816ubuntu0.24.04.2"
     },
     {
       "architecture": "amd64",
@@ -221,17 +221,17 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "8ee7dffb3ac1640d031f8c3d3e7bb2d48672dfe7bdfcffbae13e72b419a8e3ef",
-        "size": 1862590
+        "sha256": "42870124a4ae98ed1d833629592a0f1f7eed08e0c7254ba3a25422da8c4b9c27",
+        "size": 1863804
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/libapache2-mod-php8.3_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/libapache2-mod-php8.3_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "libapache2-mod-php8.3",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
@@ -326,17 +326,17 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "ff5557d99b51f761c4b7c92368b9cc45565eda17df9bf9eb4b134d09825008be",
-        "size": 3264314
+        "sha256": "d821b41fc59cb4978ecd53bc83e5c964ac15d305c8d2ac4c8a35aebe55010fb9",
+        "size": 3264258
       },
       "component": "main",
-      "filename": "pool/main/g/glibc/libc6_2.39-0ubuntu8.9_amd64.deb",
+      "filename": "pool/main/g/glibc/libc6_2.39-0ubuntu8.12_amd64.deb",
       "name": "libc6",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "glibc",
-      "source_version": "2.39-0ubuntu8.9",
+      "source_version": "2.39-0ubuntu8.12",
       "suite": "noble-security",
-      "version": "2.39-0ubuntu8.9"
+      "version": "2.39-0ubuntu8.12"
     },
     {
       "architecture": "amd64",
@@ -1001,17 +1001,17 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "110a797a57673d3ee497a141cf988199258058c57525799c63194d81822529a0",
-        "size": 226662
+        "sha256": "f41da7cb7e979d6b037ea92650c72ec8ec532ec3c93aa8d5b997207de56695ea",
+        "size": 228546
       },
       "component": "main",
-      "filename": "pool/main/p/pcre2/libpcre2-8-0_10.42-4ubuntu2.1_amd64.deb",
+      "filename": "pool/main/p/pcre2/libpcre2-8-0_10.42-4ubuntu2.2_amd64.deb",
       "name": "libpcre2-8-0",
-      "repository": "http://archive.ubuntu.com/ubuntu/",
+      "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "pcre2",
-      "source_version": "10.42-4ubuntu2.1",
-      "suite": "noble-updates",
-      "version": "10.42-4ubuntu2.1"
+      "source_version": "10.42-4ubuntu2.2",
+      "suite": "noble-security",
+      "version": "10.42-4ubuntu2.2"
     },
     {
       "architecture": "amd64",
@@ -1511,77 +1511,77 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "698f569c6692ece0089eaea6ab8697441b65f5d0821f63028e1a475ce5e7a65b",
-        "size": 16616
+        "sha256": "424182fb107309dd2362c0ebc1aa89d6dba10e0b65ba1955b496854d34892b6d",
+        "size": 16624
       },
       "component": "universe",
-      "filename": "pool/universe/p/php8.3/php8.3-bcmath_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/universe/p/php8.3/php8.3-bcmath_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-bcmath",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "6868966e46f777624f8cdfd3c38dfb2a7b6c2654bcacda57dc2049ecc9ca566b",
-        "size": 1931822
+        "sha256": "096297065021d7bebd5c09d1ae1a16267e7b8ac066b35c41037b92f70a329117",
+        "size": 1931496
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-cli_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-cli_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-cli",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "801cae4e842e1b9e9d60a542bf18ba831bf504b2f3070404892bf3f8fb943ea4",
-        "size": 747814
+        "sha256": "a4d49fe8ac833983a199ab93a97b87c392a8372af381465b0dd6b2e9ac0cb0e8",
+        "size": 748548
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-common_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-common_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-common",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "a5a9daaf2cbddb9488bf401a7020fd338d5d1c12327a774855d15e589348134b",
-        "size": 40328
+        "sha256": "822e44cc65b24c17c2fe0b44c838fb5fb6180536e36c2e7acf52464db4caccff",
+        "size": 40322
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-curl_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-curl_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-curl",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "34efd714cf9b2504176b46c0874317103522a52aee7ad0faae3f8cfafb54985b",
-        "size": 31146
+        "sha256": "57f6c928eeb70ae9c7ce6a20cbc4312a9ae25eccfd1eedcd37af4a6caad00ef0",
+        "size": 31172
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-gd_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-gd_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-gd",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
@@ -1601,32 +1601,32 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "2b16fafeb97d4d5a5bb4c12bdd77729e77e06d0f54a083f76f522d24e9efb3f1",
-        "size": 33470
+        "sha256": "4704186ca2e1e5ca4e59db816dbcb494e67730a11bd7dfc0cef0aa3a9faea259",
+        "size": 33578
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-ldap_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-ldap_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-ldap",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "e47acff4ca31d3eaaa9fe6203c8faee001b2eb90bf81e24e055b6416a060e2ac",
-        "size": 510922
+        "sha256": "158264a379635cee7e0709e6c69ddebe8165746341ac21a37e72f166417d17ec",
+        "size": 510938
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-mbstring_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-mbstring_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-mbstring",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
@@ -1661,32 +1661,32 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "6e53d3593cb3f551f8859048658c9109f9ce175990ec531cda5563b304ae3d61",
-        "size": 127278
+        "sha256": "3094a0bd2693abfac429f23d7b72615971ef7691f67f637966a2afaaa53fcfb7",
+        "size": 127284
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-mysql_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-mysql_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-mysql",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "bb320f77b1439e33e8867990d7fa666579685f0f1583502f39b45636f855a47c",
-        "size": 372318
+        "sha256": "7916377429a3eaca04c5ff9fc81c7beef5c3dd4dac95a82c5c5d9f866f0f9e06",
+        "size": 372330
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-opcache_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-opcache_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-opcache",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
@@ -1706,32 +1706,32 @@
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "ed4635e7ca1db6f62826fd915ea2d9ae19252c6b60bca812297d277b780b2fa1",
-        "size": 127020
+        "sha256": "fd335d37aef595919a6d7a781c743a581da66fe7ddb705a3170b32146e558b96",
+        "size": 127000
       },
       "component": "main",
-      "filename": "pool/main/p/php8.3/php8.3-xml_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/main/p/php8.3/php8.3-xml_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-xml",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "amd64",
       "archive": {
-        "sha256": "445f24aeb9ecc14f318b31f46c672f0ee2eee40dcc5a01d194a9622843a1c685",
-        "size": 29500
+        "sha256": "0305ef0e15dc434e3f19245e2de387cd769389c16711f8367462290601d992aa",
+        "size": 29496
       },
       "component": "universe",
-      "filename": "pool/universe/p/php8.3/php8.3-zip_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "filename": "pool/universe/p/php8.3/php8.3-zip_8.3.6-0ubuntu0.24.04.14_amd64.deb",
       "name": "php8.3-zip",
       "repository": "http://security.ubuntu.com/ubuntu/",
       "source": "php8.3",
-      "source_version": "8.3.6-0ubuntu0.24.04.13",
+      "source_version": "8.3.6-0ubuntu0.24.04.14",
       "suite": "noble-security",
-      "version": "8.3.6-0ubuntu0.24.04.13"
+      "version": "8.3.6-0ubuntu0.24.04.14"
     },
     {
       "architecture": "all",
@@ -1813,8 +1813,8 @@
     {
       "codename": "noble",
       "freshness": {
-        "date": "Thu, 29 Oct 2026 23:34:05 UTC",
-        "live_deadline": "2026-10-31T23:34:05+00:00",
+        "date": "Sun, 22 Nov 2026 12:44:36 UTC",
+        "live_deadline": "2026-11-24T12:44:36+00:00",
         "policy": "48-hour-publication-window",
         "valid_until": null
       },
@@ -1822,32 +1822,32 @@
         {
           "component": "main",
           "gzip": {
-            "sha256": "34c3bb06905e18ab7bdb5978b1a2ebc7101b437d2f719e26c7d1e722723ab0d0",
-            "size": 1411737
+            "sha256": "25e556fb6068459194803099a45d57894a55f5b08543efcbfa1c5dfd967ccc34",
+            "size": 1475054
           },
           "gzip_path": "main/binary-amd64/Packages.gz",
           "packages": {
-            "sha256": "dd8f0e30250c8a7df48247a76479d8b533acfcbd16e77181c2457ede52e6a618",
-            "size": 6241173
+            "sha256": "54b0bfabe9350eb7877059b7929a61d0842f18555bddc19c09777322cd330e8f",
+            "size": 6526018
           },
           "path": "main/binary-amd64/Packages"
         },
         {
           "component": "universe",
           "gzip": {
-            "sha256": "0ed2ed96030054a1a1024c43d40aaf09f26e0a871f5223829e8429b2e2ec7872",
-            "size": 1549836
+            "sha256": "28a9423cd480afe966d0ff72c9aea2464ffeecfc54830394b3f808e1240aa76f",
+            "size": 1560093
           },
           "gzip_path": "universe/binary-amd64/Packages.gz",
           "packages": {
-            "sha256": "9c5ba85b87832d284963422965704dde2c8ab861661f571aa1bf45e9180bf9bc",
-            "size": 7675869
+            "sha256": "460578edf79d78ba490348e3a69306cb480d11e842f6111e76da4923e88ccb34",
+            "size": 7722388
           },
           "path": "universe/binary-amd64/Packages"
         }
       ],
       "inrelease": {
-        "sha256": "72e8b86629d1642b3f481b12c87863ce2ca29d94f8cc08ebf45b9c4cdb00d02d",
+        "sha256": "93c9d1d7a1898aafb79c5729e4805f857c194dcc939eb913ea76684d2f6230de",
         "size": 126127
       },
       "origin": "Ubuntu",
@@ -1858,8 +1858,8 @@
     {
       "codename": "noble",
       "freshness": {
-        "date": "Thu, 29 Oct 2026 23:35:03 UTC",
-        "live_deadline": "2026-10-31T23:35:03+00:00",
+        "date": "Sun, 22 Nov 2026 12:45:37 UTC",
+        "live_deadline": "2026-11-24T12:45:37+00:00",
         "policy": "48-hour-publication-window",
         "valid_until": null
       },
@@ -1867,32 +1867,32 @@
         {
           "component": "main",
           "gzip": {
-            "sha256": "0d49fed54eebfdfc7a30581da462315f718d26660c47c4b127a70b183023f729",
-            "size": 1739549
+            "sha256": "43ce308484cd1a34a8373f18f0ace8968bf51bd8a2f13426fbac8d7a8e65c648",
+            "size": 1822059
           },
           "gzip_path": "main/binary-amd64/Packages.gz",
           "packages": {
-            "sha256": "f15d4841bb1a0401a8eaa7fc48119fddb3b22d6f9ec0570c3f482f576d3282e6",
-            "size": 7607567
+            "sha256": "7d02b7c872903e84499a85abc6732c947f5f2af1a67785b16d7c6822e4a9047b",
+            "size": 7986146
           },
           "path": "main/binary-amd64/Packages"
         },
         {
           "component": "universe",
           "gzip": {
-            "sha256": "1f6eae21acd820c129987446fe76b979f8f5a2543aebaf22dce4b6b43c629be8",
-            "size": 2172356
+            "sha256": "e21569a1559230f3743bc70738ed8f1c35bed785a1a3bbffd47e3b01f2070457",
+            "size": 2184072
           },
           "gzip_path": "universe/binary-amd64/Packages.gz",
           "packages": {
-            "sha256": "653ca1714d646a01802f764c4b99d608e0d2f8bfdefa3b1913a610ff454dc532",
-            "size": 10646537
+            "sha256": "5e14415eb3e2929a3cc100971fb33e247b8326db79a6218028413a5b0251b0ba",
+            "size": 10691329
           },
           "path": "universe/binary-amd64/Packages"
         }
       ],
       "inrelease": {
-        "sha256": "96c33b3572665457051772ca8456301bbf4f1c19d877231d8c86f259c584de44",
+        "sha256": "42f3c1180ad0e1c0cb8ccfa2edfdb6eb631a2d3680cc5015ee0b93d6b68dbad1",
         "size": 126125
       },
       "origin": "Ubuntu",
