@@ -13,7 +13,7 @@
     },
     "composer": {
       "builder": "docker.io/library/composer@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac",
-      "lock_sha256": "2a850e921e4be4283deadbc95ded0fbb65f20ec2880ed20070f26db908f37ef7",
+      "lock_sha256": "f09c04dc532e3e1c27142f7c2a796e7c28e75b114e97217f6c045d4e4adbc225",
       "version": "2.10.3"
     },
     "custom_sdfs": {
@@ -47,8 +47,8 @@
       "size": 8859832
     },
     "composer_lock": {
-      "sha256": "2a850e921e4be4283deadbc95ded0fbb65f20ec2880ed20070f26db908f37ef7",
-      "size": 678230
+      "sha256": "f09c04dc532e3e1c27142f7c2a796e7c28e75b114e97217f6c045d4e4adbc225",
+      "size": 674549
     },
     "custom_sdfs": {
       "sha256": "2e2ecfb19bd48ad0088f3b4b8b179ae85701f067db4c7bfc6c53ad19a0221742",
