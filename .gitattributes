@@ -1,3 +1,10 @@
 * text=auto
 public/js/** binary
 public/css/** binary
+
+# The chiseled build verifies byte hashes of its inputs, and the containers run these
+# scripts and configs on Linux: keep LF even when a Windows clone uses core.autocrlf.
+docker/** text=auto eol=lf
+Dockerfile* text=auto eol=lf
+composer.lock text eol=lf
+composer.json text eol=lf
